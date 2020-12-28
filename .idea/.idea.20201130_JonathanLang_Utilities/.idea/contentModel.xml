@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\Jonat\AppData\Local\JetBrains\Rider2020.2\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\Jonat\AppData\Local\JetBrains\Rider2020.2\resharper-host\Local\Transient\Rider\v202\SolutionCaches\_20201130_JonathanLang_Utils.617163915.00" t="ExcludeRecursive" />
+    <e p="H:\Unity\20201130_JonathanLang_Utils" t="IncludeRecursive">
+      <e p="20201130_JonathanLang_Utils.sln" t="IncludeFlat" />
+      <e p="Assembly-Ganymed-Console-Editor.csproj" t="IncludeRecursive" />
+      <e p="Assembly-Ganymed-Console.csproj" t="IncludeRecursive" />
+      <e p="Assembly-Ganymed-Monitoring-Editor.csproj" t="IncludeRecursive" />
+      <e p="Assembly-Ganymed-Monitoring.csproj" t="IncludeRecursive" />
+      <e p="Assembly-Ganymed-Utils-Editor.csproj" t="IncludeRecursive" />
+      <e p="Assembly-Ganymed-Utils.csproj" t="IncludeRecursive" />
+      <e p="Assets" t="Include">
+        <e p="Ganymed" t="Include">
+          <e p="Console" t="Include">
+            <e p="Scripts" t="Include">
+              <e p="Assembly-Ganymed-Console.asmdef" t="Include" />
+              <e p="Commands" t="Include">
+                <e p="CoreCommands.cs" t="Include" />
+              </e>
+              <e p="Core" t="Include">
+                <e p="Command.cs" t="Include" />
+                <e p="CommandHandler.cs" t="Include" />
+                <e p="Console.cs" t="Include" />
+                <e p="ConsoleConfiguration.cs" t="Include" />
+                <e p="Format.cs" t="Include" />
+                <e p="Hint.cs" t="Include" />
+              </e>
+              <e p="Editor" t="Include">
+                <e p="Assembly-Ganymed-Console-Editor.asmdef" t="Include" />
+                <e p="ConsoleCommandManagerEditor.cs" t="Include" />
+                <e p="ConsoleConfigurationEditor.cs" t="Include" />
+                <e p="SDS_GANYMED_CONSOLE.cs" t="Include" />
+              </e>
+              <e p="Enumerations" t="Include">
+                <e p="InputValidation.cs" t="Include" />
+                <e p="MessageFormat.cs" t="Include" />
+              </e>
+              <e p="GUI" t="Include">
+                <e p="ButtonScaler.cs" t="Include" />
+                <e p="EventDragger.cs" t="Include" />
+                <e p="MonoDragger.cs" t="Include" />
+                <e p="MonoScaler.cs" t="Include" />
+              </e>
+              <e p="Utils" t="Include">
+                <e p="ReverseScroll.cs" t="Include" />
+                <e p="ReverseScrollPlacer.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Monitoring" t="Include">
+            <e p="Scripts" t="Include">
+              <e p="Assembly-Ganymed-Monitoring.asmdef" t="Include" />
+              <e p="Configuration" t="Include">
+                <e p="Configurable.cs" t="Include" />
+                <e p="CustomStyle.cs" t="Include" />
+                <e p="GlobalConfiguration.cs" t="Include" />
+              </e>
+              <e p="Core" t="Include">
+                <e p="Module.cs" t="Include" />
+                <e p="MonitorBehaviour.cs" t="Include" />
+                <e p="MonitoringCanvasBehaviour.cs" t="Include" />
+                <e p="MonitoringElement.cs" t="Include" />
+              </e>
+              <e p="Editor" t="Include">
+                <e p="Assembly-Ganymed-Monitoring-Editor.asmdef" t="Include" />
+                <e p="CustomStyleEditor.cs" t="Include" />
+                <e p="GlobalConfigurationEditor.cs" t="Include" />
+                <e p="MonitoringModuleEditor.cs" t="Include" />
+                <e p="SDS_GANYMED_MONITORING.cs" t="Include" />
+                <e p="StyleEditor.cs" t="Include" />
+              </e>
+              <e p="Enumerations" t="Include">
+                <e p="ModuleDisplayModes.cs" t="Include" />
+                <e p="ModuleInitializationContext.cs" t="Include" />
+                <e p="OnValueChangedContext.cs" t="Include" />
+                <e p="ValueInterpretationOption.cs" t="Include" />
+              </e>
+              <e p="Interfaces" t="Include">
+                <e p="IModuleUpdateData.cs" t="Include" />
+              </e>
+              <e p="Modules" t="Include">
+                <e p="ModuleCursor.cs" t="Include" />
+                <e p="ModuleFPS.cs" t="Include" />
+                <e p="ModuleRecentFPS.cs" t="Include" />
+                <e p="ModuleSystem.cs" t="Include" />
+                <e p="ModuleTargetFrameRate.cs" t="Include" />
+                <e p="ModuleVsync.cs" t="Include" />
+              </e>
+              <e p="Structures" t="Include">
+                <e p="Margin.cs" t="Include" />
+                <e p="ModuleUpdateData.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Utils" t="Include">
+            <e p="Editor" t="Include">
+              <e p="Assembly-Ganymed-Utils-Editor.asmdef" t="Include" />
+              <e p="HideFlagsUtility.cs" t="Include" />
+              <e p="InspectorDrawer.cs" t="Include" />
+              <e p="ScriptOrderManager.cs" t="Include" />
+            </e>
+            <e p="Scripts" t="Include">
+              <e p="Assembly-Ganymed-Utils.asmdef" t="Include" />
+              <e p="Attributes" t="Include">
+                <e p="ScriptOrder.cs" t="Include" />
+              </e>
+              <e p="Callbacks" t="Include">
+                <e p="UnityEventCallbacks.cs" t="Include" />
+              </e>
+              <e p="Enumerations" t="Include">
+                <e p="Alignment.cs" t="Include" />
+                <e p="CallbackDuring.cs" t="Include" />
+                <e p="ColorEnum.cs" t="Include" />
+                <e p="FPSLimitations.cs" t="Include" />
+                <e p="InvokeOrigin.cs" t="Include" />
+                <e p="UnityEventType.cs" t="Include" />
+                <e p="Visibility.cs" t="Include" />
+                <e p="VSyncCount.cs" t="Include" />
+              </e>
+              <e p="ExtensionMethods" t="Include">
+                <e p="CollectionExtensions.cs" t="Include" />
+                <e p="ColorExtensions.cs" t="Include" />
+                <e p="IntExtensions.cs" t="Include" />
+                <e p="MarkupExtensions.cs" t="Include" />
+                <e p="ReflectionHelpers.cs" t="Include" />
+                <e p="StringExtensions.cs" t="Include" />
+                <e p="TypeExtensions.cs" t="Include" />
+                <e p="VectorExtensions.cs" t="Include" />
+              </e>
+              <e p="Handler" t="Include">
+                <e p="Converter.cs" t="Include" />
+                <e p="DestroyOnLoad.cs" t="Include" />
+                <e p="DontDestroyOnLoadHandler.cs" t="Include" />
+              </e>
+              <e p="Interfaces" t="Include">
+                <e p="IVisible.cs" t="Include" />
+              </e>
+              <e p="Singleton" t="Include">
+                <e p="MonoSingleton.cs" t="Include" />
+                <e p="ScriptableSingleton.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="obj" t="ExcludeRecursive" />
+      <e p="Packages" t="ExcludeRecursive" />
+      <e p="Temp\bin" t="ExcludeRecursive" />
+    </e>
+  </component>
+</project>

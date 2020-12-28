@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92372981f059f684bb2a77b3cceabf3c, type: 3}
+  m_Name: Global_Configuration
+  m_EditorClassIdentifier: 
+  fontSize: 11
+  individualFontSize: 0
+  prefixFontSize: 11
+  infixFontSize: 11
+  suffixFontSize: 11
+  individualMargins: 0
+  marginsAll: 5
+  marginLeft: 5
+  marginTop: 5
+  marginRight: 5
+  marginBottom: 5
+  autoBrackets: 1
+  autoSpace: 1
+  useTextStyle: 0
+  prefixTextStyle: 
+  infixTextStyle: 
+  suffixTextStyle: 
+  colorBackground: {r: 0.05, g: 0.05, b: 0.11, a: 1}
+  prefixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}
+  infixColor: {r: 1, g: 1, b: 1, a: 1}
+  suffixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}
+  active: 1
+  automateCanvasState: 1
+  openCanvasOnEnterPlay: 1
+  closeCanvasOnEdit: 0
+  toggleKey: 284
+  sortingOrder: 1000
+  logSerializationEvents: 0
+  canvasPadding: 0
+  canvasMargin: 2
+  elementSpacing: 1
+  areaSpacing: 2
+  showBackground: 0
+  colorCanvasBackground: {r: 0.4685831, g: 0.6168756, b: 0.735849, a: 1}
+  showAreaBackground: 0
+  colorTopLeft: {r: 0.43, g: 0.99, b: 1, a: 1}
+  colorTopRight: {r: 1, g: 0.57, b: 0.87, a: 1}
+  colorBottomLeft: {r: 0.54, g: 0.39, b: 1, a: 1}
+  colorBottomRight: {r: 0.69, g: 0.64, b: 1, a: 1}

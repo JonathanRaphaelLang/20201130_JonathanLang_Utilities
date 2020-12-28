@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9fcd8557096ed84294735612c166c25, type: 3}
+  m_Name: Console_Configuration
+  m_EditorClassIdentifier: 
+  CommandPrefix: /
+  infoOperator: '?'
+  allowCommandPreProcessing: 1
+  inputCacheSize: 10
+  bindDebugConsoleToConsole: 1
+  logCommandsLoadedOnStart: 1
+  logConfigurationOnStart: 1
+  logWarnings: 1
+  allowNumericBoolProcessing: 1
+  visibility: 0
+  ToggleKey: 47
+  PreviousInput: 273
+  SubsequentInput: 274
+  allowFrostedGlassEffect: 1
+  consoleBackgroundColor: {r: 0.03529412, g: 0.050980393, b: 0.09019608, a: 0.9098039}
+  scrollbarColor: {r: 0, g: 0, b: 0, a: 0.19607843}
+  scrollbarHandleColor: {r: 0.18440726, g: 0.2392904, b: 0.3490566, a: 0.78431374}
+  chatColor: {r: 0.9622642, g: 0.9622642, b: 0.9622642, a: 1}
+  inputColor: {r: 1, g: 1, b: 1, a: 1}
+  validColor: {r: 0.59, g: 1, b: 0.62, a: 1}
+  optionalParamsLeftColor: {r: 0.53, g: 1, b: 0.96, a: 1}
+  incompleteColor: {r: 1, g: 1, b: 0.58, a: 1}
+  incorrectColor: {r: 1, g: 0, b: 0.44, a: 1}
+  infoColor: {r: 0.93, g: 0.71, b: 1, a: 1}
+  warningColor: {r: 1, g: 1, b: 1, a: 1}
+  errorColor: {r: 0.89, g: 0.87, b: 1, a: 1}
+  inputFontSize: 6
+  chatFontSize: 6

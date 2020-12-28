@@ -1,0 +1,303 @@
+﻿using System;
+using Ganymed.Monitoring.Configuration;
+using Ganymed.Utils;
+using Ganymed.Utils.Singleton;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Ganymed.Monitoring.Core
+{
+    /// <summary>
+    /// MonitoringCanvasBehaviour for Monitoring Modules 
+    /// </summary>
+    [ExecuteInEditMode]
+    public class MonitoringCanvasBehaviour : MonoSingleton<MonitoringCanvasBehaviour>, IVisible
+    {
+        #region --- [FIELDS] ---
+
+#pragma warning disable 649
+#pragma warning disable 414
+        
+        [Header("Parents")]
+        [SerializeField] private Transform upperLeft;
+        [SerializeField] private Transform upperRight;
+        [SerializeField] private Transform lowerLeft;
+        [SerializeField] private Transform lowerRight;
+        [Space]
+        [SerializeField] private RectTransform frame;
+        [Space]
+        [SerializeField] private HorizontalLayoutGroup mainGroup;
+        [SerializeField] private VerticalLayoutGroup rightGroup;
+        [SerializeField] private VerticalLayoutGroup leftGroup;
+        [SerializeField] private VerticalLayoutGroup[] areaGroups;
+        [Space]
+        [SerializeField] private Image canvasBackground;
+        [Space]
+        [SerializeField] private Image upperLeftBackground;
+        [SerializeField] private Image upperRightBackground;
+        [SerializeField] private Image lowerLeftBackground;
+        [SerializeField] private Image lowerRightBackground;
+        [Space]
+        [SerializeField] private Canvas canvas;
+        [Space]
+        [SerializeField] private bool autoRename = true;
+
+        [Space]
+        [SerializeField] private Transform[] parentsToClear;
+
+        #endregion
+
+        #region --- [PROPERTIES] ---
+
+        public Transform UpperLeft => upperLeft;
+        public Transform UpperRight => upperRight;
+        public Transform LowerLeft => lowerLeft;
+        public Transform LowerRight => lowerRight;
+
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+
+        #region --- [VISIBILITY] ---
+
+        public Visibility VisibilityFlags { get; private set; } = Visibility.Inactive;
+        
+        public void SetVisibility(Visibility visibility)
+        {
+            if(gameObject == null) return;
+            
+            switch (visibility)
+            {
+                case Visibility.ActiveAndVisible:
+                    gameObject.SetActive(true);
+                    if (canvas == null)
+                        canvas = GetComponent<Canvas>();
+                    canvas.enabled = true;
+                    break;
+                case Visibility.ActiveAndHidden:
+                    gameObject.SetActive(true);
+                    if (canvas == null)
+                        canvas = GetComponent<Canvas>();
+                    canvas.enabled = false;
+                    break;
+                case Visibility.Inactive:
+                    gameObject.SetActive(false);
+                    if (canvas == null)
+                        canvas = GetComponent<Canvas>();
+                    canvas.enabled = false;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(visibility), visibility, null);
+            }
+            
+            OnVisibilityChanged?.Invoke(
+                was: VisibilityFlags,
+                now: visibility);
+            
+            VisibilityFlags = visibility;
+        }
+
+        public event VisibilityDelegate OnVisibilityChanged;
+
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+
+        #region --- [INITIALIZATION] ---
+
+        protected override void Awake()
+        {
+            base.Awake();
+            canvas = GetComponent<Canvas>();
+        }
+        
+        
+        private MonitoringCanvasBehaviour()
+        {
+            GlobalConfiguration.OnActiveConfigurationChanged += RepaintCanvas;
+            GlobalConfiguration.OnVisiblityChanged += SetVisibility;
+
+            #region [EDITOR]
+#if UNITY_EDITOR
+            EditorApplication.playModeStateChanged += EditorApplicationOnplayModeStateChanged;
+#endif
+            #endregion
+        }
+        
+        
+        ~MonitoringCanvasBehaviour()
+        {
+            GlobalConfiguration.OnActiveConfigurationChanged -= RepaintCanvas;
+            GlobalConfiguration.OnVisiblityChanged -= SetVisibility;
+            
+            #region [EDITOR]
+#if UNITY_EDITOR
+            EditorApplication.playModeStateChanged -= EditorApplicationOnplayModeStateChanged;
+#endif
+            #endregion
+        }
+
+        
+        private void OnDestroy()
+        {
+            GlobalConfiguration.OnActiveConfigurationChanged -= RepaintCanvas;
+            GlobalConfiguration.OnVisiblityChanged -= SetVisibility;
+
+            #region [EDITOR]
+#if UNITY_EDITOR
+            EditorApplication.playModeStateChanged -= EditorApplicationOnplayModeStateChanged;
+#endif
+            #endregion
+        }
+
+        #region --- [RENAMING] ---
+
+#if UNITY_EDITOR
+        private string cachedName = "MonitorCanvas_PFB";
+        private void EditorApplicationOnplayModeStateChanged(PlayModeStateChange state)
+        {
+            if(!autoRename) return;
+            try
+            {
+                switch (state)
+                {
+                    case PlayModeStateChange.EnteredEditMode:
+                        gameObject.name = cachedName;
+                        break;
+                
+                    case PlayModeStateChange.ExitingEditMode:
+                        var obj = gameObject;
+                        cachedName = obj.name;
+                        obj.name = nameof(MonitoringCanvasBehaviour);
+                        break;
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+#endif
+
+        #endregion
+        
+        #endregion
+
+        //---------------------------------------------------------------------------------------------------------------
+
+        #region --- [CLEAR CHILDREN] ---
+
+        public void ClearAllChildren(InvokeOrigin origin)
+        {
+            foreach (var parent in parentsToClear)
+            {
+                ClearChildren(origin, parent);
+            }
+        }
+        
+        private static void ClearChildren(InvokeOrigin origin, Transform parent)
+        {
+            try
+            {
+                var childrenNum = parent.childCount;
+                for (var i = childrenNum - 1; i >= 0; i--)
+                {
+                    var target = parent.GetChild(i).gameObject;
+                    if(target == null) continue;
+                    DestroyImmediate(parent.GetChild(i).gameObject, true);
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
+        #endregion
+        
+        //---------------------------------------------------------------------------------------------------------------
+
+        #region --- [REPAINT] ---
+       
+       /// <summary>
+       /// Set new values for canvas elements based on the global config
+       /// </summary>
+       /// <param name="ctx"></param>
+        private void RepaintCanvas(GlobalConfiguration ctx)
+        {
+            if(frame == null || rightGroup == null || leftGroup == null) return;
+
+            #region [EDITOR]
+
+#if UNITY_EDITOR
+            rightGroup.runInEditMode = true;
+            leftGroup.runInEditMode = true; 
+#endif
+
+            #endregion
+
+            canvas.sortingOrder = ctx.sortingOrder;
+
+            frame.offsetMin = Vector2.one * ctx.canvasPadding; 
+            frame.offsetMax = -Vector2.one * ctx.canvasPadding;
+
+            var margin = (int)ctx.canvasMargin;
+
+            rightGroup.padding = new RectOffset(
+                left: 0,
+                right: margin,
+                top: margin,
+                bottom: margin);
+            
+            leftGroup.padding = new RectOffset(
+                left: margin,
+                right: 0,
+                top: margin,
+                bottom: margin);
+
+            //set spacing for every vertical layout group
+            foreach (var verticalLayoutGroup in areaGroups) {
+                verticalLayoutGroup.spacing = ctx.elementSpacing;
+            }
+
+            if (ctx.showBackground)
+            {
+                canvasBackground.enabled = true;
+                canvasBackground.color = ctx.colorCanvasBackground;
+            }
+            else
+            {
+                canvasBackground.enabled = false;
+            }
+
+
+            if (ctx.showAreaBackground)
+            {
+                upperLeftBackground.enabled = true;
+                upperRightBackground.enabled = true;
+                lowerLeftBackground.enabled = true;
+                lowerRightBackground.enabled = true;
+                
+                upperLeftBackground.color = ctx.colorTopLeft;
+                upperRightBackground.color = ctx.colorTopRight;
+                lowerLeftBackground.color = ctx.colorBottomLeft;
+                lowerRightBackground.color = ctx.colorBottomRight;
+            }
+            else
+            {
+                upperLeftBackground.enabled = false;
+                upperRightBackground.enabled = false;
+                lowerLeftBackground.enabled = false;
+                lowerRightBackground.enabled = false;
+            }
+
+            mainGroup.spacing = ctx.areaSpacing;
+            leftGroup.spacing = ctx.areaSpacing;
+            rightGroup.spacing = ctx.areaSpacing;
+            
+            Canvas.ForceUpdateCanvases();
+        }
+        #endregion
+    }
+}

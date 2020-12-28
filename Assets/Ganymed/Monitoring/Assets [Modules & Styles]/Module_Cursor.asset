@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1486c06c90dd794995b02f36348444f, type: 3}
+  m_Name: Module_Cursor
+  m_EditorClassIdentifier: 
+  currentVisibility: 0
+  visibilityOnLoad: 0
+  visibilityOnEdit: 0
+  useCustomStyle: 1
+  customConfigurable: {fileID: 11400000, guid: 76198616d5489cc4db214ab6694c7b38, type: 2}
+  previewValueAs: 0
+  prefixText: 'Cursor:'
+  suffixText: 
+  prefixBreak: 0
+  suffixBreak: 0
+  autoInspect: 0
+  InspectOn: 2
+  milliseconds: 1000
+  controlCursorState: 1
+  visibleDuringPlayMode: 0
+  lockModeDuringPlayMode: 2
+  visibleDuringEditMode: 1
+  lockModeDuringEditMode: 0
+  HoldKey: 308
+  visibleDuringHold: 1
+  lockModeDuringHold: 0
+  useDynamicColoring: 1
+  visibleColor: {r: 0.61587757, g: 0.754717, b: 0.754717, a: 1}
+  invisibleColor: {r: 1, g: 0, b: 0, a: 1}
+  lockedColor: {r: 1, g: 0.2506302, b: 0, a: 1}
+  unlockedColor: {r: 0, g: 1, b: 0.24008775, a: 1}
+  confinedColor: {r: 1, g: 0.76618373, b: 0, a: 1}

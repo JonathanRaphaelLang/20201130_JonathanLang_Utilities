@@ -1,0 +1,19 @@
+{
+    "name": "Assembly-Ganymed-Console-Editor",
+    "references": [
+        "GUID:8d1139ba1684d8842aaab7c626d0d2b7",
+        "GUID:b37517fd18abf5c4cb56c680f5b1256d",
+        "GUID:69d13bbc0c61c7d4cbbfd4abc9586fcf"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

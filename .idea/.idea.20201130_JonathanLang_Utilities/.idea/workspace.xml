@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="bcda54d5-ecda-4cc0-90c5-4b31756edbd1" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/EE47BE73-F7EF-409C-A5E5-CE4B121745B7/2a/6b79c8e3/Application.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/Hint.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/CAFB29D5-2338-47FB-B4ED-CF8D7C32B1E3/60/0bac794d/String.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Utils/Editor/HideFlagsUtility.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Enumerations/ColorEnum.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/fa/317fcc19/BindingFlags.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Handler/DontDestroyOnLoadHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/EE47BE73-F7EF-409C-A5E5-CE4B121745B7/48/bb444f14/SerializeField.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/70/a4981b02/Int16.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/EE47BE73-F7EF-409C-A5E5-CE4B121745B7/99/79868a5f/HideInInspector.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/EE47BE73-F7EF-409C-A5E5-CE4B121745B7/c2/7cdd0bed/TooltipAttribute.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Unity/Hub/Editor/2019.4.10f1/Editor/Data/Resources/PackageManager/BuiltInPackages/com.unity.ugui/Runtime/EventSystem/EventTrigger.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Enumerations/MessageFormat.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/EE47BE73-F7EF-409C-A5E5-CE4B121745B7/8d/a10718aa/Object.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/VectorExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleRecentFPS.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/ColorExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/MarkupExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/TypeExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleCursor.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/GUI/EventDragger.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Unity/Hub/Editor/2019.4.10f1/Editor/Data/Resources/PackageManager/BuiltInPackages/com.unity.ugui/Runtime/EventSystem/EventData/PointerEventData.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Handler/DestroyOnLoad.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Unity/Hub/Editor/2019.4.10f1/Editor/Data/Resources/PackageManager/BuiltInPackages/com.unity.ugui/Runtime/EventSystem/UIBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/GUI/MonoDragger.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Editor/SDS_GANYMED_MONITORING.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/CollectionExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Unity/Hub/Editor/2019.4.10f1/Editor/Data/Resources/PackageManager/BuiltInPackages/com.unity.ugui/Runtime/UI/Core/CanvasUpdateRegistry.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Enumerations/ModuleDisplayModes.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/4a/f6d3b197/FlagsAttribute.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Utils/ReverseScrollPlacer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.1.1/Scripts/Runtime/TextMeshProUGUI.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8004FCC2-21B5-4F98-BA54-7350EA71D812/01/e9d75bc0/EditorGUILayout.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.1.1/Scripts/Runtime/TMP_InputField.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/22/c5eaca57/FieldInfo.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Editor/SDS_GANYMED_CONSOLE.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8004FCC2-21B5-4F98-BA54-7350EA71D812/8c/eb0f49bf/GUID.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2DB13BA0-D523-4322-8AA9-892C408FB49A/1a/c746a8e8/Input.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/IntExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/Format.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/b8/f981da09/String.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8004FCC2-21B5-4F98-BA54-7350EA71D812/0c/e733b927/IPreprocessBuildWithReport.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/8c/4d7f57b3/__DynamicallyInvokableAttribute.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Editor/ConsoleConfigurationEditor.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.1.1/Scripts/Runtime/TMPro_UGUI_Private.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Utils/ReverseScroll.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Unity/Hub/Editor/2019.4.10f1/Editor/Data/Resources/PackageManager/BuiltInPackages/com.unity.ugui/Editor/UI/SelectableEditor.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Enumerations/InputValidation.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Editor/HideFlagsUtility.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Core/MonitorBehaviour.cs" />
+        <option value="$PROJECT_DIR$/Assets/script_.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Utils/script_.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Utils/ReverseScroll.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Utils/ReverseScrollPlacer.cs" />
+        <option value="$PROJECT_DIR$/Assets/InputFieldController.cs" />
+        <option value="$PROJECT_DIR$/Assets/OnSelectDelegates.cs" />
+        <option value="$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.1.1/Scripts/Runtime/TMP_InputField.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/TypeExtensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/Resume.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Enumerations/EColor.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Enumerations/ColorEnum.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Commands/ConsoleCommandList.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Enumerations/EnumCount.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Enumerations/VSyncCount.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleVsync.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/VectorExtensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/Extensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/MarkupExtensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/ReflectionHelpers.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/StringExtensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Callbacks/UnityEventCallbacks.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/ColorExtensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/Spec.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Enumerations/CommandSignature.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Enumerations/InputValidation.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleCursor.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/Hint.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Handler/DontDestroyOnLoadHandler.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Singleton/MonoSingleton.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Handler/DestroyOnLoad.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/ConsoleCommand.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Commands/CoreCommands.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Shader/UIBlur.shader" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Shader&amp;Materials/FrostedGlass.shader" />
+        <option value="$PROJECT_DIR$/Assets/LayoutGroupThatDoesWhatItShouldAndIsNotAPieceOfTrash.cs" />
+        <option value="$PROJECT_DIR$/Assets/Layout.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Editor/ConsoleConfigurationEditor.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/Command.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/CollectionExtensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Enumerations/MessageFormat.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/IntExtensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/Format.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/ConsoleConfiguration.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/GUI/MonoSizeSetter.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/GUI/MonoScaler.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/GUI/MonoDragger.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/GUI/ButtonScaler.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/CommandHandler.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/Console.cs" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1lOD1lvxmuJL37SoCbEScFBZ8Nt" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="Discover.Launch.Via.Unity" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.C#" />
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="[ConsoleCommand(&quot;cmdConfig&quot;, true)]" />
+    </option>
+  </component>
+  <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
+    <configuration name="Standalone Player" type="RunUnityExe" factoryName="Unity Executable">
+      <option name="EXE_PATH" value="$USER_HOME$/Desktop/Overwatch/20201130_JonathanLang_Overwatch.exe" />
+      <option name="PROGRAM_PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="C:\Users\Jonat\Desktop\Overwatch" />
+      <option name="PASS_PARENT_ENVS" value="1" />
+      <option name="USE_EXTERNAL_CONSOLE" value="0" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to Unity Editor &amp; Play" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="UNITY_ATTACH_AND_PLAY" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" />
+      <option name="selectedOptions">
+        <set />
+      </option>
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" />
+      <option name="selectedOptions">
+        <set />
+      </option>
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bcda54d5-ecda-4cc0-90c5-4b31756edbd1" name="Default Changelist" comment="" />
+      <created>1607459033234</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1607459033234</updated>
+      <workItem from="1607459038295" duration="7638000" />
+      <workItem from="1607537086850" duration="11471000" />
+      <workItem from="1607587319354" duration="5648000" />
+      <workItem from="1607598673618" duration="1925000" />
+      <workItem from="1607600672280" duration="17518000" />
+      <workItem from="1607621075109" duration="4505000" />
+      <workItem from="1607627291076" duration="2000" />
+      <workItem from="1607627366951" duration="496000" />
+      <workItem from="1607628380427" duration="16892000" />
+      <workItem from="1607679441271" duration="37373000" />
+      <workItem from="1607765502687" duration="31523000" />
+      <workItem from="1607852537175" duration="1058000" />
+      <workItem from="1607854474653" duration="1509000" />
+      <workItem from="1607875632048" duration="10261000" />
+      <workItem from="1607934224019" duration="25717000" />
+      <workItem from="1607962239878" duration="12082000" />
+      <workItem from="1608016967815" duration="27915000" />
+      <workItem from="1608060354425" duration="776000" />
+      <workItem from="1608132047916" duration="20406000" />
+      <workItem from="1608190061244" duration="28912000" />
+      <workItem from="1608377632135" duration="24366000" />
+      <workItem from="1608403957220" duration="1317000" />
+      <workItem from="1608405523615" duration="6824000" />
+      <workItem from="1608573079470" duration="808000" />
+      <workItem from="1608634562076" duration="17063000" />
+      <workItem from="1608724314537" duration="2758000" />
+      <workItem from="1608727535635" duration="6430000" />
+      <workItem from="1608999137192" duration="44000" />
+      <workItem from="1609067339480" duration="18223000" />
+      <workItem from="1609089728181" duration="13693000" />
+      <workItem from="1609103848995" duration="1454000" />
+      <workItem from="1609154028282" duration="7935000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="EditMode" />
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="856" y="344" key="#Inspection_severity" timestamp="1608215354837">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="856" y="344" key="#Inspection_severity/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@0.0.2560.1400" timestamp="1608215354837" />
+    <state x="1099" y="373" key="RiderGenerateDialog" timestamp="1608027031348">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1099" y="373" key="RiderGenerateDialog/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@0.0.2560.1400" timestamp="1608027031348" />
+    <state x="1099" y="373" key="RiderGenerateDialog/2560.0.2560.1413/-1920.352.1920.1040/0.0.2560.1400@0.0.2560.1400" timestamp="1607718133637" />
+    <state x="661" y="371" key="SettingsEditor" timestamp="1609085168756">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="661" y="371" key="SettingsEditor/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@0.0.2560.1400" timestamp="1609085168756" />
+    <state x="71" y="602" key="SettingsEditor/2560.0.2560.1413/-1920.352.1920.1040/0.0.2560.1400@0.0.2560.1400" timestamp="1607695919628" />
+    <state width="498" height="446" key="SwitcherDM" timestamp="1607888482772">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state width="498" height="446" key="SwitcherDM/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@0.0.2560.1400" timestamp="1607888482772" />
+    <state x="936" y="330" width="672" height="677" key="run.anything.popup" timestamp="1609085757508">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="936" y="330" width="672" height="677" key="run.anything.popup/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@0.0.2560.1400" timestamp="1609085757508" />
+    <state x="936" y="330" key="run.anything.popup/2560.0.2560.1413/-1920.352.1920.1040/0.0.2560.1400@0.0.2560.1400" timestamp="1607685845774" />
+    <state x="1271" y="347" width="672" height="678" key="search.everywhere.popup" timestamp="1609165027877">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="-967" y="610" width="672" height="504" key="search.everywhere.popup/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@-1920.352.1920.1040" timestamp="1608405610026" />
+    <state x="1271" y="347" width="672" height="678" key="search.everywhere.popup/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@0.0.2560.1400" timestamp="1609165027877" />
+    <state x="3503" y="315" width="672" height="678" key="search.everywhere.popup/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@2560.0.2560.1400" timestamp="1607800504845" />
+    <state x="943" y="315" width="672" height="678" key="search.everywhere.popup/2560.0.2560.1413/-1920.352.1920.1040/0.0.2560.1400@0.0.2560.1400" timestamp="1608733006334" />
+  </component>
+</project>
