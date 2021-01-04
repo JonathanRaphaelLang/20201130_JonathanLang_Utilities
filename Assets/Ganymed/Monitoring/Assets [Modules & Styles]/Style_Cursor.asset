@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fontSize: 11
   individualFontSize: 1
-  prefixFontSize: 6
+  prefixFontSize: 8
   infixFontSize: 8
-  suffixFontSize: 11
+  suffixFontSize: 8
   individualMargins: 1
   marginsAll: 5
   marginLeft: 2

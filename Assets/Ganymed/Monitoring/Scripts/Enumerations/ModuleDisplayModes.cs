@@ -1,4 +1,4 @@
-﻿namespace Ganymed.Monitoring.Enumerations
+﻿namespace Ganymed.Monitoring
 {
     public enum ModuleDisplayModes
     {

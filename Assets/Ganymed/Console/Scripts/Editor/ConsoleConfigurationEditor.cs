@@ -14,7 +14,7 @@ namespace Ganymed.Console.Scripts.Editor
         
         public override void OnInspectorGUI()
         {
-            EditorGUILayout.LabelField("Console Configuration", InspectorDrawer.H1);
+            EditorGUILayout.LabelField("Command Configuration", InspectorDrawer.H1);
             InspectorDrawer.DrawLine(Color.gray);
             base.OnInspectorGUI();
             EditorGUILayout.Space();
@@ -102,7 +102,7 @@ namespace Ganymed.Console.Scripts.Editor
 
             if (UnityEngine.GUI.changed)
             {
-                config.GUIChanged();
+                config.ConfigurationAltered();
             }
         }
     }

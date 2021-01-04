@@ -12,27 +12,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92372981f059f684bb2a77b3cceabf3c, type: 3}
   m_Name: Global_Configuration
   m_EditorClassIdentifier: 
-  fontSize: 11
+  fontSize: 10
   individualFontSize: 0
-  prefixFontSize: 11
-  infixFontSize: 11
-  suffixFontSize: 11
-  individualMargins: 0
+  prefixFontSize: 4
+  infixFontSize: 29
+  suffixFontSize: 10
+  individualMargins: 1
   marginsAll: 5
-  marginLeft: 5
-  marginTop: 5
-  marginRight: 5
-  marginBottom: 5
+  marginLeft: 0
+  marginTop: 3
+  marginRight: 0
+  marginBottom: 2
   autoBrackets: 1
-  autoSpace: 1
+  autoSpace: 0
   useTextStyle: 0
   prefixTextStyle: 
   infixTextStyle: 
   suffixTextStyle: 
-  colorBackground: {r: 0.05, g: 0.05, b: 0.11, a: 1}
-  prefixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}
-  infixColor: {r: 1, g: 1, b: 1, a: 1}
-  suffixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}
+  colorBackground: {r: 0.027901389, g: 0.028155256, b: 0.103773594, a: 0.84705883}
+  prefixColor: {r: 1, g: 1, b: 1, a: 1}
+  infixColor: {r: 0.5990566, g: 0.9485229, b: 1, a: 1}
+  suffixColor: {r: 0.6600659, g: 0.69638586, b: 0.8584906, a: 1}
   active: 1
   automateCanvasState: 1
   openCanvasOnEnterPlay: 1
@@ -41,9 +41,9 @@ MonoBehaviour:
   sortingOrder: 1000
   logSerializationEvents: 0
   canvasPadding: 0
-  canvasMargin: 2
+  canvasMargin: 1
   elementSpacing: 1
-  areaSpacing: 2
+  areaSpacing: 1
   showBackground: 0
   colorCanvasBackground: {r: 0.4685831, g: 0.6168756, b: 0.735849, a: 1}
   showAreaBackground: 0

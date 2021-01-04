@@ -1,77 +1,108 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Ganymed.Monitoring.Configuration;
-using Ganymed.Monitoring.Enumerations;
-using Ganymed.Monitoring.Interfaces;
-using Ganymed.Monitoring.Structures;
 using Ganymed.Utils;
 using Ganymed.Utils.Callbacks;
-using Ganymed.Utils.ExtensionMethods;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Ganymed.Monitoring.Core
 {
-    public abstract class Module : ScriptableObject, IVisible
+    public abstract class Module : ScriptableObject, IState
     {
-#pragma warning disable 649
-        
         #region --- [INSPECTOR] ---
+        
+        [Tooltip("Enabled modules will execute their update and inspection functions. Comparable to MonoBehaviours")]
+        [SerializeField] private bool isEnabled = true;
+        
+        [Tooltip("Active modules are visible")]
+        [SerializeField] private bool isActive = true;
+        
+        
+        
+        [Header("Settings")]
+        [Tooltip("Set a custom style for the module. False will use the default style instead")]
+        [SerializeField] protected bool useCustomStyle = default;
+        
+        [Tooltip("If enabled, use this style. Null will use the default style instead")]
+        [SerializeField] protected Configurable customStyle = null;
 
-        [Header("Visibility")]
-        [SerializeField] protected Visibility currentVisibility = Visibility.ActiveAndVisible;
+        
+        
         [Space]
-        [SerializeField] protected Visibility visibilityOnLoad = Visibility.ActiveAndVisible;
-        [SerializeField] protected Visibility visibilityOnEdit = Visibility.ActiveAndVisible;
-        [Space]
-        [Header("Style")]
-        [SerializeField] protected bool useCustomStyle;
-        [SerializeField] protected Configurable customConfigurable = null;
-        [Space]
-        [Header("Config")]
+        [Tooltip("How should the value be displayed")]
         [SerializeField] protected ValueInterpretationOption previewValueAs = ValueInterpretationOption.CurrentValue;
-        [SerializeField] protected string prefixText;
-        [SerializeField] protected string suffixText;
+        
+        [Tooltip("Set custom prefix text")]
+        [SerializeField] protected string prefixText = default;
+        
+        [Tooltip("Set custom suffix text")]
+        [SerializeField] protected string suffixText = default;
+        
+        [Tooltip("Insert a break after the prefix")]
         [SerializeField] protected bool prefixBreak = false;
+        
+        [Tooltip("Insert a break before the suffix")]
         [SerializeField] protected bool suffixBreak = false;
         
-        [Tooltip("Update automatically validate the modules values every X amount of time passed")]
-        [SerializeField]
-        public bool autoInspect;
         
-        [HideInInspector] [SerializeField] public InspectPeriods InspectOn = InspectPeriods.Yield;
-        [HideInInspector] [SerializeField] public int milliseconds = 1000;
         
+        [Space]
+        [Tooltip("What does the module do. Optional field for clarity only. Can be accessed during runtime by console commands if enabled")]
+        [SerializeField] private string description = default;
+        
+        
+        
+        [Space]
+        [Tooltip("If enabled OnInspection will be called periodically. Use to validate the values integrity")]
+        [SerializeField] private bool enableAutoInspection;
+        
+        [Tooltip("How much time should pass between inspections")]
+        [SerializeField][Range(.1f, 60f)] private float secondsBetweenInspections = 1f;
+
         #endregion
         
         #region --- [FIELDS] ---
 
-        private Visibility cachedVisibility = Visibility.ActiveAndVisible;
-        private Configurable lastConfigurable;
-        protected string appendedPrefix = string.Empty;
-        protected string appendedSuffix = string.Empty;
+        protected Configurable previousConfiguration = null;
+        protected string compiledPrefix = string.Empty;         
+        protected string compiledSuffix = string.Empty;
+        private readonly int id = default;
+        private bool wasEnabled = true;
+        private bool wasActive = true;
 
         #endregion
         
-        #region --- [EVENTS] ---
-
-        public event VisibilityDelegate OnVisibilityChanged;
-
-        #endregion
-
         #region --- [PROPERTIES] ---
 
-        public Visibility VisibilityFlags { get; private set; } = Visibility.Inactive;
-       
-        protected Configurable Config
+        /// <summary>
+        /// What does the module do. Optional field for clarity only. Can be accessed during runtime by console commands if enabled
+        /// </summary>
+        public string Description => description == string.Empty ? null : description;
+        
+        /// <summary>
+        /// Modules ID (string)
+        /// </summary>
+        public string UniqueName { get; } = null;
+        
+        /// <summary>
+        /// Modules ID (integer)
+        /// </summary>
+        public int? UniqueId => id;
+        
+        /// <summary>
+        /// Modules configuration. Determines objects visual style 
+        /// </summary>
+        public Configurable Configuration
         {
             get
             {
                 try
                 {
                     if (!useCustomStyle) return MonitorBehaviour.Instance.GlobalConfiguration;
-                    return customConfigurable ? customConfigurable : MonitorBehaviour.Instance.GlobalConfiguration;
+                    return customStyle ? customStyle : MonitorBehaviour.Instance.GlobalConfiguration;
                 }
                 catch
                 {
@@ -82,783 +113,457 @@ namespace Ganymed.Monitoring.Core
 
         #endregion
 
-        #region --- [ENUM] ---
-
-        public enum InspectPeriods
-        {
-            Update,
-            FixedUpdate,
-            Yield
-        }
-
-        #endregion
-
         //--------------------------------------------------------------------------------------------------------------
-
-        #region --- [VISIBLITY] ---
         
+        #region --- [STATIC] ---
+
+        
+        #region --- [STATIC FIELDS] ---
+
         /// <summary>
-        /// Flag the visibility of the module.
+        /// Counter used for id allocation
         /// </summary>
-        /// <param name="visibility">the new state of visibility</param>
-        public async void SetVisibility(Visibility visibility)
-        {
-            VisibilityChanged(
-                newState: visibility,
-                lastState: VisibilityFlags);
-
-            VisibilityFlags = visibility;
-            
-            OnVisibilityChanged?.Invoke(
-                was: visibility,
-                now: VisibilityFlags);
-
-            await Task.Delay(10);
-            InvokeToggle(visibility == Visibility.ActiveAndVisible);
-            OnValidate();
-        }
+        private static int idCounter = 0;
 
         #endregion
         
-        //--------------------------------------------------------------------------------------------------------------
+        
+        #region --- [STATIC PROPERTIES] ---
 
-        #region --- [VALIDATION] ---
-      
-        protected virtual void OnValidate()
-        {
-            ValidateModuleGUI(InvokeOrigin.UnityMessage);
-           
-            
-            if(currentVisibility != cachedVisibility)
-                SetVisibility(currentVisibility);
-
-            currentVisibility = VisibilityFlags;
-            cachedVisibility = VisibilityFlags;
-        }
-       
         /// <summary>
-        /// Validates the visual representation of the module. 
+        /// Dictionary containing every Module. Modules UniqueId is Key
         /// </summary>
-        /// <param name="origin">origin</param>
-        /// <param name="timeout">Time out after x amount of milliseconds if the styleBase is null</param>
-        public async void ValidateModuleGUI(InvokeOrigin origin = InvokeOrigin.Unknown, int timeout = 1000)
+        public static Dictionary<int, Module> ModuleDictionary { get; } = new Dictionary<int, Module>();
+
+        /// <summary>
+        /// Dictionary containing every Modules UniqueId. Modules UniqueName is Key
+        /// </summary>
+        public static Dictionary<string, int> ModuleIds { get; } = new Dictionary<string, int>();
+
+        /// <summary>
+        /// List containing every Module. Use to access all every module
+        /// </summary>
+        public static List<Module> Modules { get; } = new List<Module>();
+
+        #endregion
+
+        
+        #region --- [STATIC METHODS] ---
+
+        /// <summary>
+        /// Returns the corresponding module if it exists.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static Module GetModule([CanBeNull] string id)
+            => ModuleIds.TryGetValue(id ?? string.Empty, out var value) ? ModuleDictionary[value] : null;
+        
+        /// <summary>
+        /// Returns the corresponding module if it exists.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static Module GetModule(int? id)
+            => ModuleDictionary.TryGetValue(id ?? 0, out var value) ? value : null;
+        
+
+        /// <summary>
+        /// Enable / Disable every module.
+        /// </summary>
+        /// <param name="enabled"></param>
+        public static void EnableAll(bool enabled)
         {
-            if (Config == null)
+            foreach (var module in ModuleDictionary)
             {
-                var timer = 0;
-                while (Config == null)
-                {
-                    await Task.Delay(1);
-                    if (timer++ <= timeout) continue;
-                    Debug.Log("Timeout");
-                    break;
-                }
+                module.Value.SetEnabled(enabled);
             }
-            
-            if (lastConfigurable != null)
-                lastConfigurable.OnValuesChanged -= ValidateContent;
-
-            Config.OnValuesChanged += ValidateContent;
-            
-            ValidateContent(Config, origin);
-            lastConfigurable = Config;
         }
-
-        private void ValidateContent(Configuration.Configurable provider, InvokeOrigin origin) 
+        
+        /// <summary>
+        /// Activate / Deactivate every module
+        /// </summary>
+        /// <param name="active"></param>
+        public static void ActivateAll(bool active)
         {
-            AppendAffix();
-            UpdateGUI(origin);
+            foreach (var module in ModuleDictionary)
+            {
+                module.Value.SetActive(active);
+            }
         }
-
-        #endregion
-        
-        //--------------------------------------------------------------------------------------------------------------
-
-        #region --- [VIRTUAL] ---
-
-        /// <summary>
-        /// Override this Method for logic depending on the modules visibility flag.
-        /// </summary>
-        /// <param name="newState">The new visibility state</param>
-        /// <param name="lastState">The last visibility state</param>
-        protected virtual void VisibilityChanged(Visibility newState, Visibility lastState){}
-
-        #endregion
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        #region --- [ABSTRACT] ---
-        
-        protected abstract void InvokeToggle(bool show);
-        
-        protected abstract void UpdateGUI(InvokeOrigin origin, bool delay = false, int milliseconds = 100);
-
-        public abstract string GetStateRaw();
-        public abstract string GetState(ValueInterpretationOption interpretationOption);
-        
-        
-        protected abstract void AppendAffix();
-        
-        
-        public abstract void AddOnGUIChangedListener(Action<Configuration.Configurable, string, InvokeOrigin> listener);
-        public abstract void RemoveOnGUIChangedListener(Action<Configuration.Configurable, string, InvokeOrigin> listener);
-        public abstract void AddOnValueChangedListener(OnValueChangedContext eventType,
-            params Action<IModuleUpdateData>[] updateListener);
-        public abstract void RemoveOnValueChangedListener(OnValueChangedContext context);
-        public abstract void RemoveOnValueChangedListener(OnValueChangedContext context,
-            params Action<IModuleUpdateData>[] updateListener);
-        
-        public enum CoreEventType { Update, Toggle }
-
-        /// <summary>
-        /// Set event invoking UI toggle eventListener 
-        /// </summary>
-        /// <param name="ToggleEvent"></param>
-        /// <param name="coreEventType"></param>
-        public abstract void SetValueDelegate(ref Action<bool> ToggleEvent, CoreEventType coreEventType);
-        
-        #endregion
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-    // GENERIC MODULE
-    //------------------------------------------------------------------------------------------------------------------
-    
-    /// <summary>
-    /// Generic Module
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public abstract class Module<T> : Module
-    {
-        #region --- [FIELDS] ---
-
-        /// <summary>
-        /// cached Module Update Data
-        /// </summary>
-        private ModuleUpdateData<T> ModuleUpdateData;
-
-        /// <summary>
-        /// DefaultValue event listener
-        /// </summary>
-        private readonly Dictionary<OnValueChangedContext, Action<IModuleUpdateData>> OnValueChanged
-            = new Dictionary<OnValueChangedContext, Action<IModuleUpdateData>>();
-
-        /// <summary>
-        /// Generic event listener (T)
-        /// </summary>
-        private readonly Dictionary<OnValueChangedContext, Action<IModuleUpdateData<T>>> OnValueChangedT
-            = new Dictionary<OnValueChangedContext, Action<IModuleUpdateData<T>>>();
-
-        /// <summary>
-        /// GUI event listener will be subscribed to this event
-        /// </summary>
-        private event Action<Configurable, string, InvokeOrigin> OnGUIChanged;
-
-        #endregion
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        #region --- [DEFAULT VALUES] ---
-
-        /// <summary>
-        /// The default value of T
-        /// </summary>
-        protected static T defaultValue = default;
-        
         
         /// <summary>
-        /// The last and/or cached value of T
+        /// Enable & Activate / Disable & Deactivate every module
         /// </summary>
-        protected T CurrentValue => currentValue;
-        /// <summary>
-        /// The current value of T
-        /// </summary>
-        private T currentValue = default;
-        
-        
-        
-        /// <summary>
-        /// The last and/or cached value of T
-        /// </summary>
-        protected T CachedValue => cachedValue;
-        
-        /// <summary>
-        /// The last and/or cached value of T
-        /// </summary>
-        private T cachedValue = default;
-        
-        
-        //--- OVERRIDE DEFAULT VALUE ---
-                
-        /// <summary>
-        /// Override the default value of T (ref) 
-        /// </summary>
-        /// <param name="value">new default (you can pass as ref)</param>
-        protected void OverrideDefaultValue(ref T value) => defaultValue = value;
-        
-        /// <summary>
-        /// Override the default value of T (ref) 
-        /// </summary>
-        /// <param name="value">new default (you can pass as ref)</param>
-        /// <param name="old">old default</param>
-        protected void OverrideDefaultValue(ref T value, out T old) {
-            old = defaultValue;
-            defaultValue = value;
-        }
-                
-        /// <summary>
-        /// Override the default value of T 
-        /// </summary>
-        /// <param name="value">new default</param>
-        protected void OverrideDefaultValue(T value) => defaultValue = value; 
-        
-        /// <summary>
-        /// Override the default value of T 
-        /// </summary>
-        /// <param name="value">new default (you can pass as ref)</param>
-        /// <param name="old">old default</param>
-        protected void OverrideDefaultValue(T value, out T old) {
-            old = defaultValue;
-            defaultValue = value;
+        /// <param name="activeAndEnable"></param>
+        public static void ActivateAndEnableAll(bool activeAndEnable)
+        {
+            foreach (var module in ModuleDictionary)
+            {
+                module.Value.SetActiveAndEnabled(activeAndEnable);
+            }
         }
 
         
         #endregion
-        
-        //--------------------------------------------------------------------------------------------------------------
-        
-        #region --- [ABSTRACT] ---
-        
-        /// <summary>
-        /// OnInitialize is called during the module initialization which will happen during the Unity Start method.
-        /// </summary>
-        protected abstract void OnInitialize();
 
         #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [VIRTUAL] ---
+        #region --- [INSPECTION] ---
+        
+        
+        private CancellationTokenSource inspectionTaskCancellationSource = new CancellationTokenSource();
+        private CancellationToken InspectionTaskCancellationToken => inspectionTaskCancellationSource.Token;
+        private int millisecondsBetweenInspections => (int) (secondsBetweenInspections * 1000);
 
+        
         /// <summary>
-        /// Override this method if the styleBase of the value is dynamic (eg. fps color depending on value)
+        /// Enable / Disable automatic inspection. This will invoke a asymmetric loop calling OnInspection repeatedly.
         /// </summary>
         /// <param name="value"></param>
-        /// <returns></returns>
-        protected virtual string DynamicValue(T value) => value.ToString();
+        protected void SetAutoInspection(bool? value = null)
+        {
+            CancelInspection();
+            enableAutoInspection = value ?? enableAutoInspection;
+            if(Application.isPlaying && enableAutoInspection) StartInspection();
+        }
+
         
         /// <summary>
-        /// OnModuleUpdate is invoked on every module update event (GUI, UPDATE, etc.) Use for update dependent logic.
+        /// Cancel Inspection Task and create a new CancellationTokenSource
         /// </summary>
-        /// <param name="data"></param>
-        protected virtual void OnModuleUpdate(ModuleUpdateData<T> data){}
-
-        #endregion
-
-        #region --- [SEALED] ---
-
+        private void CancelInspection()
+        {
+            inspectionTaskCancellationSource.Cancel();
+            inspectionTaskCancellationSource = new CancellationTokenSource();
+        }
+        
         /// <summary>
-        /// Returns the raw state ToString() of the current value without any additional pre or suffix
+        /// Loop calling OnInspection repeatedly.
         /// </summary>
-        /// <returns>Raw Value</returns>
-        public sealed override string GetStateRaw() => currentValue != null ? currentValue.ToString() : "null";
-
-        /// <summary>
-        /// Returns a compiled and appended string representing the current state
-        /// </summary>
-        /// <param name="interpretationOption">How to interpret the state</param>
-        /// <returns></returns>
-        public sealed override string GetState(ValueInterpretationOption interpretationOption)
+        private async void StartInspection()
         {
-            switch (interpretationOption)
+            while (enableAutoInspection)
             {
-                case ValueInterpretationOption.CurrentValue:
-                    return $"{appendedPrefix}{DynamicValue(currentValue)}{appendedSuffix}";
-                
-                case ValueInterpretationOption.LastValue:
-                    return $"{appendedPrefix}{DynamicValue(cachedValue)}{appendedSuffix}";
-                
-                case ValueInterpretationOption.DefaultValue:
-                    return $"{appendedPrefix}{DynamicValue(defaultValue)}{appendedSuffix}";
-
-                case ValueInterpretationOption.Type:
-                    return $"{appendedPrefix}{typeof(T).Name}{appendedSuffix}";
-                
-                default:
-                    return "ERROR";
-            }
-        }
-        
-        protected sealed override void AppendAffix()
-        {
-            appendedPrefix =  
-                $"{Config.PrefixTextStyle}" +
-                $"{(Config.IndividualFontSize? Config.PrefixFontSize.ToFontSize() : Config.fontSize.ToFontSize())}" +
-                $"{Config.PrefixColor.ToRichTextMarkup()}" +
-                $"{prefixText}" +
-                $"{((Config.AutoSpace) ? (prefixText.Length > 0)? " " : string.Empty : string.Empty)}" +
-                $"{(prefixBreak ? "\n" : string.Empty)}" +
-                $"{Config.InfixTextStyle}" +
-                $"{(Config.IndividualFontSize? Config.InfixFontSize.ToFontSize() : Config.fontSize.ToFontSize())}" +
-                $"{Config.InfixColor.ToRichTextMarkup()}" +
-                $"{(Config.AutoBrackets? "[" : string.Empty)}";
-
-            appendedSuffix =  
-                $"{(suffixBreak ? "\n" : string.Empty)}" +
-                $"{(Config.AutoBrackets?$"{Config.InfixColor.ToRichTextMarkup()}]": string.Empty)}" +
-                $"{Config.SuffixTextStyle}" +
-                $"{(Config.IndividualFontSize? Config.SuffixFontSize.ToFontSize() : Config.fontSize.ToFontSize())}" +
-                $"{Config.SuffixColor.ToRichTextMarkup()}" +
-                $"{((Config.AutoSpace)? " " : string.Empty)}" +
-                $"{suffixText}";
-        }
-
-        #endregion
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        #region --- [EVENTLISTENER (SEALED)] ---
-
-        public sealed override void AddOnGUIChangedListener(Action<Configurable, string, InvokeOrigin> listener)
-        {
-            OnGUIChanged -= listener;
-            OnGUIChanged += listener;
-        }
-        
-        
-        public sealed override void RemoveOnGUIChangedListener(Action<Configurable, string, InvokeOrigin> listener)
-        {
-            OnGUIChanged -= listener;
-        }
-        
-
-        public sealed override void AddOnValueChangedListener(OnValueChangedContext eventType,
-            params Action<IModuleUpdateData>[] updateListener)
-        {
-            foreach (var listener in updateListener)
-            {
-                OnValueChanged[eventType] += listener;
-            }
-        }
-        
-
-        public void AddOnValueChangedListener(OnValueChangedContext eventType,
-            params Action<IModuleUpdateData<T>>[] updateListener)
-        {
-            foreach (var listener in updateListener)
-            {
-                OnValueChangedT[eventType] += listener;
-            }
-        }
-
-        //REMOVE--------------------------------------------------------------------------------------------------------
-        
-        public sealed override void RemoveOnValueChangedListener(OnValueChangedContext context)
-        {
-            OnValueChanged[context] = null;
-            OnValueChanged[context] = delegate(IModuleUpdateData data) { };
-        }
-        
-        
-        public sealed override void RemoveOnValueChangedListener(OnValueChangedContext context,
-            params Action<IModuleUpdateData>[] updateListener)
-        {
-            try
-            {
-                foreach (var listener in updateListener)
+                try
                 {
-                    // ReSharper disable once DelegateSubtraction
-                    OnValueChanged[context] -= listener;
+                    await Task.Delay(millisecondsBetweenInspections, InspectionTaskCancellationToken);
                 }
-            }
-            finally{}
-        }
-
-        
-        public void RemoveOnValueChangedListener(OnValueChangedContext context,
-            params Action<IModuleUpdateData<T>>[] updateListener)
-        {
-            try
-            {
-                foreach (var listener in updateListener)
+                catch
                 {
-                    // ReSharper disable once DelegateSubtraction
-                    OnValueChangedT[context] -= listener;
+                    break;
                 }
-            }
-            catch (Exception exception)
-            {
-                Debug.Log(exception);
+                // We call OnInspection after the delay, to prevent it from being called every time we change the delays
+                // value in the inspector.
+                OnInspection();
             }
         }
 
-        
         #endregion
-
-        
         
         //--------------------------------------------------------------------------------------------------------------
-
+        
+        #region --- [STATE] ---
+        
+        /// <summary>
+        /// Event is invoked if the modules active and / or enabled state has changed
+        /// </summary>
+        public event ActiveAndEnabledDelegate OnActiveAndEnabledStateChanged;
+        
+        /// <summary>
+        /// Event is invoked if the modules active state has changed
+        /// </summary>
+        public event ActiveDelegate OnActiveStateChanged;
+        
+        /// <summary>
+        /// Event is invoked if the modules enabled state has changed
+        /// </summary>
+        public event EnabledDelegate OnEnabledStateChanged;
         
         
-        #region --- [CONSTRUCTOR] ---
-
-        static Module()
+        public bool IsEnabled
         {
-            if (typeof(T).IsArray)
+            get => isEnabled;
+            private set
             {
-                if (typeof(T).GetArrayRank() > 1)
-                    defaultValue = (T)(object)Array.CreateInstance(typeof(T).GetElementType(), new int[typeof(T).GetArrayRank()]);
+                if (!value)
+                {
+                    SetActiveAndEnabled(false);
+                }
+                    
                 else
-                    defaultValue = (T)(object)Array.CreateInstance(typeof(T).GetElementType(), 0);
-                return;
-            }
-            
-            if (typeof(T) == typeof(string))
-            {
-                // string is IEnumerable<char>, but don't want to treat it like a collection
-                defaultValue = (T)(object)string.Empty;
-                return;
-            }
-            
-            if (typeof(IEnumerable).IsAssignableFrom(typeof(T)))
-            {
-                // check if an empty array is an instance of T
-                if (typeof(T).IsAssignableFrom(typeof(object[])))
                 {
-                    defaultValue = (T)(object)new object[0];
-                    return;
-                }
-
-                if (typeof(T).IsGenericType && typeof(T).GetGenericArguments().Length == 1)
-                {
-                    Type elementType = typeof(T).GetGenericArguments()[0];
-                    if (typeof(T).IsAssignableFrom(elementType.MakeArrayType()))
-                    {
-                        defaultValue = (T)(object)Array.CreateInstance(elementType, 0);
-                        return;
+                    // We subscribe Tick to Update if we enable it
+                    if (!wasEnabled) {
+                        UnityEventCallbacks.AddEventListener(
+                            listener: Tick, 
+                            removePreviousListener: true,
+                            ApplicationState.PlayMode,
+                            UnityEventType.Update);
+                        
+                        OnModuleEnabled();
                     }
+                        
+                    
+                    isEnabled = true;
+                    wasEnabled = isEnabled;
+            
+                    OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+                    OnEnabledStateChanged?.Invoke(true);
                 }
-
-                throw new NotImplementedException("No default value is implemented for type " + typeof(T).FullName);
             }
         }
         
+        /// <summary>
+        /// Enable / Disable the module
+        /// </summary>
+        /// <param name="enabled"></param>
+        public void SetEnabled(bool enabled)
+            => IsEnabled = enabled;
         
-        protected Module()
+        /// <summary>
+        /// Enable / Disable the module
+        /// </summary>
+        /// <param name="enabled"></param>
+        public void SetEnabled(bool? enabled = null)
+            => IsEnabled = enabled ?? isEnabled;
+
+        
+        public bool IsActive
         {
-            foreach (OnValueChangedContext type in Enum.GetValues(typeof(OnValueChangedContext)))
+            get => isActive;
+            private set
             {
-                OnValueChanged.Add(type, delegate(IModuleUpdateData data) { });
-                OnValueChangedT.Add(type, delegate(IModuleUpdateData<T> data) { });
+                if(!isEnabled) return;
+                
+                if (!wasActive && value)
+                    OnModuleActivated();
+                if (wasActive && !value)
+                    OnModuleDeactivated();
+                
+                isActive = value;
+                wasActive = isActive;
+                
+                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+                OnActiveStateChanged?.Invoke(value);
             }
-            
-            cachedValue = defaultValue;
-            currentValue = defaultValue;
-            
-            UnityEventCallbacks.AddEventListener(Initialize, true, CallbackDuring.EditAndPlayMode,
-                #if UNITY_EDITOR
-                UnityEventType.Recompile,
-                #endif
-                UnityEventType.Awake);
-            
-            UnityEventCallbacks.AddEventListener(OnRecompile, true, UnityEventType.Recompile);
-            
-#if !UNITY_EDITOR
-            UnityEventCallbacks.AddEventListener(OnRecompile, true, UnityEventType.Start);
-#endif
         }
-
-        private void OnRecompile() => ValidateModuleGUI(InvokeOrigin.Recompile, 1000);
         
+        /// <summary>
+        /// Activate / Deactivate the module
+        /// </summary>
+        /// <param name="active"></param>
+        public void SetActive(bool active)
+            => IsActive = isEnabled? active : isActive;
+        
+        /// <summary>
+        /// Activate / Deactivate the module
+        /// </summary>
+        /// <param name="active"></param>
+        public void SetActive(bool? active = null)
+            => IsActive = isEnabled? active ?? isActive : isActive;
+        
+
+        public bool IsActiveAndEnabled
+        {
+            get => IsEnabled && IsActive;
+            private set
+            {
+                if (!wasEnabled && value) {
+                    UnityEventCallbacks.AddEventListener(Tick, true, ApplicationState.PlayMode, UnityEventType.Update);
+                    OnModuleEnabled();
+                }
+                if (wasEnabled && !value) {
+                    UnityEventCallbacks.RemoveEventListener(Tick, ApplicationState.PlayMode, UnityEventType.Update);
+                    OnModuleDisabled();
+                }
+                if (!wasActive && value)
+                    OnModuleActivated();
+                if (wasActive && !value)
+                    OnModuleDeactivated();
+                
+                
+                isEnabled = value;
+                isActive = value;
+                wasEnabled = isEnabled;
+                wasActive = isActive;
+
+                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+                OnEnabledStateChanged?.Invoke(value);
+                OnActiveStateChanged?.Invoke(value);
+            }
+        }
+        
+        /// <summary>
+        /// Set the active and enabled state of the module
+        /// </summary>
+        /// <param name="value"></param>
+        public void SetActiveAndEnabled(bool value)
+            => IsActiveAndEnabled = value;
+
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
-
-        #region --- [AUTO INSPECTION] ---
+        
+        #region --- [VIRTUAL] ---
 
         /// <summary>
-        /// OnInspection is called in determinable intervals if auto inspection is enabled.
-        /// Use this method invocation to automatically validate the state of the observed Value
-        /// Note: this should only be used if the state of the observed Value can be altered
-        /// without the module taking note.
+        /// Method is called repeatedly if auto inspection and the module are enabled.
+        /// Delay between calls can be determined in the inspector
         /// </summary>
         protected virtual void OnInspection() {}
         
+
+        /// <summary>
+        /// Tick is called every Unity-Update if the module is enabled.
+        /// </summary>
+        protected virtual void Tick() {}
         
-        private async void InspectionTask(int ms)
+        
+        /// <summary>
+        /// OnModuleEnabled is called when the module is enabled
+        /// </summary>
+        protected virtual void OnModuleEnabled(){}
+        
+        /// <summary>
+        /// OnModuleDisabled is called when the module is disabled
+        /// </summary>
+        protected virtual void OnModuleDisabled(){}
+        
+        /// <summary>
+        /// OnModuleActivated is called when the module is activated
+        /// </summary>
+        protected virtual void OnModuleActivated(){}
+        
+        /// <summary>
+        /// OnModuleDeactivated is called when the module is deactivated
+        /// </summary>
+        protected virtual void OnModuleDeactivated(){}
+
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+        
+        #region --- [CONSTRUCTOR] ---
+
+        protected Module()
         {
-            while (Application.isPlaying)
+            id = idCounter++;
+            UniqueName = $"{GetType().Name.Replace("Module", string.Empty)}";
+           
+            Modules.Add(this);
+            ModuleDictionary.Add(id, this);
+
+            var num = 0;
+            var doAgain = false;
+            do
             {
-                OnInspection();
-                await Task.Delay(ms);
-            }
-        }
-        
-        
-        private void SetupInspectionLoop()
-        {
-            if(!autoInspect) return;
-            switch (InspectOn)
-            {
-                case InspectPeriods.Update:
-                    UnityEventCallbacks.AddEventListener(OnInspection, true, CallbackDuring.PlayMode, UnityEventType.Update);
-                    break;
-                case InspectPeriods.FixedUpdate:
-                    UnityEventCallbacks.AddEventListener(OnInspection, true, CallbackDuring.PlayMode, UnityEventType.FixedUpdate);
-                    break;
-                case InspectPeriods.Yield:
-                    InspectionTask(milliseconds.Min(500));
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                try
+                {
+                    ModuleIds.Add(UniqueName, id);
+                    doAgain = false;
+                }
+                catch
+                {
+                    UniqueName = $"{GetType().Name.Replace("Module", string.Empty)}{num:00}";
+                    doAgain = true;
+                    num++;
+                }
+            } while (doAgain);
         }
 
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
-      
         
-        
-        #region --- INITIALIZATION ---
+        #region --- [ABSTRACT] ---
         
         /// <summary>
-        /// Method is invoked after Start or Recompile
+        /// Get the type modules type as string.
         /// </summary>
-        private void Initialize(UnityEventType context)
-        {
-            ValidateModuleGUI(context.ToOrigin());
-            InvokeModuleInitialization(currentValue);
-            UpdateGUI(context.ToOrigin(), true, 1);
-            OnInitialize();
-            SetupInspectionLoop();
-            if(context != UnityEventType.Recompile)
-                SetVisibility(Application.isPlaying? visibilityOnLoad : visibilityOnEdit);
-        }
-
-        #endregion
-
-        
-        
-        //--------------------------------------------------------------------------------------------------------------
-
-        
-        
-        #region --- [BIND SOURCE EVENTS] ---
-        
-        
-        public delegate void DelayedUpdateDelegate(T value, bool delay = false, int milliseconds = 100);
-        
-        /// <summary>
-        /// Set event invoking Update OnValueChanged 
-        /// </summary>
-        /// <param name="coreEvent"></param>
-        public void SetValueDelegate(ref Action<T> coreEvent, CoreEventType eventType = CoreEventType.Update)
-        {
-            switch (eventType)
-            {
-                case CoreEventType.Update:
-                    coreEvent += InvokeModuleUpdate;
-                    break;
-                case CoreEventType.Toggle:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
-            }
-        }
-        
-        /// <summary>
-        /// Set event invoking UI Toggle OnValueChanged 
-        /// </summary>
-        /// <param name="coreEvent"></param>
-        public override void SetValueDelegate(ref Action<bool> coreEvent, CoreEventType eventType)
-        {
-            switch (eventType)
-            {
-                case CoreEventType.Update:
-                    break;
-                case CoreEventType.Toggle:
-                    coreEvent += InvokeToggle;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
-            }
-        }
-        
-        /// <summary>
-        /// Set event invoking Update OnValueChanged
-        /// </summary>
-        /// <param name="delayedUpdateEvent"></param>
-        public void AssignCoreEvents(ref DelayedUpdateDelegate delayedUpdateEvent)
-        {
-            delayedUpdateEvent += InvokeModuleUpdate;
-        }
-
-        #endregion
-
-        
-        
-        
-        //--------------------------------------------------------------------------------------------------------------
-
-        
-        
-        
-        #region --- INVOKATIONS ---
+        /// <returns></returns>
+        public abstract string GetTypeOfTAsString();
 
         /// <summary>
-        /// Invoke UpdateEvents using the last known state of T if the unit now enabled
+        /// Get the type of the modules value.
         /// </summary>
-        public void InvokeModuleUpdateDirty() => FinalizeInvocation(OnValueChangedContext.Dirty);
+        /// <returns></returns>
+        public abstract Type GetTypeOfT();
 
         /// <summary>
-        /// Invoke UpdateEvents using the last known state of T if the unit now enabled
+        /// Get the value of the modules value T
         /// </summary>
-        public async void InvokeModuleUpdateDirty(int delay)
-        {
-            await Task.Delay(delay);
-            FinalizeInvocation(OnValueChangedContext.Dirty);
-        }
-
-        /// <summary>
-        /// Invoke event: Module/Unit Update callbacks if the unit now enabled
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="delay"></param>
-        /// <param name="milliseconds"></param>
-        private async void InvokeModuleUpdate(T value, bool delay = false, int milliseconds = 100)
-        {
-            cachedValue = currentValue;
-            currentValue = value;
-            
-            ModuleUpdateData = new ModuleUpdateData<T>(
-                value: value,
-                state: GetState(previewValueAs),
-                stateRaw: GetStateRaw(),
-                eventType: OnValueChangedContext.Update,
-                sender: this);
-
-            if (delay)
-                await Task.Delay(milliseconds);
-            
-            FinalizeInvocation(OnValueChangedContext.Update);
-        }
-
-        /// <summary>
-        /// Invoke event: Module/Unit Update callbacks if the unit now enabled
-        /// </summary>
-        /// <param name="value"></param>
-        private void InvokeModuleUpdate(T value)
-        {
-            cachedValue = currentValue;
-            currentValue = value;
-            
-            ModuleUpdateData = new ModuleUpdateData<T>(
-                value: value,
-                state: GetState(previewValueAs),
-                stateRaw: GetStateRaw(),
-                eventType: OnValueChangedContext.Update,
-                sender: this);
-            
-            FinalizeInvocation(OnValueChangedContext.Update);
-        }
-
-        /// <summary>
-        /// For Inspector
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public void ToggleUI()
-        {
-            switch (VisibilityFlags)
-            {
-                case Visibility.ActiveAndVisible:
-                    InvokeToggle(false);
-                    break;
-                case Visibility.ActiveAndHidden:
-                    InvokeToggle(true);
-                    break;
-                case Visibility.Inactive:
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Invoke event: show/hide UI elements if the unit now enabled
-        /// </summary>
-        /// <param name="show"></param>
-        protected sealed override void InvokeToggle(bool show)
-        {
-            ModuleUpdateData = new ModuleUpdateData<T>(
-                value: ModuleUpdateData.Value,
-                state: GetState(previewValueAs),
-                stateRaw: GetStateRaw(),
-                eventType: show ? OnValueChangedContext.Show : OnValueChangedContext.Hide,
-                sender: this);
-
-            if (show)
-            {
-                FinalizeInvocation(OnValueChangedContext.Show, OnValueChangedContext.Toggle);
-            }
-            else
-            {
-                FinalizeInvocation(OnValueChangedContext.Hide, OnValueChangedContext.Toggle);
-            }
-        }
-
-        /// <summary>
-        /// Event now invoked during module initialization 
-        /// </summary>
-        /// <param name="value"></param>
-        private void InvokeModuleInitialization(T value)
-        {
-            cachedValue = currentValue;
-            currentValue = value;
-            
-            
-            ModuleUpdateData = new ModuleUpdateData<T>(
-                value: value,
-                state: GetState(previewValueAs),
-                stateRaw: GetStateRaw(),
-                eventType: OnValueChangedContext.Initialization,
-                sender: this);
-
-            FinalizeInvocation(OnValueChangedContext.Initialization);
-        }
+        /// <returns></returns>
+        public abstract object GetValueOfT();
+        
         
         /// <summary>
-        /// Invoke an event telling GUI elements that the content and or styleBase of the modules has canged.
+        /// Get the modules raw value as string
         /// </summary>
-        /// <param name="origin">InvokeOrigin</param>
-        /// <param name="delay">delay the event</param>
-        /// <param name="milliseconds">time of the delay in ms</param>
-        protected sealed override async void UpdateGUI(InvokeOrigin origin, bool delay = false, int milliseconds = 100)
-        {
-            if (defaultValue == null)
-            {
-                return;
-            }
-
-            ModuleUpdateData = new ModuleUpdateData<T>(
-                value: defaultValue,
-                state: GetState(previewValueAs),
-                stateRaw: GetStateRaw(),
-                eventType: OnValueChangedContext.Editor,
-                sender: this);
-
-            if (origin == InvokeOrigin.Recompile || delay)
-                await Task.Delay(milliseconds);
-                
-            OnGUIChanged?.Invoke(Config, GetState(previewValueAs), origin);
-        }
-
-        private void FinalizeInvocation(params OnValueChangedContext[] eventTypes)
-        {
-            foreach (var type in eventTypes)
-            {
-                OnValueChanged?[type]?.Invoke(ModuleUpdateData);
-                OnValueChangedT?[type]?.Invoke(ModuleUpdateData);
-            }
-            OnModuleUpdate(ModuleUpdateData);
-        }
+        /// <returns></returns>
+        public abstract string GetStateRaw();
+        
+        /// <summary>
+        /// Get the modules (formatted) value as string
+        /// /// </summary>
+        /// <param name="interpretationOption"></param>
+        /// <returns></returns>
+        public abstract string GetState(ValueInterpretationOption interpretationOption);
+        
+        
+        
+        /// <summary>
+        /// Add a listener to the modules Repaint event
+        /// </summary>
+        /// <param name="listener"></param>
+        public abstract void AddOnRepaintChangedListener(Action<Configuration.Configurable, string, InvokeOrigin> listener);
+       
+        /// <summary>
+        /// Remove a listener form the modules Repaint event
+        /// </summary>
+        /// <param name="listener"></param>
+        public abstract void RemoveOnRepaintChangedListener(Action<Configuration.Configurable, string, InvokeOrigin> listener);
+        
+        
+        
+        /// <summary>
+        /// Add multiple listener to the modules OnValueChanged event
+        /// </summary>
+        /// <param name="eventType"></param>
+        /// <param name="updateListener"></param>
+        public abstract void AddOnValueChangedListener(OnValueChangedContext eventType,
+            params Action<IModuleData>[] updateListener);
+        
+        /// <summary>
+        /// Remove a listener form the modules OnValueChanged event
+        /// </summary>
+        /// <param name="context"></param>
+        public abstract void RemoveOnValueChangedListener(OnValueChangedContext context);
+        
+        /// <summary>
+        /// Remove multiple listener form the modules OnValueChanged event
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="updateListener"></param>
+        public abstract void RemoveOnValueChangedListener(OnValueChangedContext context,
+            params Action<IModuleData>[] updateListener);
+        
+        
+        
+        /// <summary>
+        /// Set delegate that will automatically activate/deactivate the module
+        /// </summary>
+        /// <param name="invoker"></param>
+        /// <param name="invert"></param>
+        public abstract void SetActiveDelegate(ref Action<bool> invoker, bool invert = false);
+        
+        /// <summary>
+        /// Set delegate that will automatically enable/disable the module
+        /// </summary>
+        /// <param name="invoker"></param>
+        /// <param name="invert"></param>
+        public abstract void SetEnableDelegate(ref Action<bool> invoker, bool invert = false);
 
         #endregion
     }

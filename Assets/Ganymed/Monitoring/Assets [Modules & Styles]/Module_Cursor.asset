@@ -12,22 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1486c06c90dd794995b02f36348444f, type: 3}
   m_Name: Module_Cursor
   m_EditorClassIdentifier: 
-  currentVisibility: 0
-  visibilityOnLoad: 0
-  visibilityOnEdit: 0
+  isEnabled: 1
+  isActive: 1
   useCustomStyle: 1
-  customConfigurable: {fileID: 11400000, guid: 76198616d5489cc4db214ab6694c7b38, type: 2}
+  customStyle: {fileID: 11400000, guid: 76198616d5489cc4db214ab6694c7b38, type: 2}
   previewValueAs: 0
   prefixText: 'Cursor:'
   suffixText: 
   prefixBreak: 0
   suffixBreak: 0
-  autoInspect: 0
-  InspectOn: 2
-  milliseconds: 1000
+  description: 
+  enableAutoInspection: 1
+  secondsBetweenInspections: 1
   controlCursorState: 1
   visibleDuringPlayMode: 0
-  lockModeDuringPlayMode: 2
+  lockModeDuringPlayMode: 1
   visibleDuringEditMode: 1
   lockModeDuringEditMode: 0
   HoldKey: 308
@@ -39,3 +38,8 @@ MonoBehaviour:
   lockedColor: {r: 1, g: 0.2506302, b: 0, a: 1}
   unlockedColor: {r: 0, g: 1, b: 0.24008775, a: 1}
   confinedColor: {r: 1, g: 0.76618373, b: 0, a: 1}
+  visibleColorMarkup: <color=#9DC0C0FF>
+  invisibleColorMarkup: <color=#FF0000FF>
+  lockedColorMarkup: <color=#FF4000FF>
+  unlockedColorMarkup: <color=#00FF3DFF>
+  confinedColorMarkup: <color=#FFC300FF>

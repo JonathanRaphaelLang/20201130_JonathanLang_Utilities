@@ -12,15 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb6b17a74f6683944bd786ab52ff366b, type: 3}
   m_Name: Module_VSync
   m_EditorClassIdentifier: 
-  currentVisibility: 0
-  visibilityOnLoad: 0
-  visibilityOnEdit: 0
+  isEnabled: 1
+  isActive: 1
   useCustomStyle: 1
-  customConfigurable: {fileID: 11400000, guid: 6f7bd260af438e54c89def90f5f66ddf, type: 2}
+  customStyle: {fileID: 11400000, guid: 6f7bd260af438e54c89def90f5f66ddf, type: 2}
   previewValueAs: 0
   prefixText: 'VSync:'
   suffixText: 
   prefixBreak: 0
   suffixBreak: 0
+  description: 
+  enableAutoInspection: 1
+  secondsBetweenInspections: 1
   setVsync: 0
   VSync: 0

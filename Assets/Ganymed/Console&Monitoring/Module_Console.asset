@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a348046104e4484aac57309b33257e7, type: 3}
+  m_Name: Module_Console
+  m_EditorClassIdentifier: 
+  isEnabled: 1
+  isActive: 0
+  useCustomStyle: 1
+  customStyle: {fileID: 11400000, guid: b38b05a0e357c90479a7c4c7654c7882, type: 2}
+  previewValueAs: 0
+  prefixText: ' > Console'
+  suffixText: 
+  prefixBreak: 1
+  suffixBreak: 0
+  description: Mini Conole
+  enableAutoInspection: 0
+  secondsBetweenInspections: 1
+  cacheSize: 3

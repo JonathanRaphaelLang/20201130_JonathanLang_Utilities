@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Style_FPS
   m_EditorClassIdentifier: 
   fontSize: 20
-  individualFontSize: 1
-  prefixFontSize: 6
+  individualFontSize: 0
+  prefixFontSize: 4
   infixFontSize: 29
-  suffixFontSize: 9
+  suffixFontSize: 10
   individualMargins: 1
   marginsAll: 5
   marginLeft: 0
@@ -29,7 +29,7 @@ MonoBehaviour:
   prefixTextStyle: 
   infixTextStyle: 
   suffixTextStyle: 
-  colorBackground: {r: 0.027901389, g: 0.028155256, b: 0.103773594, a: 0.9372549}
+  colorBackground: {r: 0.027901389, g: 0.028155256, b: 0.103773594, a: 0.84705883}
   prefixColor: {r: 1, g: 1, b: 1, a: 1}
   infixColor: {r: 0.5990566, g: 0.9485229, b: 1, a: 1}
   suffixColor: {r: 0.6600659, g: 0.69638586, b: 0.8584906, a: 1}

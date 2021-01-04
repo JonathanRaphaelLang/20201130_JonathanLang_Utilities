@@ -3,7 +3,6 @@ using Ganymed.Monitoring.Configuration;
 using Ganymed.Utils;
 using Ganymed.Utils.Callbacks;
 using Ganymed.Utils.Singleton;
-using UnityEditor;
 using UnityEngine;
 
 namespace Ganymed.Monitoring.Core
@@ -17,7 +16,7 @@ namespace Ganymed.Monitoring.Core
         [Header("GlobalConfiguration Configuration")]
         [SerializeField] private GlobalConfiguration config = null;
 
-        [Header("Modules")]
+        [Header("ModuleDictionary")]
         [SerializeField] private Module[] ModulesUpperLeft;
         [SerializeField] private Module[] ModulesUpperRight;
         [SerializeField] private Module[] ModulesLowerLeft;
@@ -73,11 +72,7 @@ namespace Ganymed.Monitoring.Core
         {
             if (!Input.GetKeyDown(config.toggleKey)) return;
             
-            var last = GUIcanvas.VisibilityFlags;
-            GUIcanvas.SetVisibility(
-                last == Visibility.ActiveAndVisible?
-                    Visibility.ActiveAndHidden :
-                    Visibility.ActiveAndVisible);
+            GUIcanvas.SetActive(!GUIcanvas.IsActive);
         }        
 
         #endregion
@@ -103,8 +98,9 @@ namespace Ganymed.Monitoring.Core
 
         #region --- [INITIALIZATION] ---
         
-        private void Start()
+        protected override void Awake()
         {
+            base.Awake();
             this.gameObject.name = nameof(MonitorBehaviour);
             Initialize(InvokeOrigin.UnityMessage);
         }
@@ -123,15 +119,14 @@ namespace Ganymed.Monitoring.Core
             if (!GUIcanvas || !config.automateCanvasState) return;
             
             
-            //TODO: include cases... create enum for initial flags
             if (Application.isPlaying)
             {
-                if(GUIcanvas.VisibilityFlags != Visibility.ActiveAndVisible && config.openCanvasOnEnterPlay)
-                    GUIcanvas.SetVisibility(Visibility.ActiveAndVisible);
+                if(!GUIcanvas.IsActive && config.openCanvasOnEnterPlay)
+                    GUIcanvas.SetActive(true);
             }
-            else if(Application.isEditor)
+            else if(Application.isEditor && GUIcanvas.IsActive)
             {
-                GUIcanvas.SetVisibility(config.closeCanvasOnEdit? Visibility.ActiveAndHidden : Visibility.ActiveAndVisible);
+                GUIcanvas.SetActive(!config.closeCanvasOnEdit);
             }
         }
         
@@ -144,22 +139,22 @@ namespace Ganymed.Monitoring.Core
             foreach (var module in ModulesUpperLeft)
             {
                 if (module == null) continue;
-                MonitoringElement.CreateComponent(Instantiate(GUIElementPrefab, GUIcanvas.UpperLeft), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, GUIcanvas.UpperLeft), module);
             }
             foreach (var module in ModulesUpperRight)
             {
                 if (module == null) continue;
-                MonitoringElement.CreateComponent(Instantiate(GUIElementPrefab, GUIcanvas.UpperRight), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, GUIcanvas.UpperRight), module);
             }
             foreach (var module in ModulesLowerLeft)
             {
                 if (module == null) continue;
-                MonitoringElement.CreateComponent(Instantiate(GUIElementPrefab, GUIcanvas.LowerLeft), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, GUIcanvas.LowerLeft), module);
             }
             foreach (var module in ModulesLowerRight)
             {
                 if (module == null) continue;
-                MonitoringElement.CreateComponent(Instantiate(GUIElementPrefab, GUIcanvas.LowerRight), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, GUIcanvas.LowerRight), module);
             }
         }
 
@@ -188,8 +183,19 @@ namespace Ganymed.Monitoring.Core
         {
             if (GUIcanvas == null && origin != InvokeOrigin.Recompile)
             {
-                GUIcanvas = MonitoringCanvasBehaviour.TryGetInstance(out var i) ? i : Instantiate(GUIObjectPrefab).GetComponent<MonitoringCanvasBehaviour>();
-                GUIcanvas.gameObject.name = "MonitorCanvas";
+                if (MonitoringCanvasBehaviour.TryGetInstance(out var i))
+                {
+                    GUIcanvas = i;
+                }
+                else
+                {
+#if UNITY_EDITOR
+                    UnityEditor.PrefabUtility.InstantiatePrefab(GUIObjectPrefab);
+#else
+                    Instantiate(GUIObjectPrefab); 
+#endif
+                    GUIcanvas = MonitoringCanvasBehaviour.Instance;
+                }
             }
         }
 
@@ -241,16 +247,16 @@ namespace Ganymed.Monitoring.Core
         {
             try
             {
-                var guids = AssetDatabase.FindAssets("t:prefab", new[] { "Assets" });
+                var guids = UnityEditor.AssetDatabase.FindAssets("t:prefab", new[] { "Assets" });
                 
                 foreach (var guid in guids)
                 {
-                    var path = AssetDatabase.GUIDToAssetPath(guid);
-                    var prefab = AssetDatabase.LoadMainAssetAtPath(path);
+                    var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+                    var prefab = UnityEditor.AssetDatabase.LoadMainAssetAtPath(path);
 
                     if (prefab.name != "MonitorBehaviour") continue;
 
-                    Instantiate(prefab);
+                    UnityEditor.PrefabUtility.InstantiatePrefab(prefab);
                     Debug.Log("Instantiated Monitoring Prefab");
                     break;
                 }

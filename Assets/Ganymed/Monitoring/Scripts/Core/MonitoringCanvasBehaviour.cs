@@ -9,10 +9,10 @@ using UnityEngine.UI;
 namespace Ganymed.Monitoring.Core
 {
     /// <summary>
-    /// MonitoringCanvasBehaviour for Monitoring Modules 
+    /// MonitoringCanvasBehaviour for Monitoring ModuleDictionary 
     /// </summary>
     [ExecuteInEditMode]
-    public class MonitoringCanvasBehaviour : MonoSingleton<MonitoringCanvasBehaviour>, IVisible
+    public class MonitoringCanvasBehaviour : MonoSingleton<MonitoringCanvasBehaviour>, IState
     {
         #region --- [FIELDS] ---
 
@@ -59,46 +59,70 @@ namespace Ganymed.Monitoring.Core
         
         //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [VISIBILITY] ---
+        #region --- [STATE] ---
 
-        public Visibility VisibilityFlags { get; private set; } = Visibility.Inactive;
-        
-        public void SetVisibility(Visibility visibility)
+                
+        public event ActiveAndEnabledDelegate OnActiveAndEnabledStateChanged;
+        public event ActiveDelegate OnActiveStateChanged;
+        public event EnabledDelegate OnEnabledStateChanged;
+
+        public bool IsEnabled
         {
-            if(gameObject == null) return;
-            
-            switch (visibility)
+            get => isEnabled;
+            private set
             {
-                case Visibility.ActiveAndVisible:
-                    gameObject.SetActive(true);
-                    if (canvas == null)
-                        canvas = GetComponent<Canvas>();
-                    canvas.enabled = true;
-                    break;
-                case Visibility.ActiveAndHidden:
-                    gameObject.SetActive(true);
-                    if (canvas == null)
-                        canvas = GetComponent<Canvas>();
-                    canvas.enabled = false;
-                    break;
-                case Visibility.Inactive:
-                    gameObject.SetActive(false);
-                    if (canvas == null)
-                        canvas = GetComponent<Canvas>();
-                    canvas.enabled = false;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(visibility), visibility, null);
+                isEnabled = value;
+            
+                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+                OnEnabledStateChanged?.Invoke(value);
+                
+                gameObject.SetActive(value);
+                canvas.enabled = value;
             }
-            
-            OnVisibilityChanged?.Invoke(
-                was: VisibilityFlags,
-                now: visibility);
-            
-            VisibilityFlags = visibility;
         }
+        [SerializeField] [HideInInspector] private bool isEnabled = true;
+        public void SetEnabled(bool enable)
+            => IsEnabled = enable;
 
-        public event VisibilityDelegate OnVisibilityChanged;
+
+        public bool IsActive
+        {
+            get => isActive;
+            private set
+            {
+                isActive = value;
+                
+                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+                OnActiveStateChanged?.Invoke(value);
+                
+                gameObject.SetActive(value);
+                canvas.enabled = value;
+            }
+        }
+        
+        [SerializeField] [HideInInspector] private bool isActive;
+        public void SetActive(bool active)
+            => IsActive = isEnabled? active : isActive;
+        
+
+        public bool IsActiveAndEnabled
+        {
+            get => IsEnabled && IsActive;
+            private set
+            {
+                isEnabled = value;
+                isActive = value;
+                
+                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+                OnEnabledStateChanged?.Invoke(value);
+                OnActiveStateChanged?.Invoke(value);
+            }
+        }
+        
+        public void SetActiveAndEnabled(bool value)
+            => IsActiveAndEnabled = value;
+      
+
 
         #endregion
         
@@ -116,73 +140,25 @@ namespace Ganymed.Monitoring.Core
         private MonitoringCanvasBehaviour()
         {
             GlobalConfiguration.OnActiveConfigurationChanged += RepaintCanvas;
-            GlobalConfiguration.OnVisiblityChanged += SetVisibility;
-
-            #region [EDITOR]
-#if UNITY_EDITOR
-            EditorApplication.playModeStateChanged += EditorApplicationOnplayModeStateChanged;
-#endif
-            #endregion
+            GlobalConfiguration.OnActiveStateChanged += SetActive;
         }
         
         
         ~MonitoringCanvasBehaviour()
         {
             GlobalConfiguration.OnActiveConfigurationChanged -= RepaintCanvas;
-            GlobalConfiguration.OnVisiblityChanged -= SetVisibility;
-            
-            #region [EDITOR]
-#if UNITY_EDITOR
-            EditorApplication.playModeStateChanged -= EditorApplicationOnplayModeStateChanged;
-#endif
-            #endregion
+            GlobalConfiguration.OnActiveStateChanged -= SetActive;
         }
 
         
         private void OnDestroy()
         {
             GlobalConfiguration.OnActiveConfigurationChanged -= RepaintCanvas;
-            GlobalConfiguration.OnVisiblityChanged -= SetVisibility;
+            GlobalConfiguration.OnActiveStateChanged -= SetActive;
 
-            #region [EDITOR]
-#if UNITY_EDITOR
-            EditorApplication.playModeStateChanged -= EditorApplicationOnplayModeStateChanged;
-#endif
             #endregion
         }
-
-        #region --- [RENAMING] ---
-
-#if UNITY_EDITOR
-        private string cachedName = "MonitorCanvas_PFB";
-        private void EditorApplicationOnplayModeStateChanged(PlayModeStateChange state)
-        {
-            if(!autoRename) return;
-            try
-            {
-                switch (state)
-                {
-                    case PlayModeStateChange.EnteredEditMode:
-                        gameObject.name = cachedName;
-                        break;
-                
-                    case PlayModeStateChange.ExitingEditMode:
-                        var obj = gameObject;
-                        cachedName = obj.name;
-                        obj.name = nameof(MonitoringCanvasBehaviour);
-                        break;
-                }
-            }
-            catch
-            {
-                // ignored
-            }
-        }
-#endif
-
-        #endregion
         
-        #endregion
 
         //---------------------------------------------------------------------------------------------------------------
 

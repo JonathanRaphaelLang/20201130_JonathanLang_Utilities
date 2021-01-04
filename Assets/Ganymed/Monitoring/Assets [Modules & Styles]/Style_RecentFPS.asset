@@ -17,12 +17,12 @@ MonoBehaviour:
   prefixFontSize: 6
   infixFontSize: 6
   suffixFontSize: 6
-  individualMargins: 0
+  individualMargins: 1
   marginsAll: 5
   marginLeft: 5
-  marginTop: 5
+  marginTop: 2
   marginRight: 5
-  marginBottom: 5
+  marginBottom: 2
   autoBrackets: 0
   autoSpace: 0
   useTextStyle: 0

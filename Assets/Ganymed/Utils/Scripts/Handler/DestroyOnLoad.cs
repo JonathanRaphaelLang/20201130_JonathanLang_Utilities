@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 
-public class DestroyOnLoad : MonoBehaviour
+namespace Ganymed.Utils.Handler
 {
-    private void Awake()
+    public class DestroyOnLoad : MonoBehaviour
     {
-        Destroy(this.gameObject);
+        private void Awake()
+        {
+            Destroy(this.gameObject);
+        }
     }
 }

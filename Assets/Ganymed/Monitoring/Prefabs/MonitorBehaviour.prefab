@@ -53,7 +53,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1dde403291c082f449fe7cf8a61830d6, type: 2}
   - {fileID: 11400000, guid: 16070b598a6ebaa4f8d41ee31bcaae4f, type: 2}
   - {fileID: 11400000, guid: 57e613cc271059b48b7c0d53e9c00fcc, type: 2}
-  ModulesLowerLeft: []
+  ModulesLowerLeft:
+  - {fileID: 11400000, guid: 27e4dbbb00c2d6848aa4d782eff9f97f, type: 2}
   ModulesLowerRight:
   - {fileID: 11400000, guid: 966511edd97915a47a4128e40df8199a, type: 2}
   GUIElementPrefab: {fileID: 3876159015935912231, guid: ead3b594570348d4cbfe485c4b9bde12,

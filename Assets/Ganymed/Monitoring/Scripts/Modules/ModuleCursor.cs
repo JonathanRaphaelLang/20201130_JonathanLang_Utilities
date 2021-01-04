@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Ganymed.Monitoring.Core;
 using Ganymed.Utils;
 using Ganymed.Utils.Callbacks;
@@ -7,7 +8,7 @@ using UnityEngine;
 
 namespace Ganymed.Monitoring.Modules
 {
-    [CreateAssetMenu(fileName = "Module_Cursor", menuName = "Monitoring/Modules/Cursor")]
+    [CreateAssetMenu(fileName = "Module_Cursor", menuName = "Monitoring/ModuleDictionary/Cursor")]
     public sealed class ModuleCursor : Module<bool>
     {
 
@@ -44,12 +45,12 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [FIELDS] ---
 
-        private string visibleColorMarkup;
-        private string invisibleColorMarkup;
+        [SerializeField] [HideInInspector] private string visibleColorMarkup;
+        [SerializeField] [HideInInspector] private string invisibleColorMarkup;
         
-        private string lockedColorMarkup;
-        private string unlockedColorMarkup;
-        private string confinedColorMarkup;
+        [SerializeField] [HideInInspector] private string lockedColorMarkup;
+        [SerializeField] [HideInInspector] private string unlockedColorMarkup;
+        [SerializeField] [HideInInspector] private string confinedColorMarkup;
 
         private static bool cachedVisible;
         private static CursorLockMode cachedLock;
@@ -69,12 +70,6 @@ namespace Ganymed.Monitoring.Modules
         public ModuleCursor()
         {
             UnityEventCallbacks.AddEventListener(
-                ValidateCursor,
-                true,
-                CallbackDuring.PlayMode,
-                UnityEventType.Update);
-            
-            UnityEventCallbacks.AddEventListener(
                 ResetCursor,
                 true,
                 UnityEventType.Recompile); 
@@ -86,7 +81,7 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [MODULE] ---
 
-        protected override string DynamicValue(bool value)
+        protected override string ValueToString(bool currentValue)
         {
             if (!useDynamicColoring)
             {
@@ -98,18 +93,18 @@ namespace Ganymed.Monitoring.Modules
             {
                 case CursorLockMode.None:
                     return $"[{(Cursor.visible ? $"{visibleColorMarkup}Visible" : $"{invisibleColorMarkup}Hidden")}" +
-                           $"{Config.infixColor.ToRichTextMarkup()}] " +
-                           $"[{unlockedColorMarkup}Free{Config.infixColor.ToRichTextMarkup()}]";
+                           $"{Configuration.infixColor.AsRichText()}] " +
+                           $"[{unlockedColorMarkup}Free{Configuration.infixColor.AsRichText()}]";
                 
                 case CursorLockMode.Locked:
                     return $"[{(Cursor.visible ? $"{visibleColorMarkup}Visible" : $"{invisibleColorMarkup}Hidden")}" +
-                           $"{Config.infixColor.ToRichTextMarkup()}] " +
-                           $"[{lockedColorMarkup}Locked{Config.infixColor.ToRichTextMarkup()}]";
+                           $"{Configuration.infixColor.AsRichText()}] " +
+                           $"[{lockedColorMarkup}Locked{Configuration.infixColor.AsRichText()}]";
                 
                 case CursorLockMode.Confined:
                     return $"[{(Cursor.visible ? $"{visibleColorMarkup}Visible" : $"{invisibleColorMarkup}Hidden")}" +
-                           $"{Config.infixColor.ToRichTextMarkup()}] " +
-                           $"[{confinedColorMarkup}Confined{Config.infixColor.ToRichTextMarkup()}]";
+                           $"{Configuration.infixColor.AsRichText()}] " +
+                           $"[{confinedColorMarkup}Confined{Configuration.infixColor.AsRichText()}]";
                 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -118,7 +113,7 @@ namespace Ganymed.Monitoring.Modules
 
         protected override void OnInitialize()
         {
-            SetValueDelegate(ref OnCursorStateChanged);
+            SetUpdateDelegate(ref OnCursorStateChanged);
 
             if (controlCursorState && Application.isPlaying)
             {
@@ -131,12 +126,10 @@ namespace Ganymed.Monitoring.Modules
 
         protected override void OnInspection()
         {
-            if (cachedLock != Cursor.lockState || cachedVisible != Cursor.visible)
-            {
-                cachedVisible = Cursor.visible;
-                cachedLock = Cursor.lockState;
-                OnCursorStateChanged?.Invoke(Cursor.visible);
-            }
+            if (cachedLock == Cursor.lockState && cachedVisible == Cursor.visible) return;
+            cachedVisible = Cursor.visible;
+            cachedLock = Cursor.lockState;
+            OnCursorStateChanged?.Invoke(Cursor.visible);
         }
 
         #endregion
@@ -151,12 +144,12 @@ namespace Ganymed.Monitoring.Modules
 
             if (!useDynamicColoring) return;
             
-            visibleColorMarkup = visibleColor.ToRichTextMarkup();
-            invisibleColorMarkup = invisibleColor.ToRichTextMarkup();
+            visibleColorMarkup = visibleColor.AsRichText();
+            invisibleColorMarkup = invisibleColor.AsRichText();
 
-            lockedColorMarkup = lockedColor.ToRichTextMarkup();
-            unlockedColorMarkup = unlockedColor.ToRichTextMarkup();
-            confinedColorMarkup = confinedColor.ToRichTextMarkup();
+            lockedColorMarkup = lockedColor.AsRichText();
+            unlockedColorMarkup = unlockedColor.AsRichText();
+            confinedColorMarkup = confinedColor.AsRichText();
         }
 
         #endregion
@@ -165,7 +158,7 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [CURSOR] ---
 
-        private void ValidateCursor()
+        protected override void Tick()
         {
             if(!controlCursorState) return;
             

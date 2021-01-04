@@ -1,6 +1,7 @@
 ﻿using System;
 using Ganymed.Utils;
 using Ganymed.Utils.Callbacks;
+using Ganymed.Utils.Handler;
 using UnityEngine;
 
 namespace Ganymed.Monitoring.Configuration
@@ -9,11 +10,11 @@ namespace Ganymed.Monitoring.Configuration
     {
         #region --- [STYLE] ---
         
-        [HideInInspector] [SerializeField] public int fontSize = 11;
+        [HideInInspector] [SerializeField] public float fontSize = 11;
         [HideInInspector] [SerializeField] public bool individualFontSize = false;
-        [HideInInspector] [SerializeField] public int prefixFontSize = 11;
-        [HideInInspector] [SerializeField] public int infixFontSize = 11;
-        [HideInInspector] [SerializeField] public int suffixFontSize = 11;
+        [HideInInspector] [SerializeField] public float prefixFontSize = 11;
+        [HideInInspector] [SerializeField] public float infixFontSize = 11;
+        [HideInInspector] [SerializeField] public float suffixFontSize = 11;
         
         [HideInInspector] [SerializeField] public bool individualMargins = false;
         [HideInInspector] [SerializeField] public float marginsAll = 5;
@@ -41,7 +42,7 @@ namespace Ganymed.Monitoring.Configuration
 
         #region --- [EVENTS] ---
 
-        public event Action<Configurable,InvokeOrigin>OnValuesChanged;
+        public event Action<InvokeOrigin>OnValuesChanged;
 
         #endregion
 
@@ -49,11 +50,11 @@ namespace Ganymed.Monitoring.Configuration
         
         #region --- [PROPERTIES] ---
 
-        public int FontSize => fontSize;
+        public float FontSize => fontSize;
         public bool IndividualFontSize => individualFontSize;
-        public int PrefixFontSize => prefixFontSize;
-        public int InfixFontSize => infixFontSize;
-        public int SuffixFontSize => suffixFontSize;
+        public float PrefixFontSize => prefixFontSize;
+        public float InfixFontSize => infixFontSize;
+        public float SuffixFontSize => suffixFontSize;
         public Color ColorBackground => colorBackground;
         public bool IndividualMargins => individualMargins;
         public float MarginsAll => marginsAll;
@@ -82,7 +83,7 @@ namespace Ganymed.Monitoring.Configuration
         #region --- [CONST] ---
 
         public const int MAXFONTSIZE = 72;
-        public const int MINFONTSIZE = 6;
+        public const int MINFONTSIZE = 4;
 
         public const float MAXMARGIN = 500f;
         public const float MINMARGIN = 0f;
@@ -93,7 +94,7 @@ namespace Ganymed.Monitoring.Configuration
 
         #region --- [CONSTRUCTOR] ---
 
-        public Configurable()
+        protected Configurable()
         {
             UnityEventCallbacks.AddEventListener(Validate, true, UnityEventType.Start, UnityEventType.Recompile);
         }
@@ -104,9 +105,9 @@ namespace Ganymed.Monitoring.Configuration
 
         #region --- [VALIDATION] ---
 
-        public void Validate(UnityEventType eventType = UnityEventType.Unknown)
+        public void Validate(UnityEventType eventType = UnityEventType.Recompile)
         {
-            OnValuesChanged?.Invoke(this, Converter.ToOrigin(eventType));
+            OnValuesChanged?.Invoke(eventType.ToOrigin());
         } 
 
         #endregion

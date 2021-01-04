@@ -12,22 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b64afdf0d66595048ba1cd7f59206e20, type: 3}
   m_Name: Module_FPS
   m_EditorClassIdentifier: 
-  currentVisibility: 0
-  visibilityOnLoad: 0
-  visibilityOnEdit: 0
+  isEnabled: 1
+  isActive: 1
   useCustomStyle: 1
-  customConfigurable: {fileID: 11400000, guid: e6f4ee320597d064f94ee3e6d140c4a6, type: 2}
+  customStyle: {fileID: 11400000, guid: e6f4ee320597d064f94ee3e6d140c4a6, type: 2}
   previewValueAs: 0
   prefixText: 
   suffixText: fps
   prefixBreak: 0
   suffixBreak: 0
-  autoInspect: 0
-  InspectOn: 2
-  milliseconds: 1000
+  description: 
+  enableAutoInspection: 0
+  secondsBetweenInspections: 1
   preDecimalPlaces: 3
   postDecimalPlaces: 2
-  measurePeriod: 0.94
+  measurePeriod: 0.5
   colorMin: {r: 0.7735849, g: 0.18850811, b: 0, a: 1}
   thresholdOne: 30
   colorMid: {r: 1, g: 0.8731508, b: 0, a: 1}

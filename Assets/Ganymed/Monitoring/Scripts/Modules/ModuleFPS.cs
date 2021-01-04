@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Globalization;
 using Ganymed.Monitoring.Core;
-using Ganymed.Utils;
-using Ganymed.Utils.Callbacks;
 using Ganymed.Utils.ExtensionMethods;
 using UnityEngine;
 
 namespace Ganymed.Monitoring.Modules
 {
-    [CreateAssetMenu(fileName = "Module_FPS", menuName = "Monitoring/Modules/FPS")]
+    [CreateAssetMenu(fileName = "Module_FPS", menuName = "Monitoring/ModuleDictionary/FPS")]
     public sealed class ModuleFPS : Module<float>
     {
         #region --- [INSPECTOR] ---
@@ -44,9 +42,11 @@ namespace Ganymed.Monitoring.Modules
         #endregion
         
         #region --- [PROPERTIES] ---
-
+        
+        
         public static float CurrentFps { get; private set; } = 0;
         public static float MeasurePeriod { get; private set; } = 0;
+        
 
         #endregion
         
@@ -60,18 +60,18 @@ namespace Ganymed.Monitoring.Modules
         
         #region --- [MODULE] ---
 
-        protected override string DynamicValue(float value)
+        protected override string ValueToString(float currentValue)
         { return
-                $"{(value >= thresholdTwo ? cMax : value >= thresholdOne ? colorMidMarkup : colorMinMarkup)}" +
-                $"{value.ToString($"{preDecimalPlaces.ToFormat()}.{postDecimalPlaces.ToFormat()}", culture)}";
+                $"{(currentValue >= thresholdTwo ? cMax : currentValue >= thresholdOne ? colorMidMarkup : colorMinMarkup)}" +
+                $"{currentValue.ToString($"{preDecimalPlaces.Repeat("0")}.{postDecimalPlaces.Repeat("0")}", culture)}";
         }
         
         protected override void OnInitialize()
         {
-            SetValueDelegate(ref OnValueChanged);
+            MeasurePeriod = measurePeriod;
+            SetUpdateDelegate(ref OnValueChanged);
             ResetValues();
             CompileMarkup();
-            UnityEventCallbacks.AddEventListener(CalculateFPS, true, CallbackDuring.PlayMode, UnityEventType.Update);
             OnValueChanged?.Invoke(CurrentFps);
         }
         
@@ -96,12 +96,11 @@ namespace Ganymed.Monitoring.Modules
             base.OnValidate();
         }
 
-        
         private void CompileMarkup()
         {
-            colorMinMarkup = colorMin.ToRichTextMarkup();
-            colorMidMarkup = colorMid.ToRichTextMarkup();
-            cMax = colorMax.ToRichTextMarkup();
+            colorMinMarkup = colorMin.AsRichText();
+            colorMidMarkup = colorMid.AsRichText();
+            cMax = colorMax.AsRichText();
 
             if (thresholdOne > lastThresholdOne)
             {
@@ -123,11 +122,7 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [FPS CALCULATION] ---
         
-        /// <summary>
-        /// Calculates the current frames per second
-        /// </summary>
-        /// <param name="eventType"></param>
-        private void CalculateFPS(UnityEventType eventType)
+        protected override void Tick()
         {
             fps++;
             timer += Time.deltaTime;
@@ -141,7 +136,9 @@ namespace Ganymed.Monitoring.Modules
 
             lastFPS = fps;
             fps = 0;
-            timer = 0;
+
+            var rest = measurePeriod - timer;
+            timer = rest;
         }
 
         #endregion

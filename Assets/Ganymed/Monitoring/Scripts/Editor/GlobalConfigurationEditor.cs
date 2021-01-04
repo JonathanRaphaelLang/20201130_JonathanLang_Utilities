@@ -7,7 +7,7 @@ namespace Ganymed.Monitoring.Editor
 {
     [CustomEditor(typeof(GlobalConfiguration))]
     [CanEditMultipleObjects]
-    public class GlobalConfigurationEditor : StyleEditor
+    public class GlobalConfigurationEditor : ConfigurableEditor
     {
         public override void OnInspectorGUI()
         {

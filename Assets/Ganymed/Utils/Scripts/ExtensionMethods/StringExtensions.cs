@@ -49,6 +49,11 @@ namespace Ganymed.Utils.ExtensionMethods
             StartAndEnd
         }
 
+        public static string RemoveBreaks(this string input)
+        {
+            return input.Replace("\n", string.Empty);
+        }
+
         public static string Cut(this string input, CutEnum cut = CutEnum.StartAndEnd, char character = ' ')
         {
             switch (cut)

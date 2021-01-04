@@ -83,7 +83,7 @@ namespace Ganymed.Monitoring.Configuration
         #region --- [EVENTS] ---
 
         public static event Action<GlobalConfiguration> OnActiveConfigurationChanged;
-        public static event Action<Visibility> OnVisiblityChanged;
+        public static event Action<bool> OnActiveStateChanged;
         
         #endregion
         
@@ -110,13 +110,14 @@ namespace Ganymed.Monitoring.Configuration
             }
 
             if(active != lastActive)
-                OnVisiblityChanged?.Invoke(active? Visibility.ActiveAndVisible : Visibility.ActiveAndHidden);
+                OnActiveStateChanged?.Invoke(active);
             lastActive = active;
             
             if(MonitorBehaviour.Instance.MonitoringCanvasBehaviour == null) return;
-            active = MonitorBehaviour.Instance.MonitoringCanvasBehaviour.VisibilityFlags == Visibility.ActiveAndVisible;
+            active = MonitorBehaviour.Instance.MonitoringCanvasBehaviour.IsActive;
             if (active != lastActive)
                 lastActive = active;
+            
             OnActiveConfigurationChanged?.Invoke(this);
         }
 

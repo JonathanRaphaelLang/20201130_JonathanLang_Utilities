@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Ganymed.Utils.Handler;
+using UnityEngine;
 
 namespace Ganymed.Utils.Singleton
 {

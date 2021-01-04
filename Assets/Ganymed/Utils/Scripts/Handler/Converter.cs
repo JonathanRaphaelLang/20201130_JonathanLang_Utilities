@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ganymed.Utils
+namespace Ganymed.Utils.Handler
 {
     public static class Converter
     {
@@ -24,8 +24,6 @@ namespace Ganymed.Utils
                     return InvokeOrigin.Recompile;
                 
                 case UnityEventType.ManuallyInvoked:
-                case UnityEventType.Unknown:
-                    return InvokeOrigin.Unknown;
                 
                 case UnityEventType.EditorApplicationStart:
                 case UnityEventType.OnEnable:

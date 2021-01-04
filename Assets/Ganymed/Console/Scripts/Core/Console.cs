@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Ganymed.Console.Enumerations;
+using Ganymed.Console.Attributes;
+using Ganymed.Console.Processor;
 using Ganymed.Utils;
 using Ganymed.Utils.Callbacks;
 using Ganymed.Utils.ExtensionMethods;
 using Ganymed.Utils.Singleton;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Ganymed.Console.Core
 {
-    public class Console : MonoSingleton<Console>, IVisible
+    public sealed class Console : MonoSingleton<Console>, IState
     {
+        
         #region --- [INSPECOTR] ---
 #pragma warning disable 649
 #pragma warning disable 414
@@ -25,10 +27,10 @@ namespace Ganymed.Console.Core
         
         [Space]
         [SerializeField] private TMP_InputField inputField;
-        [SerializeField] private TextMeshProUGUI chatTextField;
-        [SerializeField] private TextMeshProUGUI placeHolder;
-        [SerializeField] private TextMeshProUGUI proposalField;
-        [SerializeField] private TextMeshProUGUI inputFieldText;
+        [SerializeField] private TextMeshProUGUI outputField;
+        [SerializeField] private TextMeshProUGUI inputPlaceHolder;
+        [SerializeField] private TextMeshProUGUI inputProposal;
+        [SerializeField] private TextMeshProUGUI inputText;
         [Space]
         [SerializeField] private Image frostedGlass; 
         [SerializeField] private Image backgroundImage; 
@@ -48,7 +50,7 @@ namespace Ganymed.Console.Core
 
         private readonly List<InputCache> InputCacheStack = new List<InputCache>();
         private int viewedIndex = 0;
-
+        
         private readonly struct InputCache
         {
             public readonly string text;
@@ -61,45 +63,130 @@ namespace Ganymed.Console.Core
             }
         }
         
-        private static TMP_InputField InputField = null;
-        private static TextMeshProUGUI ChatTextField = null;
+        private static TMP_InputField Input
+        {
+            get => _input != null? _input : Instance.inputField;
+            set => _input = value;
+        }
+        
+        private static TMP_InputField _input = null;
+        
+        private static TextMeshProUGUI Output
+        {
+            set => _output = value;
+            get => _output != null ? _output : null;
+        }
+        
+        private static TextMeshProUGUI _output = null;
+        
         private static TextMeshProUGUI InputFieldText = null;
 
         private string proposedCommandDescription = string.Empty;
         private string proposedCommand = string.Empty;
         private bool applyProposedCommand = false;
+
+        private static LogTypeFlags allowedUnityMessages = LogTypeFlags.None;
+        private static LogTypeFlags logStackTraceOn = LogTypeFlags.None;
+
+        private static bool enableCursorOnActivation = false;
+        private static bool logTimeOnInput = true;
+        
+        private static int breakLineHeight = 150;
+        private static int defaultLineHeight = 100;
+
+        
+        private static Color colorLog = Color.magenta;
+        private static Color colorWarning = Color.magenta;
+        private static Color colorError = Color.magenta;
+        private static Color colorLogCondition = Color.magenta;
+        private static Color colorStackTrace = Color.magenta;
+        private static Color colorMarker = Color.magenta;
+        private static Color colorInput = Color.magenta;
+        private static Color colorValidInput = Color.magenta;
+        private static Color colorOptionalParamsLeft = Color.magenta;
+        private static Color colorIncompleteInput = Color.magenta;
+        [GetSet]private static Color colorIncorrectInput = Color.magenta;
+        private static Color colorInformation = Color.magenta;
+        private static Color colorAutocompletion = Color.magenta;
+        public static Color colorSender = Color.magenta;
+        public static Color colorTitles = Color.magenta;
+        [Setter]public static Color colorEmphasize = Color.magenta;
+        [Setter]private static Color colorCommandInput = Color.magenta;
+        [Setter] private static Color colorTextInput = Color.magenta;
+
+        private ConsoleConfiguration lastConsoleConfiguration = null;
+        
+        private static readonly WaitForEndOfFrame endOfFrame = new WaitForEndOfFrame();
         
         #endregion
 
         #region --- [PORPERTIES] ---
-        public static ConsoleConfiguration Configuration => Instance.config;
+
+        [Getter]
+        private static int field = 0;
+
+        [GetSet("Prop")]
+        private static int Property
+        {
+            get => field;
+            set
+            {
+                Debug.Log(value);
+                field = value;
+            }
+        }
+        
+        [Getter]
+        public static float FontSize
+        {
+            get => Output.fontSize;
+            set
+            {
+                Instance.config.fontSize
+                    = Mathf.Clamp(value, ConsoleConfiguration.MinFontSize, ConsoleConfiguration.MaxFontSize);
+                Instance.SetConfiguration();
+            }
+        }
+
+        [Getter]
+        public static float FontSizeInput
+        {
+            get => Input.pointSize;
+            set
+            {
+                Instance.config.inputFontSize
+                    = Mathf.Clamp(value, ConsoleConfiguration.MinFontSize, ConsoleConfiguration.MaxFontSize);
+                Instance.SetConfiguration();
+            }
+        }
+
+        [Getter]
+        public bool FrostedGlassShader
+        {
+            get => Instance.config.allowFrostedGlassEffect;
+            set
+            {
+                Instance.config.allowFrostedGlassEffect = value;
+                Instance.SetConfiguration();
+            }
+        }
+
+        [Getter]
+        public static ConsoleConfiguration Configuration 
+            => TryGetInstance(out var instance) ? instance.config : null;
 
         #endregion
 
-        #region --- [CONST] ---
+        #region --- [EVENTS] ---
 
-        public const int MaxFontSize = 20;
-        public const int MinFontSize = 6;
+        public static Action<string> OnLog;
+        public static Action<bool> OnToggle;
 
         #endregion
 
         //--------------------------------------------------------------------------------------------------------------
 
         #region --- [VALIDATION] ---
-
-        private ConsoleConfiguration lastConsoleConfiguration = null;
-
-
-        //---- COLOR
-        private static string warningColor = string.Empty;
-        private static string errorColor = string.Empty;
-
-        private static Color defaultInputColor = Color.magenta;
-        private static Color validColor = Color.magenta;
-        private static Color optionalParamsLeftColor = Color.magenta;
-        private static Color incompleteColor = Color.magenta;
-        private static Color incorrectColor = Color.magenta;
-        private static Color infoColor = Color.magenta;
         
         private void OnValidate()
         {
@@ -135,41 +222,69 @@ namespace Ganymed.Console.Core
         
         //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [CONFIGURATION] ---
+        #region --- [CONFIGURATION VALIDATION] ---
 
         /// <summary>
-        /// This methods applies the configuration settings to the Console
+        /// This methods applies the configuration settings to the Command
         /// </summary>
         private async void SetConfiguration()
         {
             if(this == null) return;
             
-            inputFieldText.fontSize = config.inputFontSize;
-            proposalField.fontSize = config.inputFontSize;
-            placeHolder.fontSize = config.inputFontSize;
-            chatTextField.fontSize = config.chatFontSize;
+            enableCursorOnActivation = config.enableCursorOnActivation;
+            breakLineHeight = config.breakLineHeight;
+            defaultLineHeight = config.defaultLineHeight;
+            allowedUnityMessages = config.allowedUnityMessages;
+            logStackTraceOn = config.logStackTraceOn;
+            logTimeOnInput = config.logTimeOnInput;
 
-            #region --- [COLOR] ---
+            #region --- [FONTSIZE] ---
 
-            defaultInputColor = config.inputColor;
-            validColor = config.validColor;
-            optionalParamsLeftColor = config.optionalParamsLeftColor;
-            incompleteColor = config.incompleteColor;
-            incorrectColor = config.incorrectColor;
-            infoColor = config.infoColor;
-            warningColor = config.warningColor.ToRichTextMarkup();
-            errorColor = config.errorColor.ToRichTextMarkup();
-
-            if (chatTextField != null)
-                chatTextField.color = config.chatColor;
-            
-            if(backgroundImage != null)
-                backgroundImage.color = config.consoleBackgroundColor;
-
-            if (config.visibility != VisibilityFlags)
-                SetVisibility(config.visibility);
+            inputField.pointSize = config.inputFontSize;
+            inputProposal.fontSize = config.inputFontSize;
+            inputText.fontSize = config.inputFontSize;
+            inputPlaceHolder.fontSize = config.inputFontSize;
+            outputField.fontSize = config.fontSize;
 
             #endregion
+            
+            #region --- [COLOR] ---
+
+            colorInput = config.colorInput;
+            colorValidInput = config.colorValid;
+            colorIncompleteInput = config.colorIncompleteInput;
+            colorIncorrectInput = config.colorIncorrectInput;
+            colorOptionalParamsLeft = config.colorOptionalParamsLeft;
+            colorInformation = config.colorInformation;
+            colorLog = config.colorLog;
+            colorWarning = config.colorWarning;
+            colorError = config.colorError;
+            colorLogCondition = config.colorLogCondition;
+            colorStackTrace = config.colorStackTrace;
+            colorMarker = config.colorMarker;
+            colorCommandInput = config.colorCommandInput;
+            colorTextInput = config.colorTextInput;
+            colorAutocompletion = config.colorAutocompletion;
+            colorTitles = config.colorTitles;
+            colorEmphasize = config.colorEmphasize;
+            colorSender = config.colorSender;
+
+            if (outputField != null)
+                outputField.color = config.colorOutput;
+
+            if (inputProposal != null)
+                inputProposal.color = colorAutocompletion;
+            
+            if(backgroundImage != null)
+                backgroundImage.color = config.colorConsoleBackground;
+
+            #endregion
+            
+            if (config.enabled != isEnabled)
+                SetEnabled(config.enabled);
+            
+            if (config.active != isActive)
+                SetActive(config.active);
 
             if(frostedGlass != null)
                 frostedGlass.enabled = config.allowFrostedGlassEffect;
@@ -177,7 +292,7 @@ namespace Ganymed.Console.Core
             // --- BIND DEBUG CONSOLE
             if (Application.isPlaying)
             {
-                if (config.bindDebugConsoleToConsole) {
+                if (config.bindConsoles) {
                     Application.logMessageReceived -= OnLogMessageReceived;
                     Application.logMessageReceived += OnLogMessageReceived;
                 }
@@ -186,8 +301,8 @@ namespace Ganymed.Console.Core
                 }    
             }
 
-            scrollbar.color = config.scrollbarColor;
-            scrollbarHandle.color = config.scrollbarHandleColor;
+            scrollbar.color = config.colorScrollbar;
+            scrollbarHandle.color = config.colorScrollbarHandle;
 
             //This is a hack to prevent the fucking annoying "sEnDMesSAge caNnOt bE cAlLEd DuRinG AWaKe" Waring.
             await Task.Delay(1);
@@ -203,156 +318,167 @@ namespace Ganymed.Console.Core
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
-        //TODO: Outsource
         
-        #region --- [TOGGLE] ---
-
-        public void ToggleConsole()
-        {
-            SetVisibility(VisibilityFlags == Visibility.ActiveAndVisible
-                ? Visibility.ActiveAndHidden
-                : Visibility.ActiveAndVisible);    
-        }
-        
-        private void _Update()
-        {
-            if (Input.GetKeyDown(config.ToggleKey))
-            {
-                ToggleConsole();  
-            }
-        }       
-        
-        public void ButtonClearConsole() => ClearConsole(true);
-        
-        public void DeselectInputField()
-        {
-            inputField.DeactivateInputField();
-        }
-
-        #endregion
-        
-        //--------------------------------------------------------------------------------------------------------------
-
         #region --- [COMMANDS] ---
 
-        [Command("Clear")]
+        [Command("RichText", "Enable / disable RichText. Use for text/formatting debugging")]
+        private static void SetRichText(bool enable = true)
+            => Output.richText = enable;
+
+        [Command("Clear", "Clear the console")]
         private static void ClearConsole(bool clearCache)
         {
-            InputField.text = string.Empty;
-            ChatTextField.text = string.Empty;
+            Input.text = string.Empty;
+            Output.text = string.Empty;
 
             if (!clearCache) return;
             Instance.InputCacheStack.Clear();
             Instance.viewedIndex = 0;
         }
-        
-        [Command("Console", true)]
-        private static void SetProperty(ConsoleProperties property, bool value)
-        {
-            switch (property)
-            {
-                case ConsoleProperties.AllowFrostedGlass:
-                    Instance.config.allowFrostedGlassEffect = value;
-                    break;
-                case ConsoleProperties.InputFontSize:
-                case ConsoleProperties.OutputFontSize:
-                case ConsoleProperties.FontSize:
-                    return;
-            }
-            
-            Instance.SetConfiguration();
-        }
-        
-        [Command("Console")]
-        private static void SetProperty(ConsoleProperties property, int value)
-        {
-            switch (property)
-            {
-                case ConsoleProperties.AllowFrostedGlass:
-                    return;
-                case ConsoleProperties.InputFontSize:
-                    Instance.config.inputFontSize = Mathf.Clamp(value, MinFontSize, MaxFontSize);
-                    break;
-                case ConsoleProperties.OutputFontSize:
-                    Instance.config.chatFontSize = Mathf.Clamp(value, MinFontSize, MaxFontSize);
-                    break;
-                case ConsoleProperties.FontSize:
-                    Instance.config.inputFontSize = Mathf.Clamp(value, MinFontSize, MaxFontSize);
-                    Instance.config.chatFontSize = Mathf.Clamp(value, MinFontSize, MaxFontSize);
-                    break;
-            }
-            Instance.SetConfiguration();
-        }
-
-        private enum ConsoleProperties
-        {
-            AllowFrostedGlass,
-            FontSize,
-            InputFontSize,
-            OutputFontSize
-        }
-
-        [Command("ConsoleConfig")]
-        private static void LogConsoleConfiguration()
-        {
-            BeginTransmission(true);
-            Transmit("Info Operator", Configuration.infoOperator);
-            Transmit("Command Prefix:", Configuration.CommandPrefix);
-            Transmit("Chat FontSize:", Configuration.chatFontSize);
-            Transmit("Input FontSize:", Configuration.inputFontSize);
-            Transmit("Chat FontSize:", Configuration.infoOperator);
-            SendTransmission();
-        }
 
         #endregion
 
         //--------------------------------------------------------------------------------------------------------------
         
-        #region --- [VISIBLILTY] ---
+        #region --- [STATE] ---
+        
+        //TODO: rework Editor script affecting isEnabled and isActive
+   
+        /// <summary>
+        /// Use this method to toggle the console On/Off
+        /// </summary>
+        public void ToggleConsole() => SetActive(!isActive); 
 
-        public Visibility VisibilityFlags { get; private set; } = Visibility.Inactive;
-        public void SetVisibility(Visibility visibility)
+        public event ActiveAndEnabledDelegate OnActiveAndEnabledStateChanged;
+        public event ActiveDelegate OnActiveStateChanged;
+        public event EnabledDelegate OnEnabledStateChanged;
+
+        public bool IsEnabled
         {
-            if(gameObject == null) return;
-            
-            OnVisibilityChanged?.Invoke(VisibilityFlags, visibility);
-            VisibilityFlags = visibility;
-            
-            switch (visibility)
+            get => isEnabled;
+            private set
             {
-                case Visibility.ActiveAndVisible:
-                    consoleFrame.SetActive(true);
-                    gameObject.SetActive(true);
-                    inputField.ActivateInputField();
-                    break;
-                case Visibility.ActiveAndHidden:
-                    consoleFrame.SetActive(false);
-                    break;
-                case Visibility.Inactive:
-                    gameObject.SetActive(false);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(visibility), visibility, null);
+                isEnabled = value;
+                Configuration.enabled = value;
+
+                
+
+                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+                OnEnabledStateChanged?.Invoke(value);
+                
+                if (isActive && value) ActivateConsole();
+                if (!value) IsActive = false;
+                else DeactivateConsole();
+            }
+        }
+        [SerializeField] [HideInInspector] private bool isEnabled = true;
+        public void SetEnabled(bool enable)
+            => IsEnabled = enable;
+
+
+        public bool IsActive
+        {
+            get => isActive;
+            private set
+            {
+                isActive = value;
+                Configuration.active = value;
+                
+                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+                OnActiveStateChanged?.Invoke(value);
+                
+                if (isEnabled && value) ActivateConsole();
+                else DeactivateConsole();
+            }
+        }
+        
+        [SerializeField] [HideInInspector] private bool isActive;
+        public void SetActive(bool active)
+            => IsActive = isEnabled? active : isActive;
+        
+
+        
+        public bool IsActiveAndEnabled
+        {
+            get => IsEnabled && IsActive;
+            private set
+            {
+                isEnabled = value;
+                isActive = value;
+                
+                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+                OnEnabledStateChanged?.Invoke(value);
+                OnActiveStateChanged?.Invoke(value);
+
+                if (value) ActivateConsole();
+                else DeactivateConsole();
             }
         }
 
-        public event VisibilityDelegate OnVisibilityChanged;
+        public void SetActiveAndEnabled(bool value)
+            => IsActiveAndEnabled = value;
+        
+        #endregion
+        
+        #region --- [ACTIVATION] ---
+        
+        private bool cachedCursorVisibility = false;
+        private CursorLockMode cachedCursorState = CursorLockMode.None;
+
+
+        private void ActivateConsole()
+        {
+            consoleFrame.SetActive(true);
+            gameObject.SetActive(true);
+            inputField.ActivateInputField();
+            if (enableCursorOnActivation)
+            {
+                cachedCursorVisibility = Cursor.visible;
+                cachedCursorState = Cursor.lockState;
+                        
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+            }
+            OnToggle?.Invoke(true);
+        }
+
+
+        private void DeactivateConsole()
+        {
+#if UNITY_EDITOR
+            if(Application.isPlaying) ClearInput();
+#else
+            ClearInput();
+#endif
+            
+            consoleFrame.SetActive(false);
+            if (enableCursorOnActivation)
+            {
+                Cursor.visible = cachedCursorVisibility;
+                Cursor.lockState = cachedCursorState;
+            }
+            OnToggle?.Invoke(false);
+        }
 
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [INPUT] ---
+        #region --- [UPDATE] ---
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Tab) && proposedCommand != string.Empty)
+            if (UnityEngine.Input.GetKeyDown(config.ToggleKey))
+            {
+                ToggleConsole();  
+            }
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Tab) && proposedCommand != string.Empty)
             {
                 inputField.text = proposedCommand;
-                StartCoroutine(MoveSelectionToEndOfLine());
+                StartCoroutine(MoveSelectionToEndOfLine()); 
             }
-            if(Input.GetKeyDown(config.PreviousInput)) SelectPreviousFromCache();
-            if(Input.GetKeyDown(config.SubsequentInput)) SelectSubsequentFromCache();
+            if(UnityEngine.Input.GetKeyDown(config.PreviousInput)) SelectPreviousFromCache();
+            if(UnityEngine.Input.GetKeyDown(config.SubsequentInput)) SelectSubsequentFromCache();
         }
 
         private void LateUpdate()
@@ -377,10 +503,25 @@ namespace Ganymed.Console.Core
 
             CacheInput(input);
 
-            if (input.StartsWith(CommandHandler.Prefix))
+            if (input.StartsWith(CommandProcessor.Prefix))
             {
-                Log(input, MessageFormat.Sender, 120);
-                CommandHandler.ProcessCommand(input);
+                if (MethodProcessor.IsValid(input))
+                {
+                    Log(input,
+                        colorCommandInput,
+                        breakLineHeight,
+                        LogOptions.IsInput);
+                }
+                else
+                {
+                    Log(input,
+                        colorEmphasize,
+                        breakLineHeight,
+                        LogOptions.IsInput | LogOptions.Cross);
+                }
+                
+                
+                MethodProcessor.ProcessCommand(input);
             }
                 
             else
@@ -400,9 +541,13 @@ namespace Ganymed.Console.Core
             proposedCommandDescription = string.Empty;
             proposedCommand = string.Empty;
 
-            if (config.allowCommandPreProcessing && input.Cut(StringExtensions.CutEnum.Start).StartsWith(CommandHandler.Prefix))
+            if (config.allowCommandPreProcessing && input.Cut(StringExtensions.CutEnum.Start).StartsWith(CommandProcessor.Prefix))
             {
-                if (CommandHandler.Propose(input, out var descriptiveProposal, out var proposal, out var validationFlag)) //TODO: out color
+                if (MethodProcessor.Propose(
+                    input,
+                    out var descriptiveProposal,
+                    out var proposal,
+                    out var validationFlag))
                 {
                     proposedCommandDescription = descriptiveProposal;
                     proposedCommand = proposal;
@@ -415,7 +560,7 @@ namespace Ganymed.Console.Core
                 SetColor(InputValidation.None);
             }
             
-            proposalField.text = proposedCommandDescription;
+            inputProposal.text = proposedCommandDescription;
         }
 
         #endregion
@@ -427,171 +572,158 @@ namespace Ganymed.Console.Core
         private static void OnLogMessageReceived(string condition, string stacktrace, LogType type)
         {
             if(!Application.isPlaying) return;
-            Log(condition);
-            if(type == LogType.Error)
-                Log(stacktrace);
-        }
 
-        #endregion
-        
-        //--------------------------------------------------------------------------------------------------------------
-        //--- MESSAGE
-        
-        #region --- [CONSOLE TRANSMISSION] ---
-
-        private static bool isTransmitting = false;
-        private static bool isEnumeration = false;
-        private static int transmissionIndex = 0;
-        private static MessageOptions usedOptions;
-        private static readonly string EvenColor = new Color(0.72f, 0.7f, 0.85f).ToRichTextMarkup();
-        private static readonly List<List<string>> transmissions = new List<List<string>>();
-        private static readonly List<List<MessageOptions>> transmissionOptions = new List<List<MessageOptions>>();
-        private static readonly List<int> maxLength = new List<int>();
-        
-        [Flags]
-        public enum MessageOptions
-        {
-            None = 0,
-            Break = 1,
-            Bold = 2,
-            Cursive = 4
-        }
-
-        /// <summary>
-        /// Begin a transition. Use Transmit() to append messages you would like to add to the transmission.
-        /// Use SendTransmission (out param) to Send the Transmission.
-        /// </summary>
-        /// <param name="enumeration"></param>
-        public static void BeginTransmission(bool enumeration = false)
-        {
-            isTransmitting = true;
-            transmissions.Clear();
-            maxLength.Clear();
-            transmissionIndex = 0;
-            usedOptions = MessageOptions.None;
-            isEnumeration = enumeration;
-        }
-        
-        public static void SendTransmission()
-        {
-            var message = string.Empty;
+            const LogOptions tab = LogOptions.Tab;
+            const LogOptions endLine = LogOptions.EndLine | LogOptions.Tab;
             
-            for (var i = 0; i < transmissions.Count; i++)
+            switch (type)
             {
-                for (var j = 0; j < transmissions[i].Count; j++)
-                {
-                    if(maxLength.Cut() < j)
-                        maxLength.Add(0);
-                    
-                    if (transmissions[i][j].Length > maxLength[j])
-                        maxLength[j] = transmissions[i][j].Length;
-                }
-            }
-            
-            for (var i = 0; i < transmissions.Count; i++)
-            {
-                for (var j = 0; j < transmissions[i].Count; j++)
-                {
-                    if (transmissions[i].Cut() >= j)
+                case LogType.Error when allowedUnityMessages.HasFlag(LogTypeFlags.Error):
+                    Log("System Error:", colorError, LogOptions.IsInput);
+                    if (logStackTraceOn.HasFlag(LogTypeFlags.Error))
                     {
-                        message += $"{(j == 0 && i != 0? "\n" : string.Empty)}" +
-                                   $"{(isEnumeration && j == 0? i.IsEven()? EvenColor : "</color>" : string.Empty)}" +
-                                   //------------------------
-                                   $"{transmissions[i][j]}" +
-                                   //------------------------
-                                   $"{(j < transmissions[i].Cut()? (maxLength[j] - transmissions[i][j].Length + 1).Repeat() : string.Empty)}" +
-                                   $"{(i == transmissions.Cut()? LineHeight(150) : string.Empty)}";     
+                        Log(condition, colorLogCondition, tab);
+                        Log(stacktrace.RemoveBreaks(), colorStackTrace, endLine);
                     }
-                }
-            }
-            
-            isTransmitting = false;
-            
-            Log(message);
-        }
-        
-        public static void Transmit(params object[] messages)
-        {
-            if(!isTransmitting)
-                Debug.LogWarning("You are transmitting a message while no transmission has begun!");
-
-            for (var i = 0; i < messages.Length; i++)
-            {
-                if (i == 0)
-                {
-                    var message = $"{messages[i]}";
-                    transmissions.Add(new List<string>(){message});
-                }
-                else if (transmissions[transmissions.Cut()].Cut() < i)
-                {
-                    var message = $"{messages[i]}";
-                    transmissions[transmissions.Cut()].Add(message);
-                }
-            }
-        }
-        
-        public static void Transmit(object message, int column = 0, MessageOptions options = MessageOptions.None)
-        {
-            if(!isTransmitting)
-                Debug.LogWarning("You are transmitting a message while no transmission has begun!");
-            
-            var br = options.HasFlag(MessageOptions.Break);
-            var bold = options.HasFlag(MessageOptions.Bold);
-            var cursive = options.HasFlag(MessageOptions.Cursive);
-
-            if (br && !usedOptions.HasFlag(MessageOptions.Break))
-                usedOptions |= MessageOptions.Break;
-            if (bold && !usedOptions.HasFlag(MessageOptions.Bold))
-                usedOptions |= MessageOptions.Bold;
-            if (cursive && !usedOptions.HasFlag(MessageOptions.Cursive))
-                usedOptions |= MessageOptions.Cursive;
-            
-            var formatted = 
-                $"{(bold? "<b>" : string.Empty)}" +
-                $"{message}" +
-                $"{(br? LineHeight(150) : LineHeight(100))}";
-
-            
-            if (column == 0)
-            {
-                transmissions.Add(new List<string>(){formatted});
-                transmissionIndex++;
-            }
-            else if (transmissions[transmissions.Cut()].Cut() < column)
-            {
-                transmissions[transmissions.Cut()].Add(formatted);
+                    else
+                    {
+                        Log(condition, colorLogCondition, endLine);
+                    }
+                    break;
+                
+                
+                case LogType.Assert when allowedUnityMessages.HasFlag(LogTypeFlags.Assert):
+                    Log("System Assert:", LogOptions.IsInput);
+                    if (logStackTraceOn.HasFlag(LogTypeFlags.Assert))
+                    {
+                        Log(condition, colorLogCondition, tab);
+                        Log(stacktrace.RemoveBreaks(), colorStackTrace, endLine);
+                    }
+                    else
+                    {
+                        Log(condition, colorLogCondition, endLine);
+                    }
+                    break;
+                
+                
+                case LogType.Warning when allowedUnityMessages.HasFlag(LogTypeFlags.Warning):
+                    Log("System Warning:", colorWarning, LogOptions.IsInput);
+                    if (logStackTraceOn.HasFlag(LogTypeFlags.Warning))
+                    {
+                        Log(condition, colorLogCondition, tab);
+                        Log(stacktrace.RemoveBreaks(), colorStackTrace, endLine);
+                    }
+                    else
+                    {
+                        Log(condition, colorLogCondition, endLine);
+                    }
+                    break;
+                
+                
+                case LogType.Log when allowedUnityMessages.HasFlag(LogTypeFlags.Log):
+                    Log("System:", colorLog, LogOptions.IsInput);
+                    if (logStackTraceOn.HasFlag(LogTypeFlags.Log))
+                    {
+                        Log(condition, colorLogCondition, tab);
+                        Log(stacktrace.RemoveBreaks(), colorStackTrace, endLine);
+                    }
+                    else
+                    {
+                        Log(condition, colorLogCondition, endLine);
+                    }
+                    break;
+                
+                
+                case LogType.Exception when allowedUnityMessages.HasFlag(LogTypeFlags.Exception):
+                    Log("System Exception:", colorError, LogOptions.IsInput);
+                    if (logStackTraceOn.HasFlag(LogTypeFlags.Exception))
+                    {
+                        Log(condition, colorLogCondition, tab);
+                        Log(stacktrace.RemoveBreaks(), colorStackTrace, endLine);
+                    }
+                    else
+                    {
+                        Log(condition, colorLogCondition, endLine);
+                    }
+                    break;
+                
+                
+                default:
+                    return;
             }
         }
 
         #endregion
-
+       
+        //--------------------------------------------------------------------------------------------------------------
+        
         #region --- [CONSOLE LOG] ---
+
+        private const LogOptions logOptions = LogOptions.None;
         
-        public static void Log(object message, MessageFormat format = MessageFormat.None, int lineHeight = 100)
-            => Log(message.ToString(), format, lineHeight);
+        public static void Log(object message, LogOptions options = logOptions) 
+            => Log(message.ToString(), null, defaultLineHeight, options);
         
-        public static void Log(string message, MessageFormat format = MessageFormat.None, int lineHeight = 100)
+        public static void Log(object message, int lineHeight, LogOptions options = logOptions)
+            => Log(message.ToString(), null, lineHeight, options);
+        
+        public static void Log(object message, Color? color, LogOptions options = logOptions)
+            => Log(message.ToString(), color, defaultLineHeight, options);
+        
+        
+        public static void Log(string message, LogOptions options = logOptions) 
+            => Log(message, null, defaultLineHeight, options);
+        
+        public static void Log(string message, int lineHeight, LogOptions options = logOptions)
+            => Log(message, null, lineHeight, options);
+        
+        public static void Log(string message, Color? color, LogOptions options = logOptions)
+            => Log(message, color, defaultLineHeight, options);
+        
+        public static void Log(string message, Color? color, int lineHeight, LogOptions options = logOptions)
         {
-            switch (format)
+            if(Output == null) return;
+            
+            var prefix = string.Empty;
+            var suffix = string.Empty;
+            
+            if (!options.HasFlag(LogOptions.IgnoreFormatting))
+                prefix += $"</color>{lineHeight.AsLineHeight()}{color?.AsRichText()}";
+
+            if (!options.HasFlag(LogOptions.DontBreak))
+                prefix = $"\n{prefix}";
+
+            if (options.HasFlag(LogOptions.Cross))
             {
-                case MessageFormat.None:
-                    ChatTextField.text += $"\n</color>{LineHeight(lineHeight)}{message}";
-                    break;
-                case MessageFormat.Warning:
-                    ChatTextField.text += $"\n{warningColor}Warning\n{LineHeight(lineHeight)}{message}";
-                    break;
-                case MessageFormat.Error:
-                    ChatTextField.text += $"\n{errorColor}Error\n{LineHeight(lineHeight)}{message}";
-                    break;
-                case MessageFormat.NoBreak:
-                    ChatTextField.text += $"</color>{LineHeight(lineHeight)}{message}";
-                    break;
-                case MessageFormat.Sender:
-                    ChatTextField.text += $"\n</color>{new Color(0.16f, 0.9f, 1f).ToRichTextMarkup()}> {LineHeight(lineHeight)}{message}";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(format), format, null);
+                prefix += "<s>";
+                suffix += "</s>";
             }
+            
+            if (options.HasFlag(LogOptions.IsInput))
+            {
+                prefix += logTimeOnInput? $"[{DateTime.Now:hh:mm:ss}] > " : "> ";
+            }
+            
+            if (options.HasFlag(LogOptions.Tab))
+            {
+                prefix += "<indent=4px>";
+                suffix = "</indent>";
+            }
+            
+            if (options.HasFlag(LogOptions.EndLine))
+                suffix += breakLineHeight.AsLineHeight();
+
+            var compiled = $"{prefix}{message}{suffix}";
+            Output.text += compiled;
+            OnLog?.Invoke(compiled);
+        }
+
+        public static void LogRaw(object message)
+        {
+            if(Output == null) return;
+            
+            Output.text += message.ToString();
+            OnLog?.Invoke(message.ToString());
         }
         
         #endregion
@@ -605,22 +737,22 @@ namespace Ganymed.Console.Core
             switch (signature)
             {
                 case InputValidation.None:
-                    InputFieldText.color = defaultInputColor;
+                    InputFieldText.color = colorInput;
                     break;
                 case InputValidation.Valid:
-                    InputFieldText.color = validColor;
+                    InputFieldText.color = colorValidInput;
                     break;
                 case InputValidation.Incomplete:
-                    InputFieldText.color = incompleteColor;
+                    InputFieldText.color = colorIncompleteInput;
                     break;
                 case InputValidation.Incorrect:
-                    InputFieldText.color = incorrectColor;
+                    InputFieldText.color = colorIncorrectInput;
                     break;
                 case InputValidation.CommandInfo:
-                    InputFieldText.color = infoColor;
+                    InputFieldText.color = colorInformation;
                     break;
                 case InputValidation.Optional:
-                    InputFieldText.color = optionalParamsLeftColor;
+                    InputFieldText.color = colorOptionalParamsLeft;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(signature), signature, null);
@@ -636,7 +768,7 @@ namespace Ganymed.Console.Core
         
         //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [CREATE GAMEOBJECT (Editor)] ---
+        #region --- [GAMEOBJECT CREATION (Editor)] ---
 
 #if UNITY_EDITOR
         [UnityEditor.MenuItem("GameObject/Ganymed/Console",false, 12)]
@@ -655,7 +787,7 @@ namespace Ganymed.Console.Core
 
                     if (prefab.name != "Console") continue;
 
-                    var obj = Instantiate(prefab);
+                    PrefabUtility.InstantiatePrefab(prefab);
                     Console.Instance.Awake();
                     Debug.Log("Instantiated Console Prefab");
                     break;
@@ -684,27 +816,31 @@ namespace Ganymed.Console.Core
             Initialize();
         }
 
+        private async void Start()
+        {
+            await Task.Delay(1);
+            if(config.logConfigurationOnStart)
+                config.LogConfiguration(false);
+            
+            SetActive(config.activateConsoleOnStart);
+        }
+
+
         private void Initialize()
         {
             UnityEventCallbacks.ValidateUnityEventCallbacks();
             
             if(isInitialized || this == null) return;
-            SetVisibility(config.visibility);
+            SetActive(config.active);
             isInitialized = true;
             
-            chatTextField.text = string.Empty;
+            outputField.text = string.Empty;
             
-            UnityEventCallbacks.AddEventListener(
-                _Update,
-                true,
-                CallbackDuring.PlayMode,
-                UnityEventType.Update);
+            Output = outputField;
+            InputFieldText = inputText;
+            Input = inputField;
             
-            ChatTextField = chatTextField;
-            InputFieldText = inputFieldText;
-            InputField = inputField;
-            
-            if (config.bindDebugConsoleToConsole)
+            if (config.bindConsoles)
             {
                 Application.logMessageReceived -= OnLogMessageReceived;
                 Application.logMessageReceived += OnLogMessageReceived;
@@ -755,20 +891,15 @@ namespace Ganymed.Console.Core
             UnityEventCallbacks.RemoveEventListener(
                 ResetConsoleOnEdit,
                 UnityEventType.EnteredEditMode);
-            
-            UnityEventCallbacks.RemoveEventListener(
-                _Update,
-                CallbackDuring.PlayMode,
-                UnityEventType.Update);
         }
 
-        private void ResetConsoleOnEdit() => chatTextField.text = string.Empty;
+        private void ResetConsoleOnEdit() => outputField.text = string.Empty;
 
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [CACHING] ---
+        #region --- [INPUT CACHING] ---
 
         private void SelectPreviousFromCache()
         {
@@ -814,7 +945,6 @@ namespace Ganymed.Console.Core
                 
                 i++;
                 if (i < InputCacheStack.Count) continue;
-                //TODO: Check endless loop
                 break;
                 
             } while (string.IsNullOrWhiteSpace(InputCacheStack[viewedIndex].text));
@@ -826,21 +956,20 @@ namespace Ganymed.Console.Core
         private void CacheInput(string input)
         {
             var i = 0;
-            var Input = new InputCache(input, InputFieldText.color);
+            var inputCache = new InputCache(input, InputFieldText.color);
             //validate that the input wont cached multiple times.
-            while (InputCacheStack.Contains(Input))    
+            while (InputCacheStack.Contains(inputCache))    
             {
                 //remove the new input to prevent repetitions.
-                InputCacheStack.Remove(Input);
+                InputCacheStack.Remove(inputCache);
                 
                 i++;
                 if (i < InputCacheStack.Count) continue;
-                //TODO: Check endless loop
                 break;
             }
 
-            if (!InputCacheStack.Contains(Input))
-                InputCacheStack.Add(Input);
+            if (!InputCacheStack.Contains(inputCache))
+                InputCacheStack.Add(inputCache);
         }
        
         private void RemoveLastItemFromCache()
@@ -855,17 +984,18 @@ namespace Ganymed.Console.Core
         
         //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [EXTENSION] ---
+        #region --- [HELPER] ---
+        
+        public void ButtonClearConsole() => ClearConsole(true);
+        
 
-        private static string LineHeight(int value)
+        /// <summary>
+        /// Move the cursor to the end of the input field.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator MoveSelectionToEndOfLine() 
         {
-            return $"<line-height={value}%>";
-        }
-        
-        private static readonly WaitForEndOfFrame endOfFrame = new WaitForEndOfFrame();
-        
-        private IEnumerator MoveSelectionToEndOfLine()
-        {
+            // We use a coroutine because a task will not guarantee that we reached the end of the frame 
             yield return endOfFrame;
             inputField.MoveToEndOfLine(false,false);
         }
@@ -873,7 +1003,14 @@ namespace Ganymed.Console.Core
         
         private static void SetPrefix()
         {
-            CommandHandler.Prefix = Instance.config.CommandPrefix;
+            try
+            {
+                CommandProcessor.Prefix = Instance.config.CommandPrefix;
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         private void ClearInput(bool reactivateInputField = true)
@@ -884,7 +1021,6 @@ namespace Ganymed.Console.Core
             
             SetColor(InputValidation.None);
         }
-
         #endregion
     }
 }

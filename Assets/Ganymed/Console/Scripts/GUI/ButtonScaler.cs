@@ -1,110 +1,156 @@
-﻿using System.Threading.Tasks;
-using Ganymed.Console.GUI;
+﻿using System;
+using System.Collections;
+using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ButtonScaler : MonoBehaviour
+namespace Ganymed.Console.GUI
 {
-    #region --- [INSPECTOR && FIELDS] ---
+    public class ButtonScaler : MonoBehaviour
+    {
+        #region --- [INSPECTOR && FIELDS] ---
 
-    [Space]
-    [SerializeField] private RectTransform rect = null;
-    [SerializeField] private Image image = null;
-    [SerializeField] private Sprite iconFullSize = null;
-    [SerializeField] private Sprite iconNotFullSize = null;
-    [SerializeField] private Image backgroundImage = null;
-    
-    private Canvas canvas;
-    private Vector2 cachedPosition = Vector2.zero;
-    private float fallbackWidth = 500;
-    private float fallbackHeight = 200;
-    private Sprite cachedBackgroundSprite = null;
-
-    #endregion
-    
-    //--------------------------------------------------------------------------------------------------------------
+        [Header("Reference")]
+        [SerializeField] private RectTransform rect = null;
+        [SerializeField] private Image image = null;
+        [SerializeField] private Sprite iconFullSize = null;
+        [SerializeField] private Sprite iconNotFullSize = null;
+        [SerializeField] private Image backgroundImage = null;
+        [SerializeField] private TextMeshProUGUI textField = null;
+        [SerializeField] private Canvas canvas = null;
         
-    #region --- [SCALE] ---
+        private Vector2 cachedPosition = Vector2.zero;
+        private float fallbackWidth = 500;
+        private float fallbackHeight = 200;
+        private Sprite cachedBackgroundSprite = null;
+        private float scaleFactor = default;
+        
+        #endregion
     
-    private void Awake()
-    {
-        canvas = GetComponentInParent<Canvas>();
-    }
+        //--------------------------------------------------------------------------------------------------------------
 
-    private void OnEnable()
-    {
-        MonoScaler.OnScaleChanged += OnMono;
-        MonoDragger.OnPositionChanged += OnMono;
-    }
-
-    private void OnDisable()
-    {
-        MonoScaler.OnScaleChanged -= OnMono;
-        MonoDragger.OnPositionChanged -= OnMono;
-    }
-    
-    private void OnMono()
-    {
-        image.sprite = iconFullSize;
-        image.SetNativeSize();
-        cachedPosition = rect.position;
-
-        var sizeDelta = rect.sizeDelta;
-        fallbackHeight = sizeDelta.y;
-        fallbackWidth = sizeDelta.x;
-    }
-    
-    //--------------------------------------------------------------------------------------------------------------
-
-    public async void SetSize()
-    {
-        if (!IsFullSize())
+        private void Awake()
         {
-            var scaleFactor = canvas.scaleFactor;
-            var target = new Vector2(Screen.width / scaleFactor, Screen.height / scaleFactor);
-            SetImage(iconNotFullSize);
-
-            for (var i = 0; i < 100; i++)
-            {
-                rect.sizeDelta = Vector2.Lerp(rect.sizeDelta, target, .05f);
-                rect.position = Vector2.Lerp(rect.position, Vector2.zero, .05f);
-                await Task.Delay(2);
-            }
-            rect.sizeDelta = target;
-            rect.position = Vector2.zero;
-
-            cachedBackgroundSprite = backgroundImage.sprite;
-            backgroundImage.sprite = null;
+            scaleFactor = canvas.scaleFactor;
         }
-        else
+
+        #region --- [SCALE] ---
+    
+        private void OnEnable()
         {
-            var target = new Vector2(fallbackWidth, fallbackHeight); 
-            SetImage(iconFullSize);
-            
-            for (var i = 0; i < 100; i++)
-            {
-                rect.sizeDelta = Vector2.Lerp(rect.sizeDelta, target, .05f);
-                rect.position = Vector2.Lerp(rect.position, cachedPosition, .05f);
-                await Task.Delay(2);
-            }
-            rect.sizeDelta = target;
-            rect.position = cachedPosition;
-            
-            backgroundImage.sprite = cachedBackgroundSprite;
+            MonoScaler.OnScaleChanged += OnScaleChanged;
+            MonoDragger.OnPositionChanged += OnScaleChanged;
         }
-    }
 
-    private bool IsFullSize()
-    {
-        var scaleFactor = canvas.scaleFactor;
-        return rect.sizeDelta == new Vector2(Screen.width / scaleFactor, Screen.height / scaleFactor);
-    }
+        private void OnDisable()
+        {
+            MonoScaler.OnScaleChanged -= OnScaleChanged;
+            MonoDragger.OnPositionChanged -= OnScaleChanged;
+        }
+    
+        private void OnScaleChanged()
+        {
+            image.sprite = iconFullSize;
+            image.SetNativeSize();
+            cachedPosition = rect.position;
 
-    private void SetImage(Sprite sprite)
-    {
-        image.sprite = sprite;
-        image.SetNativeSize();
-    }
+            var sizeDelta = rect.sizeDelta;
+            fallbackHeight = sizeDelta.y;
+            fallbackWidth = sizeDelta.x;
+        }
+    
+        //--------------------------------------------------------------------------------------------------------------
 
-    #endregion
+        private float lerp = default;
+        
+        public async void SetSize()
+        {
+            if (!Core.Console.Configuration.allowAnimations)
+            {
+                textField.enabled = false;
+                if (!IsFullSize())
+                {
+                    var target = new Vector2(Screen.width / scaleFactor, Screen.height / scaleFactor);
+                    SetImage(iconNotFullSize);
+                    rect.sizeDelta = target;
+                    rect.position = Vector2.zero;
+                    cachedBackgroundSprite = backgroundImage.sprite;
+                    backgroundImage.sprite = null;
+                }
+                else
+                {
+                    var target = new Vector2(fallbackWidth, fallbackHeight); 
+                    SetImage(iconFullSize);
+                    rect.sizeDelta = target;
+                    rect.position = cachedPosition;
+                    backgroundImage.sprite = cachedBackgroundSprite;
+                }
+                textField.enabled = true;
+                return;
+            }
+            
+            textField.enabled = false;
+            
+            lerp = .015f;
+            
+            if (!IsFullSize())
+            {
+                var target = new Vector2(Screen.width / scaleFactor, Screen.height / scaleFactor);
+                SetImage(iconNotFullSize);
+                
+                
+                var timer = Time.realtimeSinceStartup + .1f;
+                while (Time.realtimeSinceStartup < timer)
+                {
+                    rect.sizeDelta = Vector2.Lerp(rect.sizeDelta, target, lerp );
+                    rect.position = Vector2.Lerp(rect.position, Vector2.zero, lerp );
+                    lerp = Mathf.Lerp(lerp, .33f, lerp) + Time.deltaTime;
+                    await Task.Delay(5);
+                }
+                
+                rect.sizeDelta = target;
+                rect.position = Vector2.zero;
+
+                cachedBackgroundSprite = backgroundImage.sprite;
+                backgroundImage.sprite = null;
+            }
+            else
+            {
+                var target = new Vector2(fallbackWidth, fallbackHeight); 
+                SetImage(iconFullSize);
+
+                var timer = Time.realtimeSinceStartup + .1f;
+                while (Time.realtimeSinceStartup < timer)
+                {
+                    rect.sizeDelta = Vector2.Lerp(rect.sizeDelta, target, lerp);
+                    rect.position = Vector2.Lerp(rect.position, cachedPosition, lerp);
+                    lerp = Mathf.Lerp(lerp, .33f, lerp) + Time.deltaTime;;
+                    await Task.Delay(5);
+                }
+                
+                rect.sizeDelta = target;
+                rect.position = cachedPosition;
+            
+                backgroundImage.sprite = cachedBackgroundSprite;
+            }
+            
+            textField.enabled = true;
+        }
+        
+
+        private bool IsFullSize()
+        {
+            scaleFactor = canvas.scaleFactor;
+            return rect.sizeDelta == new Vector2(Screen.width / scaleFactor, Screen.height / scaleFactor);
+        }
+
+        private void SetImage(Sprite sprite)
+        {
+            image.sprite = sprite;
+            image.SetNativeSize();
+        }
+
+        #endregion
+    }
 }

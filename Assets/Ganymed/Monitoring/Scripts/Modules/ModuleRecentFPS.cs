@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Ganymed.Monitoring.Modules
 {
-    [CreateAssetMenu(fileName = "Module_RecentFPS", menuName = "Monitoring/Modules/RecentFPS")]
+    [CreateAssetMenu(fileName = "Module_RecentFPS", menuName = "Monitoring/ModuleDictionary/RecentFPS")]
     public sealed class ModuleRecentFPS : Module<Vector2>
     {
         #region --- [INSPECTOR] ---
@@ -19,7 +19,7 @@ namespace Ganymed.Monitoring.Modules
         [SerializeField] private bool showCacheDuration = false;
         [SerializeField] private bool abbreviations = false;
         [Space]
-        [SerializeField] [Range(6,72)] private int fontSize = 8;
+        [SerializeField] [Range(6,72)] private float fontSize = 8;
 
         [Header("Color")]
         [SerializeField] private Color colorMin = new Color(1,1,1,1);
@@ -45,38 +45,38 @@ namespace Ganymed.Monitoring.Modules
         
         //--------------------------------------------------------------------------------------------------------------
         
-        protected override string DynamicValue(Vector2 value)
+        protected override string ValueToString(Vector2 currentValue)
         {
             return
-                $"Max:{fontSize.ToFontSize()}[{(recentMaximum >= thresholdTwo ? colorMax.ToRichTextMarkup() : recentMaximum >= thresholdOne ? colorMid.ToRichTextMarkup() : colorMin.ToRichTextMarkup())}{recentMaximum}{Config.infixColor.ToRichTextMarkup()}]{Config.infixFontSize.ToFontSize()} | " +
-                $"Min:{fontSize.ToFontSize()}[{(recentMinimum >= thresholdTwo ? colorMax.ToRichTextMarkup() : recentMinimum >= thresholdOne ? colorMid.ToRichTextMarkup() : colorMin.ToRichTextMarkup())}{recentMinimum}{Config.infixColor.ToRichTextMarkup()}]{Config.infixFontSize.ToFontSize()}" +
-                $"{(showFPSMeasurePeriod? $" |{(abbreviations? " MP:" : " Measure Period:")} [{numColor.ToRichTextMarkup()}{ModuleFPS.MeasurePeriod:0.0}{Config.infixColor.ToRichTextMarkup()}]" : string.Empty )}" +
-                $"{(showCacheDuration? $" |{(abbreviations? " CD:" : " Cache Duration:")} [{numColor.ToRichTextMarkup()}{cacheDuration}{Config.infixColor.ToRichTextMarkup()}]" : string.Empty )}";
+                $"Max:{fontSize.ToFontSize()}[{(recentMaximum >= thresholdTwo ? colorMax.AsRichText() : recentMaximum >= thresholdOne ? colorMid.AsRichText() : colorMin.AsRichText())}{recentMaximum}{Configuration.infixColor.AsRichText()}]{Configuration.infixFontSize.ToFontSize()} | " +
+                $"Min:{fontSize.ToFontSize()}[{(recentMinimum >= thresholdTwo ? colorMax.AsRichText() : recentMinimum >= thresholdOne ? colorMid.AsRichText() : colorMin.AsRichText())}{recentMinimum}{Configuration.infixColor.AsRichText()}]{Configuration.infixFontSize.ToFontSize()}" +
+                $"{(showFPSMeasurePeriod? $" |{(abbreviations? " MP:" : " Measure Period:")} [{numColor.AsRichText()}{ModuleFPS.MeasurePeriod:0.0}{Configuration.infixColor.AsRichText()}]" : string.Empty )}" +
+                $"{(showCacheDuration? $" |{(abbreviations? " CD:" : " Cache Duration:")} [{numColor.AsRichText()}{cacheDuration}{Configuration.infixColor.AsRichText()}]" : string.Empty )}";
         }
 
-        
         protected override void OnInitialize()
         {
-            SetValueDelegate(ref OnValueChanged);
+            SetUpdateDelegate(ref OnValueChanged);
             
             ModuleFPS.OnValueChanged -= CalculateRecentBorderValues;
             ModuleFPS.OnValueChanged += CalculateRecentBorderValues;
         }
 
-        private async void CalculateRecentBorderValues(float recent)
+        private void CalculateRecentBorderValues(float recent)
         {
             if(recent == 0 || !showRecentValues) return;
-            
-            await Task.Run(delegate
+
+            Task.Run(delegate
             {
-                recentValues.Enqueue((int)recent);
-                if (recentValues.Count > cacheDuration / ModuleFPS.MeasurePeriod) {
+                recentValues.Enqueue((int) recent);
+                if (recentValues.Count > cacheDuration / ModuleFPS.MeasurePeriod)
+                {
                     recentValues.Dequeue();
                 }
 
                 recentMaximum = int.MinValue;
                 recentMinimum = int.MaxValue;
-                
+
                 foreach (var value in recentValues)
                 {
                     if (value > recentMaximum)
@@ -84,9 +84,8 @@ namespace Ganymed.Monitoring.Modules
                     if (value < recentMinimum)
                         recentMinimum = value;
                 }
-                
-            });
-            OnValueChanged?.Invoke(new Vector2(recentMinimum, recentMaximum));
+
+            }).Then(delegate{ OnValueChanged?.Invoke(new Vector2(recentMinimum, recentMaximum)); });
         }
     }
 }

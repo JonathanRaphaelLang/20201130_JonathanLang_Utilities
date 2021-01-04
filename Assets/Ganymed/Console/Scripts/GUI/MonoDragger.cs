@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace Ganymed.Console.GUI
 {
+    [SelectionBase]
     public class MonoDragger : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
     {
         #region --- [FIELDS] ---
@@ -29,14 +30,10 @@ namespace Ganymed.Console.GUI
         private void Start()
         {
             rect = GetComponent<RectTransform>();
-#if UNITY_EDITOR
-            //TODO: find less hacky solution
-            rect.position = Vector3.zero;
-            
-            
-#else
-            rect.position = rect.position.Abs();
-#endif
+            if (!IsRectInsideScreen(rect, tolerance))
+            {
+                rect.position = Vector3.zero;
+            }
         }
 
         #region --- [DRAG BEHAVIOUR] ---

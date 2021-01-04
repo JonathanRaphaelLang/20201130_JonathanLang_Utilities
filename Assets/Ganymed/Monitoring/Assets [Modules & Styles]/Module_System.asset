@@ -12,16 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27d9e9d885cd2974fa1693a580ad1136, type: 3}
   m_Name: Module_System
   m_EditorClassIdentifier: 
-  currentVisibility: 0
-  visibilityOnLoad: 0
-  visibilityOnEdit: 0
+  isEnabled: 1
+  isActive: 1
   useCustomStyle: 1
-  customConfigurable: {fileID: 11400000, guid: aba09950eddcdaf4a83cf49d79fcf857, type: 2}
+  customStyle: {fileID: 11400000, guid: aba09950eddcdaf4a83cf49d79fcf857, type: 2}
   previewValueAs: 0
   prefixText: 'System     : Information'
   suffixText: 
   prefixBreak: 1
   suffixBreak: 0
+  description: 
+  enableAutoInspection: 0
+  secondsBetweenInspections: 1
   selectAll: 1
   operatingSystem: 1
   processorType: 1

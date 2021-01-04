@@ -14,13 +14,14 @@ namespace Ganymed.Utils.Callbacks
     [ScriptOrder(-10000)]
     public class UnityEventCallbacks : MonoSingleton<UnityEventCallbacks> 
     {
+        
         #region --- [FIELDS] ---
         
-        private static readonly Dictionary<CallbackDuring, Dictionary<UnityEventType, Action<UnityEventType>>> callbacks
-            = new Dictionary<CallbackDuring, Dictionary<UnityEventType,  Action<UnityEventType>>>();
+        private static readonly Dictionary<ApplicationState, Dictionary<UnityEventType, Action<UnityEventType>>> callbacks
+            = new Dictionary<ApplicationState, Dictionary<UnityEventType,  Action<UnityEventType>>>();
         
-        private static readonly Dictionary<CallbackDuring, Dictionary<UnityEventType, Action>> actions
-            = new Dictionary<CallbackDuring, Dictionary<UnityEventType, Action>>();
+        private static readonly Dictionary<ApplicationState, Dictionary<UnityEventType, Action>> actions
+            = new Dictionary<ApplicationState, Dictionary<UnityEventType, Action>>();
 
         #endregion
         
@@ -82,9 +83,10 @@ namespace Ganymed.Utils.Callbacks
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.quitting += EditorApplicationOnQuitting;
             UnityEditor.EditorApplication.playModeStateChanged += EditorApplicationOnplayModeStateChanged;
+            UnityEditor.EditorApplication.delayCall += EditorApplicationDelayCall;
 #endif
             
-            foreach (CallbackDuring callbackDuring in Enum.GetValues(typeof(CallbackDuring)))
+            foreach (ApplicationState callbackDuring in Enum.GetValues(typeof(ApplicationState)))
             {
                 callbacks[callbackDuring] = new Dictionary<UnityEventType, Action<UnityEventType>>();
                 actions[callbackDuring] = new Dictionary<UnityEventType, Action>();
@@ -100,7 +102,6 @@ namespace Ganymed.Utils.Callbacks
             InvokeCallbacks(UnityEventType.EditorApplicationStart, 100);
 #endif
         }
-
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
@@ -111,13 +112,13 @@ namespace Ganymed.Utils.Callbacks
         /// Subscribe a delegate to a callback. (defined context)
         /// </summary>
         /// <param name="listener">the delegate listening</param>
-        /// <param name="removeOldListener">insure that old listener are removed before adding new</param>
+        /// <param name="removePreviousListener">insure that old listener are removed before adding new</param>
         /// <param name="callbackDuring">the context in which the listener is allowed to be called</param>
         /// <param name="callbackTypes">the callback event types you would like to bind the listener to</param>
-        public static void AddEventListener(Action<UnityEventType> listener, bool removeOldListener, CallbackDuring callbackDuring,
+        public static void AddEventListener(Action<UnityEventType> listener, bool removePreviousListener, ApplicationState callbackDuring,
             params UnityEventType[] callbackTypes)
         {
-            if (removeOldListener)
+            if (removePreviousListener)
                 RemoveEventListener(listener, callbackDuring, callbackTypes);
             
             foreach (var type in callbackTypes) {
@@ -132,7 +133,7 @@ namespace Ganymed.Utils.Callbacks
         /// <param name="listener">the delegate listening</param>
         /// <param name="callbackDuring">the context in which the listener is allowed to be called</param>
         /// <param name="callbackTypes">the callback event types you would like to bind the listener to</param>
-        public static void AddEventListener(Action<UnityEventType> listener, CallbackDuring callbackDuring,
+        public static void AddEventListener(Action<UnityEventType> listener, ApplicationState callbackDuring,
             params UnityEventType[] callbackTypes)
         {
             foreach (var type in callbackTypes) {
@@ -149,7 +150,7 @@ namespace Ganymed.Utils.Callbacks
         public static void AddEventListener(Action<UnityEventType> listener, params UnityEventType[] callbackTypes)
         {
             foreach (var type in callbackTypes) {
-                callbacks[CallbackDuring.EditAndPlayMode][type] += listener;
+                callbacks[ApplicationState.EditAndPlayMode][type] += listener;
             }
         }
 
@@ -158,15 +159,15 @@ namespace Ganymed.Utils.Callbacks
         /// Subscribe a delegate to a callback. Listener are called during Edit and Playmode. (every context)
         /// </summary>
         /// <param name="listener">the delegate listening</param>
-        /// <param name="removeOldListener"></param>
+        /// <param name="removePreviousListener"></param>
         /// <param name="callbackTypes">the callback event types you would like to bind the listener to</param>
-        public static void AddEventListener(Action<UnityEventType> listener, bool removeOldListener,  params UnityEventType[] callbackTypes)
+        public static void AddEventListener(Action<UnityEventType> listener, bool removePreviousListener,  params UnityEventType[] callbackTypes)
         {
-            if(removeOldListener)
+            if(removePreviousListener)
                 RemoveEventListener(listener,callbackTypes);
             
             foreach (var type in callbackTypes) {
-                callbacks[CallbackDuring.EditAndPlayMode][type] += listener;
+                callbacks[ApplicationState.EditAndPlayMode][type] += listener;
             }
         }
 
@@ -178,13 +179,14 @@ namespace Ganymed.Utils.Callbacks
         /// Remove a delegate from a callback. (defined context)
         /// </summary>
         /// <param name="listener">the delegate listening</param>
-        /// <param name="callbackDuring">the context from which you would like to remove the listener from</param>
+        /// <param name="applicationState">the context from which you would like to remove the listener from</param>
         /// <param name="callbackTypes">the callback event types you would like to remove the listener from</param>
-        public static void RemoveEventListener(Action<UnityEventType> listener, CallbackDuring callbackDuring,
+        public static void RemoveEventListener(Action<UnityEventType> listener, ApplicationState applicationState,
             params UnityEventType[] callbackTypes)
         {
             foreach (var type in callbackTypes) {
-                callbacks[callbackDuring][type] -= listener;
+                // ReSharper disable once DelegateSubtraction
+                callbacks[applicationState][type] -= listener;
             }
         }       
         
@@ -197,7 +199,8 @@ namespace Ganymed.Utils.Callbacks
         public static void RemoveEventListener(Action<UnityEventType> listener, params UnityEventType[] callbackTypes)
         {
             foreach (var type in callbackTypes) {
-                callbacks[CallbackDuring.EditAndPlayMode][type] -= listener;
+                // ReSharper disable once DelegateSubtraction
+                callbacks[ApplicationState.EditAndPlayMode][type] -= listener;
             }
         } 
 
@@ -211,13 +214,13 @@ namespace Ganymed.Utils.Callbacks
         /// Subscribe a delegate to a callback. (defined context)
         /// </summary>
         /// <param name="listener">the delegate listening</param>
-        /// <param name="removeOldListener">insure that old listener are removed before adding new</param>
+        /// <param name="removePreviousListener">insure that old listener are removed before adding a new</param>
         /// <param name="callbackDuring">the context in which the listener is allowed to be called</param>
         /// <param name="callbackTypes">the callback event types you would like to bind the listener to</param>
-        public static void AddEventListener(Action listener, bool removeOldListener, CallbackDuring callbackDuring,
+        public static void AddEventListener(Action listener, bool removePreviousListener, ApplicationState callbackDuring,
             params UnityEventType[] callbackTypes)
         {
-            if (removeOldListener)
+            if (removePreviousListener)
                 RemoveEventListener(listener, callbackDuring, callbackTypes);
             
             foreach (var type in callbackTypes) {
@@ -232,7 +235,7 @@ namespace Ganymed.Utils.Callbacks
         /// <param name="listener">the delegate listening</param>
         /// <param name="callbackDuring">the context in which the listener is allowed to be called</param>
         /// <param name="callbackTypes">the callback event types you would like to bind the listener to</param>
-        public static void AddEventListener(Action listener, CallbackDuring callbackDuring,
+        public static void AddEventListener(Action listener, ApplicationState callbackDuring,
             params UnityEventType[] callbackTypes)
         {
             foreach (var type in callbackTypes) {
@@ -249,7 +252,7 @@ namespace Ganymed.Utils.Callbacks
         public static void AddEventListener(Action listener, params UnityEventType[] callbackTypes)
         {
             foreach (var type in callbackTypes) {
-                actions[CallbackDuring.EditAndPlayMode][type] += listener;
+                actions[ApplicationState.EditAndPlayMode][type] += listener;
             }
         }
 
@@ -258,15 +261,15 @@ namespace Ganymed.Utils.Callbacks
         /// Subscribe a delegate to a callback. Listener are called during Edit and Playmode. (every context)
         /// </summary>
         /// <param name="listener">the delegate listening</param>
-        /// <param name="removeOldListener"></param>
+        /// <param name="removePreviousListener"></param>
         /// <param name="callbackTypes">the callback event types you would like to bind the listener to</param>
-        public static void AddEventListener(Action listener, bool removeOldListener,  params UnityEventType[] callbackTypes)
+        public static void AddEventListener(Action listener, bool removePreviousListener,  params UnityEventType[] callbackTypes)
         {
-            if(removeOldListener)
+            if(removePreviousListener)
                 RemoveEventListener(listener,callbackTypes);
             
             foreach (var type in callbackTypes) {
-                actions[CallbackDuring.EditAndPlayMode][type] += listener;
+                actions[ApplicationState.EditAndPlayMode][type] += listener;
             }
         }
 
@@ -278,13 +281,14 @@ namespace Ganymed.Utils.Callbacks
         /// Remove a delegate from a callback. (defined context)
         /// </summary>
         /// <param name="listener">the delegate listening</param>
-        /// <param name="callbackDuring">the context from which you would like to remove the listener from</param>
+        /// <param name="applicationState">the context from which you would like to remove the listener from</param>
         /// <param name="callbackTypes">the callback event types you would like to remove the listener from</param>
-        public static void RemoveEventListener(Action listener, CallbackDuring callbackDuring,
+        public static void RemoveEventListener(Action listener, ApplicationState applicationState,
             params UnityEventType[] callbackTypes)
         {
             foreach (var type in callbackTypes) {
-                actions[callbackDuring][type] -= listener;
+                // ReSharper disable once DelegateSubtraction
+                actions[applicationState][type] -= listener;
             }
         }       
         
@@ -297,7 +301,8 @@ namespace Ganymed.Utils.Callbacks
         public static void RemoveEventListener(Action listener, params UnityEventType[] callbackTypes)
         {
             foreach (var type in callbackTypes) {
-                actions[CallbackDuring.EditAndPlayMode][type] -= listener;
+                // ReSharper disable once DelegateSubtraction
+                actions[ApplicationState.EditAndPlayMode][type] -= listener;
             }
         } 
 
@@ -308,8 +313,34 @@ namespace Ganymed.Utils.Callbacks
         #region --- [UPDATES] ---
 
 #if UNITY_EDITOR
+                
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void BeforeSceneLoadRuntimeMethod()
+            => InvokeCallbacks(UnityEventType.BeforeSceneLoad);
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void AfterSceneLoadRuntimeMethod()
+            => InvokeCallbacks(UnityEventType.AfterSceneLoad);
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+        private static void AssembliesLoadedRuntimeMethod()
+            => InvokeCallbacks(UnityEventType.AfterAssembliesLoaded);
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void SubsystemRegistrationRuntimeMethod()
+            => InvokeCallbacks(UnityEventType.SubsystemRegistration);
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
+        private static void BeforeSplashScreenRuntimeMethod()
+            => InvokeCallbacks(UnityEventType.BeforeSplashScreen);
+
         [UnityEditor.Callbacks.DidReloadScripts]
-        private static void OnRecompile() => InvokeCallbacks(UnityEventType.Recompile);
+        private static void OnRecompile()
+            => InvokeCallbacks(UnityEventType.Recompile);
+        
+        private static void EditorApplicationDelayCall()
+            => InvokeCallbacks(UnityEventType.InspectorUpdate);
+        
 #endif
         protected override void Awake() {
             base.Awake();
@@ -319,9 +350,6 @@ namespace Ganymed.Utils.Callbacks
         private void Start()
         {
             InvokeCallbacks(UnityEventType.Start);
-            // if(Application.isPlaying)
-            //     Validate();
-            Validate();
         }
 
         private void Update() => InvokeCallbacks(UnityEventType.Update);
@@ -384,74 +412,16 @@ namespace Ganymed.Utils.Callbacks
         {
             if (Application.isPlaying)
             {
-                callbacks[CallbackDuring.PlayMode][eventType]?.Invoke(eventType);
-                actions[CallbackDuring.PlayMode][eventType]?.Invoke(); 
+                callbacks[ApplicationState.PlayMode][eventType]?.Invoke(eventType);
+                actions[ApplicationState.PlayMode][eventType]?.Invoke(); 
             }
             else
             {
-                callbacks[CallbackDuring.EditMode][eventType]?.Invoke(eventType);
-                actions[CallbackDuring.EditMode][eventType]?.Invoke();
+                callbacks[ApplicationState.EditMode][eventType]?.Invoke(eventType);
+                actions[ApplicationState.EditMode][eventType]?.Invoke();
             }
-            callbacks[CallbackDuring.EditAndPlayMode][eventType]?.Invoke(eventType);
-            actions[CallbackDuring.EditAndPlayMode][eventType]?.Invoke();
-        }
-
-        #endregion
-        
-        //--------------------------------------------------------------------------------------------------------------
-
-        #region --- [VALIDATE CALLBACKS] ---
-
-        public static async void Validate()
-        {
-            await Task.Delay(1000);
-            // return;
-            
-            // --- Callback
-            
-            foreach (var callbackDictionary in callbacks)
-            {
-                foreach (var callbackList in callbackDictionary.Value)
-                {
-                    if (callbackList.Value == null) continue;
-                    
-                    foreach (var listener in callbackList.Value.GetInvocationList())
-                    {
-                        if (listener.Target == null)
-                        {
-                            Debug.Log($"{callbackDictionary.Key} | {callbackList.Key} | (null){listener.Target}");
-                        }
-                        
-                        // Debug.Log(
-                        //     $"{callbackDictionary.Key} | " +
-                        //     $"{callbackList.Key} | " +
-                        //     $"{listener.Method} | " +
-                        //     $"{listener.Target}");
-                    }
-                }
-            }
-            
-            // --- Actions
-            foreach (var actionDictionary in actions)
-            {
-                foreach (var actionList in actionDictionary.Value)
-                {
-                    if (actionList.Value == null) continue;
-                    
-                    foreach (var listener in actionList.Value.GetInvocationList())
-                    {
-                        if (listener.Target == null)
-                        {
-                            //Debug.Log($"(null) | {actionDictionary.Key} | {actionList.Key} | (null){listener.Target}");
-                        }
-                        // Debug.Log(
-                        //     $"{actionDictionary.Key} | " +
-                        //     $"{actionList.Key} | " +
-                        //     $"{listener.Method} | " +
-                        //     $"{listener.Target}");
-                    }
-                }
-            }
+            callbacks[ApplicationState.EditAndPlayMode][eventType]?.Invoke(eventType);
+            actions[ApplicationState.EditAndPlayMode][eventType]?.Invoke();
         }
 
         #endregion

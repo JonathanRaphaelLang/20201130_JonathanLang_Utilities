@@ -1,4 +1,4 @@
-﻿namespace Ganymed.Console.Enumerations
+﻿namespace Ganymed.Console
 {
     public enum InputValidation
     {

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eed0026910520ba42997879e62fcfba3, type: 3}
   m_Name: Style_System
   m_EditorClassIdentifier: 
-  fontSize: 8
+  fontSize: 5
   individualFontSize: 0
   prefixFontSize: 14
   infixFontSize: 8

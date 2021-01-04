@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Ganymed.Monitoring.Core;
 using Ganymed.Utils;
 using UnityEngine;
 
 namespace Ganymed.Monitoring.Modules
 {
-    [CreateAssetMenu(fileName = "Module_TargetFrameRate", menuName = "Monitoring/Modules/TargetFrameRate")]
+    [CreateAssetMenu(fileName = "Module_TargetFrameRate", menuName = "Monitoring/ModuleDictionary/TargetFrameRate")]
     public sealed class ModuleTargetFrameRate : Module<int>
     {
         #region --- [INSPECTOR] ---
@@ -33,14 +32,14 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [MODULE] ---
 
-        protected override string DynamicValue(int value)
+        protected override string ValueToString(int currentValue)
         {
-            return value == int.MaxValue || value <= 0 ? "none" : value.ToString();
+            return currentValue == int.MaxValue || currentValue <= 0 ? "none" : currentValue.ToString();
         }
 
         protected override void OnInitialize()
         {
-            SetValueDelegate(ref OnValueChanged);
+            SetUpdateDelegate(ref OnValueChanged);
             OverrideDefaultValue(int.MaxValue);
             SetTargetFPS(true);
         }        
@@ -53,7 +52,7 @@ namespace Ganymed.Monitoring.Modules
         
         protected override void OnInspection()
         {
-            if (Application.targetFrameRate != CurrentValue)
+            if (Application.targetFrameRate != Value)
             {
                 OnValueChanged?.Invoke(Application.targetFrameRate);
             }

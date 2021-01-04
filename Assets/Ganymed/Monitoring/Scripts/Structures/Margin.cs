@@ -1,6 +1,6 @@
 ﻿using Ganymed.Utils;
 
-namespace Ganymed.Monitoring.Structures
+namespace Ganymed.Monitoring
 {
     public readonly struct Margin
     {

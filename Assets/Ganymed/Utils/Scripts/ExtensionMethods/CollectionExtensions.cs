@@ -1,17 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
-public static class CollectionExtensions
+namespace Ganymed.Utils.ExtensionMethods
 {
-    /// <summary>
-    /// Count - 1
-    /// </summary>
-    /// <param name="inspected"></param>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
-    public static int Cut<T>(this List<T> inspected)
+    public static class CollectionExtensions
     {
-        return inspected.Count - 1;
+        /// <summary>
+        /// Count - 1
+        /// </summary>
+        /// <param name="inspected"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static int Cut<T>(this List<T> inspected)
+        {
+            return inspected.Count - 1;
+        }
     }
 }

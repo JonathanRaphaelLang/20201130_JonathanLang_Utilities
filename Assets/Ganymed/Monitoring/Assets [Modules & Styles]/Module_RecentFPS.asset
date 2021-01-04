@@ -12,19 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f09ba37245b75b740ba382384c742fb9, type: 3}
   m_Name: Module_RecentFPS
   m_EditorClassIdentifier: 
-  currentVisibility: 0
-  visibilityOnLoad: 0
-  visibilityOnEdit: 0
+  isEnabled: 1
+  isActive: 1
   useCustomStyle: 1
-  customConfigurable: {fileID: 11400000, guid: 2523c059b1b1268498f1424081fa59bb, type: 2}
+  customStyle: {fileID: 11400000, guid: 2523c059b1b1268498f1424081fa59bb, type: 2}
   previewValueAs: 0
   prefixText: 'Rescent fps: '
   suffixText: 
   prefixBreak: 0
   suffixBreak: 0
-  autoInspect: 0
-  InspectOn: 2
-  milliseconds: 500
+  description: 
+  enableAutoInspection: 0
+  secondsBetweenInspections: 1
   showRecentValues: 1
   cacheDuration: 7.5
   showFPSMeasurePeriod: 1

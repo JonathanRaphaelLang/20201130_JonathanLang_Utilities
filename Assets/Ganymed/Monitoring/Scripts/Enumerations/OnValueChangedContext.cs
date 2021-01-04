@@ -1,12 +1,9 @@
-﻿namespace Ganymed.Monitoring.Enumerations
+﻿namespace Ganymed.Monitoring
 {
     public enum OnValueChangedContext
     {
         Initialization,
         Update,
-        Toggle,
-        Hide,
-        Show,
         Editor,
         Dirty
     }
