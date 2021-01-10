@@ -19,11 +19,6 @@ namespace Ganymed.Utils.ExtensionMethods
         {
             return $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>";
         }
-        
-        public static string ToRichTextMarker(this Color color)
-        {
-            return $"<mark=#{ColorUtility.ToHtmlStringRGBA(color)}>";
-        }
 
         public static string ToFontSize(this float value, float? defaultSize = null)
         {

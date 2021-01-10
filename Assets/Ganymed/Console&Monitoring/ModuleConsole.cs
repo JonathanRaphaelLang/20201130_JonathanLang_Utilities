@@ -3,7 +3,7 @@ using System.Linq;
 using Ganymed.Monitoring.Core;
 using UnityEngine;
 
-namespace Ganymed.Ganymed
+namespace Ganymed
 {
     [CreateAssetMenu(fileName = "Module_Console", menuName = "Monitoring/ModuleDictionary/Console")]
     public class ModuleConsole : Module<string>

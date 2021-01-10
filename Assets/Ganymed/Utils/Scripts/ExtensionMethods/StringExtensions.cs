@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using UnityEngine;
+using static System.String;
 
 namespace Ganymed.Utils.ExtensionMethods
 {
@@ -22,7 +23,7 @@ namespace Ganymed.Utils.ExtensionMethods
         
         public static string SetUpperLowerConfig(this string input, bool[] config)
         {
-            var returnValue = string.Empty;
+            var returnValue = Empty;
 
             for (var i = 0; i < input.Length; i++)
             {
@@ -39,10 +40,10 @@ namespace Ganymed.Utils.ExtensionMethods
 
         public static string EmptyString(this string input)
         {
-            return string.Empty;
+            return Empty;
         }
 
-        public enum CutEnum
+        public enum CutArea
         {
             Start,
             End,
@@ -51,21 +52,21 @@ namespace Ganymed.Utils.ExtensionMethods
 
         public static string RemoveBreaks(this string input)
         {
-            return input.Replace("\n", string.Empty);
+            return input.Replace("\n", Empty);
         }
 
-        public static string Cut(this string input, CutEnum cut = CutEnum.StartAndEnd, char character = ' ')
+        public static string Cut(this string input, CutArea cut = CutArea.StartAndEnd, char character = ' ')
         {
             switch (cut)
             {
-                case CutEnum.Start:
+                case CutArea.Start:
                     while (input.StartsWith(character.ToString()))
                     {
                         input = input.Remove(0, 1);
                     }
                     return input;
                 
-                case CutEnum.End:
+                case CutArea.End:
                     //remove last char if its empty space
                     while (input.EndsWith(character.ToString()))
                     {
@@ -73,7 +74,7 @@ namespace Ganymed.Utils.ExtensionMethods
                     }
                     return input;
                 
-                case CutEnum.StartAndEnd:
+                case CutArea.StartAndEnd:
                     while (input.StartsWith(character.ToString()))
                     {
                         input = input.Remove(0, 1);
@@ -112,14 +113,30 @@ namespace Ganymed.Utils.ExtensionMethods
 
         public static string RemoveFormBeginning(this string input, string remove)
         {
-            var i = 0;
-            while (string.Equals(input[0].ToString(), remove[i].ToString(),
-                StringComparison.OrdinalIgnoreCase) && input.Length > 0 && remove.Length -1 >= i)
+            try
             {
-                i++;
-                input = input.Remove(0,1);
+                var counter = 0;
+                for (int i = 0; i < remove.Length; i++)
+                {
+                    if (input[i].Equals(' ')) counter++;
+                }
+            
+                input = input.Remove(0,remove.Length + counter);
+                return input;
+            }
+            catch
+            {
+                Debug.Log("FIX");
             }
             return input;
+        }
+        
+        public static string RemoveFormEnd(this string input, int length)
+            => input.Length > length ? input.Remove(input.Length - length, length) : input;
+
+        public static string Delete(this string input, string remove)
+        {
+            return input.Replace(remove, "");
         }
 
         #endregion

@@ -15,7 +15,7 @@ namespace Ganymed.Console.Transmissions
         private static bool isEnumeration = false;
         private static bool isReleasing = false;
         
-        private static readonly string EvenColor = new Color(0.72f, 0.7f, 0.85f).AsRichText();
+        private static readonly string EvenColor = new Color(0.65f, 0.84f, 1f).AsRichText();
         
         private static readonly List<List<string>> transmissionMessages = new List<List<string>>();
         private static readonly List<List<string>> transmissionPrefix = new List<List<string>>();
@@ -73,15 +73,16 @@ namespace Ganymed.Console.Transmissions
             }
             
             if(Sender != null)
-                Core.Console.Log(Sender, Core.Console.colorSender, LogOptions.IsInput | LogOptions.EndLine);
-               
+                Core.Console.Log(Sender, Core.Console.ColorSender, LogOptions.IsInput | LogOptions.EndLine);
+
             isReleasing = true;
-            Task.Run(CompileTransmissionMessage).Then(
-                delegate{
+            Task.Run(CompileTransmissionMessage).Then(delegate
+                {
                     Core.Console.Log(message);
                     isTransmitting = false;
                     isReleasing = false;
-                    callback?.Invoke();});
+                    callback?.Invoke();
+                });
         }
 
 
@@ -97,7 +98,7 @@ namespace Ganymed.Console.Transmissions
             }
             
             if(Sender != null)
-                Core.Console.Log(Sender, Core.Console.colorSender, LogOptions.IsInput | LogOptions.EndLine);
+                Core.Console.Log(Sender, Core.Console.ColorSender, LogOptions.IsInput | LogOptions.EndLine);
 
             isReleasing = true;
             CompileTransmissionMessage();
@@ -166,11 +167,6 @@ namespace Ganymed.Console.Transmissions
                                     suffix += "</smallcaps>";
                                     continue;
 
-                                case MessageOptions.Mark:
-                                    prefix += Core.Console.Configuration.colorMarker;
-                                    suffix += "</mark>";
-                                    continue;
-
                                 case MessageOptions.Brackets:
                                     transmissionMessages[i][j] = $"[{transmissionMessages[i][j]}]";
                                     continue;
@@ -227,9 +223,6 @@ namespace Ganymed.Console.Transmissions
                         $"{(j < transmissionMessages[i].Cut() ? (transmissionLengths[j] - transmissionMessages[i][j].Length + 1).Repeat() : string.Empty)}" +
                         $"{(i == transmissionMessages.Cut() ? 150.AsLineHeight() : string.Empty)}";
                 }
-                // End of row
-                
-                //message += AsLineHeight
             }
         }
 
@@ -239,6 +232,10 @@ namespace Ganymed.Console.Transmissions
 
         #region --- [LINE] ---
 
+        /// <summary>
+        /// Add multiple columns as text. Each column can be transmitted as a Message (struct) to add formatting options.
+        /// </summary>
+        /// <param name="messages"></param>
         public static void AddLine(params object[] messages)
         {
             if(!isTransmitting)
@@ -257,9 +254,8 @@ namespace Ganymed.Console.Transmissions
                         transmissionMessages.Add(new List<string>(){m.Content});
                         transmissionOptions.Add(new List<MessageOptions>(){m.Options});
                     
-                        transmissionExtraPrefix.Add(new List<string>(){$"{m.Size}{m.Color}"});
-                        transmissionExtraSuffix.Add(new List<string>(){$"{(m.Size == string.Empty? string.Empty : "</size>")}" +
-                                                                       $"{(m.Color == string.Empty? string.Empty : "</color>")}"});
+                        transmissionExtraPrefix.Add(new List<string>(){$"{m.Color}"});
+                        transmissionExtraSuffix.Add(new List<string>(){$"{(m.Color == string.Empty? string.Empty : "</color>")}"});
                     }
                     else
                     {
@@ -269,9 +265,8 @@ namespace Ganymed.Console.Transmissions
                         transmissionMessages[index].Add(m.Content);
                         transmissionOptions[index].Add(m.Options);
                     
-                        transmissionExtraPrefix[index].Add($"{m.Size}{m.Color}");
-                        transmissionExtraSuffix[index].Add($"{(m.Size == string.Empty? string.Empty : "</size>")}" +
-                                                           $"{(m.Color == string.Empty? string.Empty : "</color>")}");
+                        transmissionExtraPrefix[index].Add($"{m.Color}");
+                        transmissionExtraSuffix[index].Add($"{(m.Color == string.Empty? string.Empty : "</color>")}");
                     }
                 }
                 else
@@ -294,6 +289,10 @@ namespace Ganymed.Console.Transmissions
                 }
             }
         }
+        
+        /// <summary>
+        /// Add multiple columns as text. Each column can be transmitted as a Message (struct) to add formatting options.
+        /// </summary>
         public static void AddLine(params Message[] messages)
         {
             if (!isTransmitting)
@@ -308,9 +307,8 @@ namespace Ganymed.Console.Transmissions
                     transmissionMessages.Add(new List<string>(){messages[i].Content});
                     transmissionOptions.Add(new List<MessageOptions>(){messages[i].Options});
                     
-                    transmissionExtraPrefix.Add(new List<string>(){$"{m.Size}{m.Color}"});
-                    transmissionExtraSuffix.Add(new List<string>(){$"{(m.Size == string.Empty? string.Empty : "</size>")}" +
-                                                                   $"{(m.Color == string.Empty? string.Empty : "</color>")}"});
+                    transmissionExtraPrefix.Add(new List<string>(){$"{m.Color}"});
+                    transmissionExtraSuffix.Add(new List<string>(){$"{(m.Color == null? string.Empty : "</color>")}"});
                 }
                 else
                 {
@@ -320,9 +318,8 @@ namespace Ganymed.Console.Transmissions
                     transmissionMessages[index].Add(m.Content);
                     transmissionOptions[index].Add(m.Options);
                     
-                    transmissionExtraPrefix[index].Add($"{m.Size}{m.Color}");
-                    transmissionExtraSuffix[index].Add($"{(m.Size == string.Empty? string.Empty : "</size>")}" +
-                                                       $"{(m.Color == string.Empty? string.Empty : "</color>")}");
+                    transmissionExtraPrefix[index].Add($"{m.Color}");
+                    transmissionExtraSuffix[index].Add($"{(m.Color == null? string.Empty : "</color>")}");
                 }
             }
         }        
@@ -331,7 +328,11 @@ namespace Ganymed.Console.Transmissions
 
         #region --- [BREAK] ---
 
-        public static void AddBreak(int lineHeight = 130)
+        /// <summary>
+        /// Add a break after the last transmitted line.
+        /// </summary>
+        /// <param name="lineHeight"></param>
+        public static void AddBreak(int lineHeight = 150)
         {
             try
             {
@@ -348,9 +349,27 @@ namespace Ganymed.Console.Transmissions
 
         #region --- [TITLE] ---
 
-        public static void AddTitle(string title, int size = 110, int space = 110, MessageOptions options = MessageOptions.Bold)
+        /// <summary>
+        /// Add a single column line that will be formatted like a title.
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="space"></param>
+        /// <param name="options"></param>
+        public static void AddTitle(string title, int space = 150, MessageOptions options = MessageOptions.Bold | MessageOptions.Brackets | MessageOptions.Underline)
         {
-            AddLine(new Message($"> {title}", size, Core.Console.colorTitles, options));
+            AddLine(new Message($"> {title}", Core.Console.ColorTitleMain, options));
+            AddBreak(space);
+        }
+        
+        /// <summary>
+        /// Add a column line that will be formatted like a subheading. 
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="space"></param>
+        /// <param name="options"></param>
+        public static void AddSubheading(string title, int space = 130, MessageOptions options = MessageOptions.Brackets)
+        {
+            AddLine(new Message($"> {title}", Core.Console.ColorTitleSub, options));
             AddBreak(space);
         }
 

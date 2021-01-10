@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Ganymed.Utils.Singleton
 {
@@ -10,15 +9,6 @@ namespace Ganymed.Utils.Singleton
     /// <typeparam name="T">Singleton type</typeparam>
     public abstract class ScriptableSingleton<T> : ScriptableObject where T : ScriptableObject
     {
-        private static T instance = null;
-        public static T Instance
-        {
-            get
-            {
-                if (!instance)
-                    instance = Resources.FindObjectsOfTypeAll<T>().FirstOrDefault();
-                return instance;
-            }
-        }
+        
     }
 }

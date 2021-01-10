@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using UnityEngine;
 
 namespace Ganymed.Utils.ExtensionMethods
 {
@@ -35,6 +36,13 @@ namespace Ganymed.Utils.ExtensionMethods
             // If no Type was supplied, if the Type was a reference type, or if the Type was a System.Void, return null
             if (type == null || !type.IsValueType || type == typeof(void))
                 return null;
+            
+            if (type.IsEnum)
+            {
+                foreach (var enums in Enum.GetValues(type)) {
+                    return enums;
+                }
+            }
 
             // If the supplied Type has generic parameters, its default value cannot be determined
             if (type.ContainsGenericParameters)
@@ -72,5 +80,38 @@ namespace Ganymed.Utils.ExtensionMethods
                                         "> is not a publicly-visible type, so the default value cannot be retrieved");
         }
         #endregion
+        
+        public static bool IsString(this Type type) => type == typeof(string);
+
+        public static bool IsStruct(this Type type)
+            => type.IsValueType && !type.IsEnum && !type.IsPrimitive;
+
+        public static bool IsVector(this Type type) 
+            => (type == typeof(Vector2) || type == typeof(Vector3) || type == typeof(Vector4));
+        
+        public static bool IsVectorInt(this Type type) 
+            => (type == typeof(Vector2Int) || type == typeof(Vector3Int));
+        
+        public static bool IsColor(this Type type)
+            => (type == typeof(Color) || type == typeof(Color32));
+        
+        public static bool IsDelegate(this Type type)
+            => typeof (MulticastDelegate).IsAssignableFrom(type.BaseType);
+        
+        public static Type GetNullableUnderlying(this Type nullableType)
+            => Nullable.GetUnderlyingType(nullableType) ?? nullableType;
+        
+        
+        public static TypeAffiliations GetTypeAffiliation(this Type type)
+        {
+            return
+                type.IsEnum ? TypeAffiliations.Enum :
+                type.IsStruct() ? TypeAffiliations.Struct :
+                type.IsString() ? TypeAffiliations.String :
+                type.IsInterface ? TypeAffiliations.Primitive :
+                type.IsGenericType ? TypeAffiliations.Generic :
+                type.IsInterface ? TypeAffiliations.Interface :
+                type.IsClass ? TypeAffiliations.Class : TypeAffiliations.None;
+        }
     }
 }

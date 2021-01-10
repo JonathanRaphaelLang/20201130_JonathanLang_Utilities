@@ -2,10 +2,6 @@
 
 namespace Ganymed.Utils
 {
-    public delegate void ActiveAndEnabledDelegate(bool active, bool enabled);
-    public delegate void ActiveDelegate(bool active);
-    public delegate void EnabledDelegate(bool enabled);
-    
     public interface IState
     {
         /// <summary>

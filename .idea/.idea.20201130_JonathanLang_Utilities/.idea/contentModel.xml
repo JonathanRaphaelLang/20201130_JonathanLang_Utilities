@@ -19,18 +19,24 @@
               <e p="Assembly-Ganymed-Console.asmdef" t="Include" />
               <e p="Attributes" t="Include">
                 <e p="CommandAttribute.cs" t="Include" />
-                <e p="GetSetAttribute.cs" t="Include" />
-                <e p="GetterAttribute.cs" t="Include" />
-                <e p="GetterSetterAttribute.cs" t="Include" />
-                <e p="Hint.cs" t="Include" />
+                <e p="CommandBaseAttribute.cs" t="Include" />
+                <e p="GetterSetter" t="Include">
+                  <e p="AllowUnsafeCommandAttribute.cs" t="Include" />
+                  <e p="AllowUnsafeSetterAttribute.cs" t="Include" />
+                  <e p="DeclaringNameAttribute.cs" t="Include" />
+                  <e p="GetSetAttribute.cs" t="Include" />
+                  <e p="GetterAttribute.cs" t="Include" />
+                  <e p="GetterSetterAttribute.cs" t="Include" />
+                  <e p="SetterAttribute.cs" t="Include" />
+                </e>
+                <e p="HintAttribute.cs" t="Include" />
                 <e p="NativeCommandAttribute.cs" t="Include" />
-                <e p="SetterAttribute.cs" t="Include" />
                 <e p="SuggestionAttribute.cs" t="Include" />
               </e>
               <e p="Core" t="Include">
                 <e p="Console.cs" t="Include" />
                 <e p="ConsoleConfiguration.cs" t="Include" />
-                <e p="CoreCommands.cs" t="Include" />
+                <e p="NativeSystemCommands.cs" t="Include" />
               </e>
               <e p="Editor" t="Include">
                 <e p="Assembly-Ganymed-Console-Editor.asmdef" t="Include" />
@@ -38,6 +44,7 @@
                 <e p="SDS_GANYMED_CONSOLE.cs" t="Include" />
               </e>
               <e p="Enumerations" t="Include">
+                <e p="HintShowFlags.cs" t="Include" />
                 <e p="InputValidation.cs" t="Include" />
                 <e p="LogOptions.cs" t="Include" />
                 <e p="LogTypeFlags.cs" t="Include" />
@@ -52,11 +59,23 @@
                 <e p="MonoScaler.cs" t="Include" />
                 <e p="SIzeButtons.cs" t="Include" />
               </e>
+              <e p="Interfaces" t="Include">
+                <e p="IConsoleEntry.cs" t="Include" />
+                <e p="ISetter.cs" t="Include" />
+              </e>
+              <e p="Placeholder" t="Include">
+                <e p="ConsoleInputLegacy.cs" t="Include" />
+              </e>
               <e p="Processor" t="Include">
+                <e p="Command.cs" t="Include" />
                 <e p="CommandProcessor.cs" t="Include" />
-                <e p="GetterProcessor.cs" t="Include" />
-                <e p="MethodProcessor.cs" t="Include" />
-                <e p="SetterProcessor.cs" t="Include" />
+                <e p="CommandProcessor_ConnsoleCommandFunc.cs" t="Include" />
+                <e p="CommandProcessor_Getter.cs" t="Include" />
+                <e p="CommandProcessor_Setter.cs" t="Include" />
+                <e p="GetterInfo.cs" t="Include" />
+                <e p="GetterSetterInfo.cs" t="Include" />
+                <e p="SetterInfo.cs" t="Include" />
+                <e p="Signature.cs" t="Include" />
               </e>
               <e p="Transmissions" t="Include">
                 <e p="Message.cs" t="Include" />
@@ -72,9 +91,9 @@
             </e>
           </e>
           <e p="Console&amp;Monitoring" t="Include">
+            <e p="CommandExamples.cs" t="Include" />
             <e p="ModuleCommands.cs" t="Include" />
             <e p="ModuleConsole.cs" t="Include" />
-            <e p="SystemProperties.cs" t="Include" />
           </e>
           <e p="Monitoring" t="Include">
             <e p="Scripts" t="Include">
@@ -124,6 +143,16 @@
           <e p="Utils" t="Include">
             <e p="Editor" t="Include">
               <e p="Assembly-Ganymed-Utils-Editor.asmdef" t="Include" />
+              <e p="AttributeValidation" t="Include">
+                <e p="AttributeReflection.cs" t="Include" />
+                <e p="AttributeReflection_AttributesOnly.cs" t="Include" />
+                <e p="AttributeReflection_PropertyAccessRequirement.cs" t="Include" />
+                <e p="AttributeReflection_RequiredAttributes.cs" t="Include" />
+                <e p="AttributeReflection_TargetParameterTypeRestrictions.cs" t="Include" />
+                <e p="AttributeReflection_TargetTypeRestriction.cs" t="Include" />
+                <e p="AttributeReflection_ValidBindingFlags.cs" t="Include" />
+                <e p="Context.cs" t="Include" />
+              </e>
               <e p="HideFlagsUtility.cs" t="Include" />
               <e p="InspectorDrawer.cs" t="Include" />
               <e p="ScriptOrderManager.cs" t="Include" />
@@ -131,10 +160,21 @@
             <e p="Scripts" t="Include">
               <e p="Assembly-Ganymed-Utils.asmdef" t="Include" />
               <e p="Attributes" t="Include">
+                <e p="AllowUnsafeAttribute.cs" t="Include" />
+                <e p="AttributesOnlyAttribute.cs" t="Include" />
+                <e p="PropertyAccessRequirementAttribute.cs" t="Include" />
+                <e p="RequiredAccessAttribute.cs" t="Include" />
+                <e p="RequiredAttributesAttribute.cs" t="Include" />
                 <e p="ScriptOrder.cs" t="Include" />
+                <e p="TargetParamRestrictionsAttribute.cs" t="Include" />
+                <e p="TargetTypeRestrictionAttribute.cs" t="Include" />
               </e>
               <e p="Callbacks" t="Include">
                 <e p="UnityEventCallbacks.cs" t="Include" />
+              </e>
+              <e p="ColorTables" t="Include">
+                <e p="CS.cs" t="Include" />
+                <e p="Paint.cs" t="Include" />
               </e>
               <e p="Enumerations" t="Include">
                 <e p="Alignment.cs" t="Include" />
@@ -142,10 +182,12 @@
                 <e p="ColorEnum.cs" t="Include" />
                 <e p="FPSLimitations.cs" t="Include" />
                 <e p="InvokeOrigin.cs" t="Include" />
+                <e p="TypeAffiliations.cs" t="Include" />
                 <e p="UnityEventType.cs" t="Include" />
                 <e p="VSyncCount.cs" t="Include" />
               </e>
               <e p="ExtensionMethods" t="Include">
+                <e p="BindingFlagsExtensions.cs" t="Include" />
                 <e p="CollectionExtensions.cs" t="Include" />
                 <e p="ColorExtensions.cs" t="Include" />
                 <e p="IntExtensions.cs" t="Include" />
@@ -162,15 +204,25 @@
                 <e p="DontDestroyOnLoadHandler.cs" t="Include" />
               </e>
               <e p="Interfaces" t="Include">
+                <e p="ActiveAndEnabledDelegate.cs" t="Include" />
+                <e p="ActiveDelegate.cs" t="Include" />
+                <e p="EnabledDelegate.cs" t="Include" />
                 <e p="IState.cs" t="Include" />
+              </e>
+              <e p="MessageCodes" t="Include">
+                <e p="MassageCodes.cs" t="Include" />
               </e>
               <e p="Singleton" t="Include">
                 <e p="MonoSingleton.cs" t="Include" />
                 <e p="ScriptableSingleton.cs" t="Include" />
               </e>
+              <e p="Structures" t="Include">
+                <e p="Vector4Int.cs" t="Include" />
+              </e>
             </e>
           </e>
         </e>
+        <e p="TODO.txt" t="Include" />
       </e>
       <e p="obj" t="ExcludeRecursive" />
       <e p="Packages" t="ExcludeRecursive" />

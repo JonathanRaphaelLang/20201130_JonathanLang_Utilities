@@ -24,9 +24,9 @@
             return returnValue;
         }
 
-        public static bool IsEven(this int num)
+        public static bool IsEven(this int n)
         {
-            return num % 2 == 0;
+            return (n ^ 1) == n + 1;
         }
         
         public static string AsLineHeight(this int value)

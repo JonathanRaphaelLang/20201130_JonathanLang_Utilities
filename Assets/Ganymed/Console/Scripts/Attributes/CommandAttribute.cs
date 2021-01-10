@@ -1,87 +1,47 @@
 ﻿using System;
+using Ganymed.Utils.Attributes;
 
 namespace Ganymed.Console.Attributes
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class CommandAttribute : Attribute
+    [TargetParamRestrictions(typeof(object), AllowPrimitives = true, AllowStruct = true, AllowStrings = true, AllowEnums = true)]
+    public sealed class CommandAttribute : CommandBaseAttribute
     {
+        #region --- [PROPERTIES] ---
+        
         /// <summary>
         /// The primary key to address the command
         /// </summary>
-        public readonly string key;
+        public string Key { get; }
         
-        /// <summary>
-        /// Description shown in the console and when using the "info operator "?"
-        /// </summary>
-        public readonly string description = "n/a";
-
         /// <summary>
         /// Disable numeric input for boolean parameter for this command.
         /// Note that nbp (numeric boolean processing) can also be controlled via global configuration.
         /// Use this property to disable nbp for specific commands. 
         /// </summary>
-        public readonly bool disableNBP = false;
+        public bool DisableNBP { get; set; } = default;
 
-        
-        public readonly int priority = 0;
+        #endregion
+
+        #region --- [FIELDS] ---
+
+        #endregion
 
         //--------------------------------------------------------------------------------------------------------------
 
         #region --- [OVERLOADS: KEY & DESCRIPTION] ---
-        
+
+        /// <summary>
+        /// Declare a method as console command that can be invoked via console input.
+        /// Use /commands to receive a list of available console commands.
+        /// Initialize a new instance of the CommandAttribute. 
+        /// </summary>
+        /// <param name="key"></param>
         public CommandAttribute(string key)
         {
-            this.key = key;
-        }
-        
-        public CommandAttribute(string key, string description)
-        {
-            this.key = key;
-            this.description = description;
-        }
-        
-        public CommandAttribute(string key, string description, bool disableNBP, int priority)
-        {
-            this.key = key;
-            this.description = description;
-            this.disableNBP = disableNBP;
-            this.priority = priority;
-        }
-        
-        public CommandAttribute(string key, string description, bool disableNBP)
-        {
-            this.key = key;
-            this.description = description;
-            this.disableNBP = disableNBP;
-        }
-        
-        public CommandAttribute(string key, string description, int priority)
-        {
-            this.key = key;
-            this.description = description;
-            this.priority = priority;
-        }
-        
-        public CommandAttribute(string key, bool disableNBP, int priority)
-        {
-            this.key = key;
-            this.disableNBP = disableNBP;
-            this.priority = priority;
-        }
-        
-        public CommandAttribute(string key, bool disableNBP)
-        {
-            this.key = key;
-            this.disableNBP = disableNBP;
-        }
-        
-        public CommandAttribute(string key, int priority)
-        {
-            this.key = key;
-            this.priority = priority;
+            Key = key;
         }
 
-        
         #endregion
         
        

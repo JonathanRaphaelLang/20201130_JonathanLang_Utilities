@@ -2,89 +2,344 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using Ganymed.Console.Attributes;
 using Ganymed.Console.Core;
+using Ganymed.Console.Transmissions;
+using Ganymed.Utils;
+using Ganymed.Utils.Callbacks;
 using Ganymed.Utils.ExtensionMethods;
 using UnityEngine;
 
+// ReSharper disable PossibleMultipleEnumeration
+
 namespace Ganymed.Console.Processor
 {
-    public static class CommandProcessor
+    /// <summary>
+    /// class responsible for command processing and management. Responsibilities include..
+    /// Console Commands, Getter, Setter.
+    /// Validation & Preprocessing / Autocompletion of command input.
+    /// Gathering of commands in Assembly.
+    /// </summary>
+    public static partial class CommandProcessor
     {
-        #region --- [OPERATORS] ---
+        #region --- [FIELDS] ---
 
         public static string Prefix { get; set; } = "/";
-        internal static string InfoOperator = "?";
+        private static string InfoOperator = "?";
+
+        private const string GetterKey = "Get";
+        private const string SetterKey = "Set";
+        private const string CommandsKey = "Commands";
+
+        private const BindingFlags CommandFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic;
+
+        private static bool logCommandsLoadedOnStart = true;
+        private static bool allowNumericBoolProcessing = true;
         
+        // --- Task 
+        private static CancellationTokenSource source = new CancellationTokenSource();
+        private static CancellationToken ct;
+        private static float time;
+
+
+        #region --- [COMMANDS (Methods)] ---
+
+        private static volatile Dictionary<string, Command> MethodCommands = new Dictionary<string, Command>(StringComparer.CurrentCultureIgnoreCase);
+        private static InputValidation cachedInputValidation = InputValidation.None;
+        private static bool cachedProposeReturnValue = default;
+        private static readonly Exception multiParameterException = new Exception();
+
+        #endregion
+        
+        #region --- [GETTER] ---
+        
+        private static volatile Dictionary<string, Dictionary<string, GetterInfo>> Getter = new Dictionary<string, Dictionary<string, GetterInfo>>();
+        private static volatile Dictionary<string, GetterInfo> GetterShortcuts = new Dictionary<string, GetterInfo>();
+        
+        private const string GetterDescription = "Get the value of an expsoed propertiy/field. " +
+                                                 "Note: get commands are case sensitive." +
+                                                 "/get to receive a list of getter";
         #endregion
 
-        //--------------------------------------------------------------------------------------------------------------
-        
-        #region --- [KEYS]
+        #region --- [SETTER] ---
 
-        internal const string GetKey = "Get";
-        internal const string SetKey = "Set";
-        internal const string CommandsKey = "Commands";
+        private static volatile Dictionary<string, Dictionary<string, SetterInfo>> Setter = new Dictionary<string, Dictionary<string, SetterInfo>>();
+        private static volatile Dictionary<string, SetterInfo> SetterShortcuts = new Dictionary<string, SetterInfo>();
+
+        private const string SetterDescription = "Set the value of an expsoed propertiy/field. " +
+                                                 "Note: set commands are case sensitive." +
+                                                 "/set to receive a list of setter";
 
         #endregion
-        
-        //--------------------------------------------------------------------------------------------------------------
-        
-        #region --- [FLAGS] ---
-
-        internal const BindingFlags MethodFlags =
-            BindingFlags.Public 
-            | BindingFlags.Static
-            | BindingFlags.NonPublic;
-        
-        internal const BindingFlags SetterPropertyFlags =
-            BindingFlags.Public
-            | BindingFlags.Static
-            | BindingFlags.NonPublic
-            | BindingFlags.SetProperty
-            | BindingFlags.ExactBinding;
-        
-        internal const BindingFlags SetterFieldFlags =
-            BindingFlags.Public
-            | BindingFlags.Static
-            | BindingFlags.NonPublic
-            | BindingFlags.SetField
-            | BindingFlags.ExactBinding;
-        
-        internal const BindingFlags GetterPropertyFlags =
-            BindingFlags.Public 
-            | BindingFlags.Static 
-            | BindingFlags.NonPublic 
-            | BindingFlags.GetProperty;
-        
-        internal const BindingFlags GetterFieldFlags =
-            BindingFlags.Public 
-            | BindingFlags.Static 
-            | BindingFlags.NonPublic 
-            | BindingFlags.GetField;
 
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [EXCEPTIONS] ---
+        #region --- [INITIALIZE] ---
 
-        internal static readonly Exception exception = new Exception();
-        internal static readonly Exception mdaException = new Exception();
+        [RuntimeInitializeOnLoadMethod]
+        private static void FindConsoleCommandsInAssembly()
+        {
+            time = Time.realtimeSinceStartup;
+            
+            Transmission.Start(TransmissionOptions.None, "Command Handler");
+            Transmission.AddLine("Searching for console commands in Assembly...");
+            Transmission.Release();
+            
+            Task.Run(delegate
+            {
+                ct.ThrowIfCancellationRequested();
+                try
+                {
+                    var types = AppDomain.CurrentDomain.GetAllTypes();
+                    
+                    FindMethodConsoleCommandsInAssembly(types);
+                    FindGetterInAssembly(types);
+                    FindSetterInAssembly(types);
+                }
+                catch (Exception exception)
+                {    
+                    // --- Log the exception if it was not thrown by the task cancellation. 
+                    if (!(exception is ThreadAbortException)) {
+                        Debug.LogException(exception);
+                    }
+                    Debug.Log("CommandSearchCancel");
+                }
+                finally
+                {
+                    ResetCommandSearchTaskResources();
+                }
+            }, ct).Then(delegate
+            {
+                if (!logCommandsLoadedOnStart) return;
+
+                const MessageOptions options = MessageOptions.Brackets | MessageOptions.Bold;
+
+                Transmission.Start(TransmissionOptions.None, "Command Handler");
+                Transmission.AddLine(
+                    new Message($"{MethodCommands.Count}", Core.Console.ColorEmphasize, options),
+                    $"Commands are loaded | Time passed: " +
+                    $"{Time.realtimeSinceStartup - time:00.00}s |",
+                    new Message($"{Prefix}{CommandsKey}", Core.Console.ColorEmphasize, options),
+                    new Message("To receive a list of commands"));
+                Transmission.Release();
+            });
+        }
+        
+        /// <summary>
+        /// Method cancels ongoing reflection tasks if present and resets the CancellationTokenSource and
+        /// CancellationToken. 
+        /// </summary>
+        private static void ResetCommandSearchTaskResources()
+        {
+            source.Cancel();
+            source.Dispose();
+            source = new CancellationTokenSource();
+            ct = source.Token;
+        }
+        
+        static CommandProcessor()
+        {
+            UnityEventCallbacks.AddEventListener(
+                listener:ResetCommandSearchTaskResources, 
+                removePreviousListener: true, 
+                ApplicationState.EditAndPlayMode,
+                UnityEventType.ApplicationQuit,
+                UnityEventType.PreProcessorBuild);
+        }
 
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [PERMISSIONS] ---
+        #region --- [PROCESSING] ---
 
-        internal static bool logCommandsLoadedOnStart = true;
-        internal static bool allowNumericBoolProcessing = true;
+        public static Task Process(string input)
+        {
+            if (!input.StartsWith(CommandProcessor.Prefix)) return Task.CompletedTask;
+            var command = ReturnCommand(input);
+            
+            if (command.EndsWith(CommandProcessor.InfoOperator)) {
+                LogCommandInformation(command);
+            }
+            
+            else if (command.Equals(GetterKey, StringComparison.OrdinalIgnoreCase)) {
+                ProcessGetter(input);
+            }
+            
+            else if (command.Equals(SetterKey, StringComparison.OrdinalIgnoreCase)) {
+                ProcessSetter(input);
+            }
+            
+            else {
+                ProcessMethodCommand(input);
+            }
+            return Task.CompletedTask;
+        }
 
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
+
+        #region --- [COMMANDS] ---
+
+        [NativeCommand]
+        [Command(CommandsKey, Priority = 1000, Description = "Log available commands and their descriptions")]
+        public static void LogMethodCommands()
+        {
+            Transmission.Start(TransmissionOptions.Enumeration);
+            Transmission.AddBreak();
+
+            var commands = MethodCommands.Select(cmd => cmd.Value).ToList();
+
+            commands.Sort(delegate(Command a, Command b)
+            {
+                if (a.hasNativeAttribute && !b.hasNativeAttribute) return -1;
+
+                if (b.hasNativeAttribute && !a.hasNativeAttribute) return 1;
+
+                if (a.Priority > b.Priority) return -1;
+                if (b.Priority > a.Priority) return 1;
+                return 0;
+            });
+
+
+            if (commands.Any(command => command.hasNativeAttribute))
+            {
+                Transmission.AddTitle("Native Commands");
+                Transmission.AddLine(
+                    new Message("Key", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new Message("Priority", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new Message("Overloads", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new Message("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
+                Transmission.AddBreak();
+            }
+            
+            
+            var nativeCount = commands.Count(command => command.hasNativeAttribute);
+
+            for (var j = 0; j < commands.Count; j++)
+            {
+                var count = commands[j].Signatures.Count;
+                for (byte i = 0; i < count; i++)
+                    if (count > 1)
+                        Transmission.AddLine(
+                            new Message($"{commands[j].Key}",
+                                MessageOptions.Brackets),
+                            new Message($"{commands[j].Signatures[i].priority}",
+                                MessageOptions.Brackets),
+                            new Message($"{i}",
+                                MessageOptions.Brackets),
+                            new Message($"{commands[j].Signatures[i].description}",
+                                MessageOptions.Brackets));
+                    
+                    else if (commands[j].hasNativeAttribute)
+                        Transmission.AddLine(
+                            new Message($"{commands[j].Key}", Core.Console.ColorEmphasize,
+                                MessageOptions.Brackets),
+                            new Message($"{commands[j].Signatures[i].priority}",
+                                MessageOptions.Brackets),
+                            new Message($"{i}",
+                                MessageOptions.Brackets),
+                            new Message($"{commands[j].Signatures[i].description}",
+                                MessageOptions.Brackets));
+                    else
+                        Transmission.AddLine(
+                            new Message($"{commands[j].Key}",
+                                MessageOptions.Brackets),
+                            new Message($"{commands[j].Signatures[i].priority}",
+                                MessageOptions.Brackets),
+                            new Message($"{i}",
+                                MessageOptions.Brackets),
+                            new Message($"{commands[j].Signatures[i].description}",
+                                MessageOptions.Brackets));
+
+                if (j == nativeCount - 1)
+                {
+                    Transmission.AddBreak();
+                    Transmission.AddTitle("Commands");
+                    Transmission.AddLine(
+                        new Message("Key", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                        new Message("Priority", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                        new Message("Overloads", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                        new Message("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
+                    Transmission.AddBreak();
+                }
+            }
+
+            Transmission.ReleaseAsync();
+        }
+
+        #endregion
         
-        #region --- [VALIDATE CONFIGURATION] ---
+        //--------------------------------------------------------------------------------------------------------------
+
+        #region --- [? OPERATOR] ---
+        
+        private static void LogCommandInformation(string key)
+        {
+            key = key.Remove(key.Length - 1, 1);
+
+            if (!MethodCommands.TryGetValue(key, out var command)) return;
+
+            Transmission.Start();
+
+            var index = 0;
+            foreach (var signature in command.Signatures)
+            {
+                Transmission.AddLine($"Key:[{key}]{(command.Signatures.Count > 1 ? $"[{index}]" : string.Empty)}");
+                Transmission.AddLine($"Description: {signature.description}");
+
+                var parameterInformation = signature.methodInfo.GetParameters();
+
+                for (var i = 0; i < parameterInformation.Length; i++)
+                {
+                    var description = string.Empty;
+                    if (parameterInformation[i].TryGetAttribute(out HintAttribute spec))
+                        description = $" | Description: {'"'}{spec.Description}{'"'}";
+
+                    #region --- [ENUM] ---
+
+                    var enumInfo = string.Empty;
+                    if (parameterInformation[i].ParameterType.IsEnum)
+                    {
+                        var values = Enum.GetValues(parameterInformation[i].ParameterType);
+                        foreach (var value in values) enumInfo += $"[{value}]";
+                    }
+
+                    #endregion
+
+                    var message =
+                        $"Parameter [{i}]:{(parameterInformation[i].IsOptional ? " (<color=#CCC>optional)" : string.Empty)} {parameterInformation[i].Name}{description}" +
+                        $"{(parameterInformation[i].IsOptional ? $" | Default: [{parameterInformation[i].DefaultValue}]" : string.Empty)}" +
+                        $" | Type: [{(parameterInformation[i].ParameterType.IsEnum ? $"Enum ({enumInfo})" : parameterInformation[i].TryGetAttribute(out SuggestionAttribute suggestion) ? $"string > Suggestions: {suggestion.GetAllSuggestions()}" : parameterInformation[i].ParameterType.Name)}]";
+
+                    Transmission.AddLine(message);
+                    if (i == parameterInformation.Length - 1)
+                        Transmission.AddBreak();
+                }
+
+                index++;
+            }
+
+            Transmission.ReleaseAsync();
+        }
+
+        #endregion
+
+        //--------------------------------------------------------------------------------------------------------------
+        
+        #region --- [UTILS] ---
+                
+        public static bool WasLastInputValid()
+            => cachedProposeReturnValue 
+               && cachedInputValidation != InputValidation.Incomplete
+               && cachedInputValidation != InputValidation.Incorrect;
+
 
         public static void SetConfiguration(ConsoleConfiguration configuration)
         {
@@ -94,24 +349,45 @@ namespace Ganymed.Console.Processor
         }
 
         #endregion
-       
+        
         //--------------------------------------------------------------------------------------------------------------
 
-        [RuntimeInitializeOnLoadMethod]
-        private static void FindConsoleCommandsInAssembly()
+        #region --- [HELPER] ---
+
+        private static string GetDeclaringKey(MemberInfo target)
         {
-           MethodProcessor.FindMethodCommandsInAssembly(); 
-           GetterProcessor.FindGetterInAssembly();
-           SetterProcessor.FindSetterInAssembly();
+            if (target.GetCustomAttribute(typeof(DeclaringNameAttribute)) is DeclaringNameAttribute targetName)
+                return targetName.DeclaringName;
+            return $"{target.Name}";
         }
+        
+                
+        private static string ReturnCommand(string input)
+        {
+            var split = input.Replace("/", string.Empty).Cut().Split(' ');
+            return split[0];
+        }
+
+        #endregion
         
         //--------------------------------------------------------------------------------------------------------------
         
         #region --- [EXTENSION] ---
 
-        internal static void ToCommandArgs(this string input, out string key, out List<string> args, char split = ' ')
+        private static void RemoveSetterPrefix(this string input, out string[] target, char split = '.')
         {
-            input = input.Cut();
+            input = input.RemoveFormBeginning($"/set");
+            target = input.Cut().Split(' ')[0].Split(split);
+        }
+
+        private static void SimpleTarget(this string input, out string[] target, char split = '.')
+        {
+            target = input.Cut().Split(split);
+        }
+
+        private static void ToCommandArgs(this string input, out string key, out List<string> args, char split = ' ')
+        {
+            input = input.Cut().Remove(0, CommandProcessor.Prefix.Length).Cut();
             
             //split key and args
             var inputSplit = input.Split(split);
@@ -122,7 +398,7 @@ namespace Ganymed.Console.Processor
             args = inputSplit.Skip(1).ToList();
 
             //Combine args forming a string
-
+            
             // --- Append arguments that are marked as a string
             for (var i = 0; i < args.Count -1; i++)
             {
@@ -144,11 +420,35 @@ namespace Ganymed.Console.Processor
             }
         }
 
-        internal static string AsVectorHint(this int value)
+        private static string[] AsStructInputArgs(this string input)
+        {
+            for (var i = 0; i < input.Length; i++)
+            {
+                if (i < input.Length - 1)
+                {
+                    if (input[i] == ',' && input[i+1] == ' ')
+                    {
+                        input = input.Remove(i, 1);
+                    }
+                }
+                else
+                {
+                    if (input[i] == ',')
+                    {
+                        input = input.Remove(i, 1);
+                    }
+                }
+                
+            }
+            return Regex.Replace(input.Cut().Replace('.',','), "[^., 0-9]", "").Split(' ');
+        }
+
+        private static string AsVectorHint(this int value)
             => value == 0 ? "X" : value == 1 ? "Y" : value == 2 ? "Z" : "W";
         
-        internal static string AsColorHint(this int value)
+        private static string AsColorHint(this int value)
             => value == 0 ? "R" : value == 1 ? "G" : value == 2 ? "B" : "A";
+        
 
         #endregion
     }

@@ -56,15 +56,9 @@ namespace Ganymed.Console
         Smallcaps  = 64,
         
         /// <summary>
-        /// Mark the content. Marker color can be selected in the console config.
-        /// </summary>
-        [Description("Mark the content. Marker color can be selected in the console config.")]
-        Mark  = 128,
-        
-        /// <summary>
         /// Surround the content with brackets
         /// </summary>
         [Description("Surround the content with brackets")]
-        Brackets = 256
+        Brackets = 128
     }
 }

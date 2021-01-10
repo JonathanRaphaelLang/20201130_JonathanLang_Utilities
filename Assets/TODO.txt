@@ -1,0 +1,8 @@
+//TODO: Clean reflection helpers
+//TODO: Documentation
+//TODO: Reverse Get/Set/Command base class
+//TODO: Fix set System.XXX (Vsync will be displayed in any case)
+
+//Backlog:
+//TODO: Create params array
+//TODO: Rework Paint class

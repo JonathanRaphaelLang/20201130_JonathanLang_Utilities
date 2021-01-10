@@ -17,6 +17,9 @@
         
         //--------------------------------------------------------------------------------------------------------------
 
+        /// <summary>
+        /// includes EnteredEditMode & EnteredEditMode & ExitingEditMode & ExitingPlayMode
+        /// </summary>
         TransitionEditPlayMode,
         EnteredEditMode,
         ExitingEditMode,
@@ -28,6 +31,7 @@
         AfterAssembliesLoaded,
         InspectorUpdate,
         SubsystemRegistration,
-        BeforeSplashScreen
+        BeforeSplashScreen,
+        PreProcessorBuild
     }
 }

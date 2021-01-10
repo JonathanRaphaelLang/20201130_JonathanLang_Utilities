@@ -596,7 +596,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameObjectHideFlags: 0
-  componentHideFlags: 0
   upperLeft: {fileID: 3765565696128947750}
   upperRight: {fileID: 3765565695838608401}
   lowerLeft: {fileID: 3765565695748731223}

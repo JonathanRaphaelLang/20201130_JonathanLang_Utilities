@@ -12,7 +12,10 @@ namespace Ganymed.Utils.Callbacks
 #endif
     [ExecuteInEditMode]
     [ScriptOrder(-10000)]
-    public class UnityEventCallbacks : MonoSingleton<UnityEventCallbacks> 
+    public class UnityEventCallbacks : MonoSingleton<UnityEventCallbacks>
+#if UNITY_EDITOR
+        , UnityEditor.Build.IPreprocessBuildWithReport
+#endif
     {
         
         #region --- [FIELDS] ---
@@ -425,5 +428,11 @@ namespace Ganymed.Utils.Callbacks
         }
 
         #endregion
+
+#if UNITY_EDITOR
+        public int callbackOrder => int.MinValue;
+        public void OnPreprocessBuild(UnityEditor.Build.Reporting.BuildReport report)
+            => InvokeCallbacks(UnityEventType.PreProcessorBuild);
+#endif
     }
 }

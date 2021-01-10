@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enabled: 1
   active: 1
-  CommandPrefix: /
+  commandPrefix: /
   infoOperator: '?'
   allowCommandPreProcessing: 1
   logCommandsLoadedOnStart: 1
@@ -27,13 +27,11 @@ MonoBehaviour:
   bindConsoles: 1
   allowedUnityMessages: 31
   logStackTraceOn: 21
-  ToggleKey: 47
-  PreviousInput: 273
-  SubsequentInput: 274
   allowShaderAndAnimations: 1
   allowFrostedGlassEffect: 1
   allowAnimations: 1
-  colorConsoleBackground: {r: 0.0485938, g: 0.056921076, b: 0.09411765, a: 0.9607843}
+  showRichText: 0
+  colorConsoleBackground: {r: 0.05335529, g: 0.06595987, b: 0.103773594, a: 0.9607843}
   colorScrollbar: {r: 0.19188322, g: 0.19188322, b: 0.26415092, a: 0.654902}
   colorScrollbarHandle: {r: 0, g: 0, b: 0, a: 0.54901963}
   colorOutput: {r: 0.89, g: 0.87, b: 1, a: 1}
@@ -44,19 +42,19 @@ MonoBehaviour:
   colorIncorrectInput: {r: 1, g: 0, b: 0.44, a: 1}
   colorInformation: {r: 0.93, g: 0.71, b: 1, a: 1}
   colorAutocompletion: {r: 0.33, g: 0.31, b: 0.44, a: 1}
-  colorTitles: {r: 0, g: 0.6452267, b: 1, a: 1}
-  colorEmphasize: {r: 1, g: 0.23584908, b: 0.42694947, a: 1}
-  colorCommandInput: {r: 0, g: 1, b: 1, a: 1}
+  colorTitles: {r: 0, g: 0.4937954, b: 1, a: 1}
+  colorSubHeading: {r: 0.2688679, g: 0.89342386, b: 1, a: 1}
+  colorEmphasize: {r: 1, g: 0.5952402, b: 0, a: 1}
+  colorCommandInput: {r: 0, g: 1, b: 0.83948016, a: 1}
   colorTextInput: {r: 0, g: 1, b: 1, a: 1}
-  colorMarker: {r: 1, g: 1, b: 0, a: 0.19}
-  colorComment: {r: 0.5001923, g: 0.40494838, b: 0.8584906, a: 1}
-  colorSender: {r: 1, g: 0.44668055, b: 0, a: 1}
-  colorLog: {r: 0.74885, g: 0.4339623, b: 1, a: 1}
+  colorComment: {r: 0.69695455, g: 0.6650944, b: 1, a: 1}
+  colorSender: {r: 0, g: 0.532712, b: 1, a: 1}
+  colorLog: {r: 0.48718405, g: 0.8679245, b: 0.6951239, a: 1}
   colorWarning: {r: 1, g: 0.9249252, b: 0.3962264, a: 1}
   colorError: {r: 1, g: 0, b: 0.2422409, a: 1}
   colorLogCondition: {r: 0.8070688, g: 0.7924528, b: 1, a: 1}
   colorStackTrace: {r: 0.47, g: 0.45, b: 0.73, a: 1}
-  inputFontSize: 6
-  fontSize: 6
+  inputFontSize: 7
+  fontSize: 7
   breakLineHeight: 130
   defaultLineHeight: 100

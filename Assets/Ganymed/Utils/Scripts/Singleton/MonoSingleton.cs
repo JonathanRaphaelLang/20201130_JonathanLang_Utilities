@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Ganymed.Utils.Singleton
 {
     /// <summary>
-    /// Abstract class for making scene persistent singletons out of MonoBehaviour
+    /// Abstract class for making scene persistent singletons of type MonoBehaviour
     /// </summary>
     /// <typeparam name="T">Singleton type</typeparam>
     public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
@@ -12,7 +12,6 @@ namespace Ganymed.Utils.Singleton
         #region --- [FIELDS] ---
 
         [SerializeField] private HideFlags gameObjectHideFlags = HideFlags.None;
-        [SerializeField] private HideFlags componentHideFlags = HideFlags.None;
         private static T _instance;        
 
         #endregion
@@ -58,8 +57,7 @@ namespace Ganymed.Utils.Singleton
         protected virtual void Awake()
         {
             if(this == null) return;
-            this.hideFlags = componentHideFlags;
-            this.gameObject.hideFlags = gameObjectHideFlags;
+            gameObject.hideFlags = gameObjectHideFlags;
             if(Application.isPlaying)
                 Instance.gameObject.DontDestroyOnLoad();
 
@@ -69,7 +67,9 @@ namespace Ganymed.Utils.Singleton
             {
                 if (obj == this) continue;
                 
-                Debug.LogWarning($"Destroyed other GameObject {obj.gameObject}");
+                Debug.LogWarning($"Singleton: Multiple instances of the same type {GetType()} detected! " +
+                                 $"Destroyed other GameObject {obj.gameObject}");
+                
                 DestroyImmediate(obj.gameObject);
             }
         }
