@@ -10,9 +10,17 @@ namespace Ganymed.Console.Processor
         /// returns the value of the Property/Field
         /// </summary>
         /// <returns></returns>
-        internal object GetValue() => IsProperty
-            ? (MemberInfo as PropertyInfo)?.GetValue(null)
-            : (MemberInfo as FieldInfo)?.GetValue(null);
+        internal string GetValue()
+        {
+            var value = IsProperty
+                ? (MemberInfo as PropertyInfo)?.GetValue(null)
+                : (MemberInfo as FieldInfo)?.GetValue(null);
+                
+            if (value is IGettable gettable)
+                return gettable.GetterValue();
+            
+            return value?.ToString() ?? "null";
+        }
 
         /// <summary>
         /// Create a new instance of GetterInfo granting access to metadata of getter attributes

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Ganymed.Monitoring.Modules
 {
-    [CreateAssetMenu(fileName = "Module_System", menuName = "Monitoring/ModuleDictionary/System")]
+    [CreateAssetMenu(fileName = "Module_System", menuName = "Monitoring/Modules/System")]
     public sealed class ModuleSystem : Module<string>
     {
         #region --- [INSPECTOR] ---
@@ -39,8 +39,8 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [EVENTS] ---
 
-        private event Action<string> OnValueChanged; 
-        private event Action<bool> OnToggle; 
+        private event ModuleUpdateDelegate OnValueChanged; 
+        private event ModuleActivationDelegate OnToggle; 
 
         #endregion
         
@@ -97,10 +97,10 @@ namespace Ganymed.Monitoring.Modules
 
         protected override void OnInitialize()
         {
-            SetUpdateDelegate(ref OnValueChanged);
-            SetActiveDelegate(ref OnToggle);
-            OverrideDefaultValue(GenerateText());
-            OnValueChanged?.Invoke(GenerateText());
+            InitializeValue(GenerateText());
+            InitializeUpdateEvent(ref OnValueChanged);
+            
+            InitializeActivationEvent(ref OnToggle);
         }
 
         #endregion

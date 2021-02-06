@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fb1050a61185c44f88bf8d9d7c4605f, type: 3}
+  m_Name: Module_Notes
+  m_EditorClassIdentifier: 
+  isEnabled: 1
+  isActive: 1
+  isVisible: 1
+  useCustomStyle: 1
+  customStyleBase: {fileID: 11400000, guid: 47ea04ea15eac2948bc64a908661520a, type: 2}
+  enableWarnings: 0
+  enableInitializeUpdateEventWarnings: 1
+  enableInitializeValueWarnings: 0
+  previewValueAs: 0
+  resetValueOnQuit: 0
+  prefixText: NOTES
+  suffixText: 
+  prefixBreak: 0
+  suffixBreak: 0
+  description: Module provides an easy way accounting for simple  todos / notes.
+  enableAutoInspection: 0
+  secondsBetweenInspections: 1
+  TextAsset: {fileID: 4900000, guid: 9809a582c2cf31a408e1ed3c18035ebc, type: 3}
+  pendingColor: {r: 1, g: 0.7351268, b: 0, a: 1}
+  checkedColor: {r: 0.4764151, g: 1, b: 0.5199776, a: 1}

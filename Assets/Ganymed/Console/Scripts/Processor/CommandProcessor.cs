@@ -60,8 +60,7 @@ namespace Ganymed.Console.Processor
         private static volatile Dictionary<string, GetterInfo> GetterShortcuts = new Dictionary<string, GetterInfo>();
         
         private const string GetterDescription = "Get the value of an expsoed propertiy/field. " +
-                                                 "Note: get commands are case sensitive." +
-                                                 "/get to receive a list of getter";
+                                                 "/get for more information and a list of getter";
         #endregion
 
         #region --- [SETTER] ---
@@ -70,8 +69,7 @@ namespace Ganymed.Console.Processor
         private static volatile Dictionary<string, SetterInfo> SetterShortcuts = new Dictionary<string, SetterInfo>();
 
         private const string SetterDescription = "Set the value of an expsoed propertiy/field. " +
-                                                 "Note: set commands are case sensitive." +
-                                                 "/set to receive a list of setter";
+                                                 "/set for more information and a list of setter";
 
         #endregion
 
@@ -86,7 +84,7 @@ namespace Ganymed.Console.Processor
         {
             time = Time.realtimeSinceStartup;
             
-            Transmission.Start(TransmissionOptions.None, "Command Handler");
+            Transmission.Start(TransmissionOptions.None, "Commands");
             Transmission.AddLine("Searching for console commands in Assembly...");
             Transmission.Release();
             
@@ -115,17 +113,27 @@ namespace Ganymed.Console.Processor
                 }
             }, ct).Then(delegate
             {
-                if (!logCommandsLoadedOnStart) return;
+                if (!logCommandsLoadedOnStart || !Application.isPlaying )
+                    return;
 
                 const MessageOptions options = MessageOptions.Brackets | MessageOptions.Bold;
 
-                Transmission.Start(TransmissionOptions.None, "Command Handler");
+                Transmission.Start(TransmissionOptions.None, "Commands");
+
+                var count = 0;
+                foreach (var cmd in MethodCommands)
+                {
+                    if(cmd.Value.Signatures.Count == 1 && !Application.isEditor)
+                        if(cmd.Value.Signatures[0].disableListings) continue;
+                    count++;
+                }
+                
                 Transmission.AddLine(
-                    new Message($"{MethodCommands.Count}", Core.Console.ColorEmphasize, options),
+                    new MessageFormat($"{count}", Core.Console.ColorEmphasize, options),
                     $"Commands are loaded | Time passed: " +
                     $"{Time.realtimeSinceStartup - time:00.00}s |",
-                    new Message($"{Prefix}{CommandsKey}", Core.Console.ColorEmphasize, options),
-                    new Message("To receive a list of commands"));
+                    new MessageFormat($"{Prefix}{CommandsKey}", Core.Console.ColorEmphasize, options),
+                    new MessageFormat("To receive a list of commands"));
                 Transmission.Release();
             });
         }
@@ -160,7 +168,6 @@ namespace Ganymed.Console.Processor
 
         public static Task Process(string input)
         {
-            if (!input.StartsWith(CommandProcessor.Prefix)) return Task.CompletedTask;
             var command = ReturnCommand(input);
             
             if (command.EndsWith(CommandProcessor.InfoOperator)) {
@@ -179,99 +186,6 @@ namespace Ganymed.Console.Processor
                 ProcessMethodCommand(input);
             }
             return Task.CompletedTask;
-        }
-
-        #endregion
-        
-        //--------------------------------------------------------------------------------------------------------------
-
-        #region --- [COMMANDS] ---
-
-        [NativeCommand]
-        [Command(CommandsKey, Priority = 1000, Description = "Log available commands and their descriptions")]
-        public static void LogMethodCommands()
-        {
-            Transmission.Start(TransmissionOptions.Enumeration);
-            Transmission.AddBreak();
-
-            var commands = MethodCommands.Select(cmd => cmd.Value).ToList();
-
-            commands.Sort(delegate(Command a, Command b)
-            {
-                if (a.hasNativeAttribute && !b.hasNativeAttribute) return -1;
-
-                if (b.hasNativeAttribute && !a.hasNativeAttribute) return 1;
-
-                if (a.Priority > b.Priority) return -1;
-                if (b.Priority > a.Priority) return 1;
-                return 0;
-            });
-
-
-            if (commands.Any(command => command.hasNativeAttribute))
-            {
-                Transmission.AddTitle("Native Commands");
-                Transmission.AddLine(
-                    new Message("Key", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Priority", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Overloads", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
-                Transmission.AddBreak();
-            }
-            
-            
-            var nativeCount = commands.Count(command => command.hasNativeAttribute);
-
-            for (var j = 0; j < commands.Count; j++)
-            {
-                var count = commands[j].Signatures.Count;
-                for (byte i = 0; i < count; i++)
-                    if (count > 1)
-                        Transmission.AddLine(
-                            new Message($"{commands[j].Key}",
-                                MessageOptions.Brackets),
-                            new Message($"{commands[j].Signatures[i].priority}",
-                                MessageOptions.Brackets),
-                            new Message($"{i}",
-                                MessageOptions.Brackets),
-                            new Message($"{commands[j].Signatures[i].description}",
-                                MessageOptions.Brackets));
-                    
-                    else if (commands[j].hasNativeAttribute)
-                        Transmission.AddLine(
-                            new Message($"{commands[j].Key}", Core.Console.ColorEmphasize,
-                                MessageOptions.Brackets),
-                            new Message($"{commands[j].Signatures[i].priority}",
-                                MessageOptions.Brackets),
-                            new Message($"{i}",
-                                MessageOptions.Brackets),
-                            new Message($"{commands[j].Signatures[i].description}",
-                                MessageOptions.Brackets));
-                    else
-                        Transmission.AddLine(
-                            new Message($"{commands[j].Key}",
-                                MessageOptions.Brackets),
-                            new Message($"{commands[j].Signatures[i].priority}",
-                                MessageOptions.Brackets),
-                            new Message($"{i}",
-                                MessageOptions.Brackets),
-                            new Message($"{commands[j].Signatures[i].description}",
-                                MessageOptions.Brackets));
-
-                if (j == nativeCount - 1)
-                {
-                    Transmission.AddBreak();
-                    Transmission.AddTitle("Commands");
-                    Transmission.AddLine(
-                        new Message("Key", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                        new Message("Priority", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                        new Message("Overloads", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                        new Message("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
-                    Transmission.AddBreak();
-                }
-            }
-
-            Transmission.ReleaseAsync();
         }
 
         #endregion
@@ -376,7 +290,7 @@ namespace Ganymed.Console.Processor
 
         private static void RemoveSetterPrefix(this string input, out string[] target, char split = '.')
         {
-            input = input.RemoveFormBeginning($"/set");
+            input = input.Cut().RemoveFormBeginning($"/set");
             target = input.Cut().Split(' ')[0].Split(split);
         }
 

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Ganymed.Utils.Attributes;
-using Ganymed.Utils.ColorTables;
 using Ganymed.Utils.ExtensionMethods;
+using Ganymed.Utils.Helper;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -162,16 +162,17 @@ namespace Ganymed.Utils.Editor.AttributeValidation
             MemberInfo memberInfo)
         {
             var message =
-                $"Warning: the {CS.Violet}{target}{CS.Clear} " +
-                $"'{CS.Orange}{memberInfo.Name}{CS.Clear}' in: " +
-                $"{CS.LightGray}{memberInfo.DeclaringType?.FullName}.{CS.Clear}" +
-                $"{CS.Blue}{memberInfo.Name}{CS.Clear} requires: " +
-                $"{(requiredPublic != null ? $"{CS.Red}'{requiredPublic}'{CS.Clear}" : "")}" +
+                $"Warning: the {RichText.Violet}{target}{RichText.ClearColor} " +
+                $"'{RichText.Orange}{memberInfo.Name}{RichText.ClearColor}' in: " +
+                $"{RichText.LightGray}'{memberInfo.DeclaringType?.FullName}.{RichText.ClearColor}" +
+                $"{RichText.Blue}{memberInfo.Name}'{RichText.ClearColor} requires: " +
+                $"{(requiredPublic != null ? $"{RichText.Red}{requiredPublic}{RichText.ClearColor}" : "")}" +
                 $"{(requiredPublic != null && requiredStatic != null ? " and " : "")}" +
-                $"{(requiredStatic != null ? $"{CS.Red}'{requiredStatic}'{CS.Clear}" : "")} access " +
-                $"because of the members '{CS.Orange}{origin.GetType().Name.Delete("Attribute")}{CS.Clear}' Attribute.";
+                $"{(requiredStatic != null ? $"{RichText.Red}{requiredStatic}{RichText.ClearColor}" : "")} access " +
+                $"because of the members '{RichText.Orange}{origin.GetType().Name.Delete("Attribute")}" +
+                $"{RichText.ClearColor}' Attribute.\n";
 
-            Debug.LogWarning(message);
+            Debug.LogWarning(message);    
         }
     }
 }

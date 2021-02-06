@@ -7,7 +7,7 @@ namespace Ganymed.Utils.Attributes
     /// which a target attribute can be assigned.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    [AttributesOnly]
+    [AttributeTarget(typeof(Attribute), Inherited = true)]
     public sealed class PropertyAccessRequirementAttribute : Attribute
     {
         #region --- [PROPERTIES] ---

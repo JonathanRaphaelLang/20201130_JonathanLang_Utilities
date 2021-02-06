@@ -76,7 +76,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294309365
-  m_fontColor: {r: 0.89, g: 0.87, b: 1, a: 1}
+  m_fontColor: {r: 0.8326362, g: 0.8673506, b: 0.9339623, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -93,8 +93,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 6
+  m_fontSizeBase: 6
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1386,8 +1386,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 6
+  m_fontSizeBase: 6
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2418,7 +2418,7 @@ MonoBehaviour:
   m_HideSoftKeyboard: 1
   m_CharacterValidation: 0
   m_RegexValue: 
-  m_GlobalPointSize: 7
+  m_GlobalPointSize: 6
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
@@ -2520,6 +2520,7 @@ GameObject:
   - component: {fileID: 7206995717767109637}
   - component: {fileID: 854863411775139341}
   - component: {fileID: 5412524280087508906}
+  - component: {fileID: 2198748028045947524}
   m_Layer: 5
   m_Name: Console
   m_TagString: Untagged
@@ -2619,8 +2620,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee31f6e5e7adcb54393841ba1e1d135a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameObjectHideFlags: 0
   config: {fileID: 11400000, guid: b3941e4ae31d2e24fb2f3993e0a1c7de, type: 2}
+  showReferences: 0
   inputField: {fileID: 7206995717720448366}
   outputField: {fileID: 7539190077501306470}
   inputPlaceHolder: {fileID: 7206995718257421856}
@@ -2635,6 +2636,7 @@ MonoBehaviour:
   scrollbarHandle: {fileID: 8060409598991813932}
   isEnabled: 1
   isActive: 1
+  isVisible: 1
 --- !u!114 &5412524280087508906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2647,11 +2649,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04bdbcb2cd7f0a24ea9d8246495d1884, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameObjectHideFlags: 0
   toggleKey: 47
   applyProposedKey: 9
   previousInputKey: 273
   subsequentInputKey: 274
+--- !u!114 &2198748028045947524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7206995717767109638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b267fc0c0c4ca843ac8948ccf176ca2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  executeOn: 0
+  enableInEditMode: 0
+  enable: 1
+  parent: 1
+  customParentTransform: {fileID: 0}
 --- !u!1 &7206995717858144016
 GameObject:
   m_ObjectHideFlags: 0
@@ -2858,8 +2876,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 6
+  m_fontSizeBase: 6
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3012,8 +3030,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 6
+  m_fontSizeBase: 6
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

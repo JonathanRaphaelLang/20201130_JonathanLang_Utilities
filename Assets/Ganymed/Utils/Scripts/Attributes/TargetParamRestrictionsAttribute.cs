@@ -6,7 +6,7 @@ namespace Ganymed.Utils.Attributes
     /// This attribute restricts the parameter types of the methods to which the target attribute can be assigned.
     /// Attributes only attribute. 
     /// </summary>
-    [AttributesOnly]
+    [AttributeTarget(typeof(Attribute), Inherited = true)]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
     public sealed class TargetParamRestrictionsAttribute : Attribute
     {
@@ -21,7 +21,7 @@ namespace Ganymed.Utils.Attributes
         public bool Inherited { get; set; } = false;
 
         /// <summary>
-        /// Flags enum containing categories of permitted types.
+        /// Bitmask enum containing categories of permitted types.
         /// </summary>
         public TypeAffiliations ValidTypeAffiliations
         {

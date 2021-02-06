@@ -6,17 +6,17 @@
         /// <summary>
         /// Returns the current value
         /// </summary>
-        CurrentValue = 0,
+        Value = 0,
         
         /// <summary>
         /// Returns the cached value 
         /// </summary>
-        LastValue = 1,
+        Cached = 1,
         
         /// <summary>
         /// Returns the default value of the type
         /// </summary>
-        DefaultValue = 2,
+        Default = 2,
         
         /// <summary>
         /// Returns the type of the value

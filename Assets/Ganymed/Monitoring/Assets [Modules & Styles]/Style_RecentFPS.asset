@@ -23,9 +23,10 @@ MonoBehaviour:
   marginTop: 2
   marginRight: 5
   marginBottom: 2
+  alignment: 257
   autoBrackets: 0
   autoSpace: 0
-  useTextStyle: 0
+  useCustomRichText: 0
   prefixTextStyle: 
   infixTextStyle: 
   suffixTextStyle: 

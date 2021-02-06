@@ -2,16 +2,22 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ganymed.Utils.Attributes;
+using Ganymed.Utils.ExtensionMethods;
 using Ganymed.Utils.Singleton;
 using UnityEngine;
 
 namespace Ganymed.Utils.Callbacks
 {
+    /// <summary>
+    /// class providing a variety of callbacks for unity events, messages and editor callbacks. Subscribed listener are
+    /// not required to check the application state for editor callbacks.
+    /// </summary>
 #if UNITY_EDITOR
     [UnityEditor.InitializeOnLoad]
 #endif
     [ExecuteInEditMode]
     [ScriptOrder(-10000)]
+    [GameObjectHideInHierarchy]
     public class UnityEventCallbacks : MonoSingleton<UnityEventCallbacks>
 #if UNITY_EDITOR
         , UnityEditor.Build.IPreprocessBuildWithReport
@@ -70,7 +76,7 @@ namespace Ganymed.Utils.Callbacks
                 CreateGameObjectInstance();
 #else
                 Instantiate(new GameObject()).AddComponent<UnityEventCallbacks>();
-                Debug.LogWarning("INSTANTIATED NEW UNITY EVENT CALLBACKS OBJECT!");
+                Debug.LogWarning("UnityEventCallbacks instance was not present!");
 #endif
 
             }
@@ -131,7 +137,7 @@ namespace Ganymed.Utils.Callbacks
         
      
         /// <summary>
-        /// Subscribe a delegate to a callback. (defined context)
+        /// Subscribe a listener to a callback. (defined context) previous listener will be removed by default.
         /// </summary>
         /// <param name="listener">the delegate listening</param>
         /// <param name="callbackDuring">the context in which the listener is allowed to be called</param>
@@ -139,6 +145,8 @@ namespace Ganymed.Utils.Callbacks
         public static void AddEventListener(Action<UnityEventType> listener, ApplicationState callbackDuring,
             params UnityEventType[] callbackTypes)
         {
+            RemoveEventListener(listener, callbackDuring, callbackTypes);
+            
             foreach (var type in callbackTypes) {
                 callbacks[callbackDuring][type] += listener;
             }
@@ -195,7 +203,7 @@ namespace Ganymed.Utils.Callbacks
         
         
         /// <summary>
-        /// Remove a delegate from a callback. Listener are called during Edit and Playmode. (every context)
+        /// Remove a listener from a callback. Callbacks are invoked during Edit and Playmode. (every context)
         /// </summary>
         /// <param name="listener">the delegate listening</param>
         /// <param name="callbackTypes">the callback event types you would like to remove the listener from</param>
@@ -313,10 +321,14 @@ namespace Ganymed.Utils.Callbacks
         
         //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [UPDATES] ---
+        #region --- [CALLBACK AND METHOD INVOKATION] ---
 
 #if UNITY_EDITOR
                 
+        [UnityEditor.InitializeOnLoadMethod]
+        private static void OnLoad()
+            => InvokeCallbacks(UnityEventType.OnLoad);
+        
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void BeforeSceneLoadRuntimeMethod()
             => InvokeCallbacks(UnityEventType.BeforeSceneLoad);
@@ -345,15 +357,13 @@ namespace Ganymed.Utils.Callbacks
             => InvokeCallbacks(UnityEventType.InspectorUpdate);
         
 #endif
-        protected override void Awake() {
+        protected override void Awake()
+        {
             base.Awake();
             InvokeCallbacks(UnityEventType.Awake);
         }
         
-        private void Start()
-        {
-            InvokeCallbacks(UnityEventType.Start);
-        }
+        private void Start() => InvokeCallbacks(UnityEventType.Start);
 
         private void Update() => InvokeCallbacks(UnityEventType.Update);
         private void LateUpdate() => InvokeCallbacks(UnityEventType.LateUpdate);
@@ -368,23 +378,7 @@ namespace Ganymed.Utils.Callbacks
         
         private static void EditorApplicationOnplayModeStateChanged(UnityEditor.PlayModeStateChange state)
         {
-            switch (state)
-            {
-                case UnityEditor.PlayModeStateChange.EnteredEditMode:
-                    InvokeCallbacks(UnityEventType.EnteredEditMode);
-                    break;
-                case UnityEditor.PlayModeStateChange.ExitingEditMode:
-                    InvokeCallbacks(UnityEventType.ExitingEditMode);
-                    break;
-                case UnityEditor.PlayModeStateChange.EnteredPlayMode:
-                    InvokeCallbacks(UnityEventType.EnteredPlayMode);
-                    break;
-                case UnityEditor.PlayModeStateChange.ExitingPlayMode:
-                    InvokeCallbacks(UnityEventType.ExitingPlayMode);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
-            }
+            InvokeCallbacks(state.GetUnityEventType());
             InvokeCallbacks(UnityEventType.TransitionEditPlayMode);
         }
 #endif

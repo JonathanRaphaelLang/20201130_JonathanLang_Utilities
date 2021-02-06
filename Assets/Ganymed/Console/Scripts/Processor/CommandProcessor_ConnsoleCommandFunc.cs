@@ -2,13 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Ganymed.Console.Attributes;
+using Ganymed.Console.Transmissions;
+using Ganymed.Utils;
 using Ganymed.Utils.ExtensionMethods;
 using Ganymed.Utils.Structures;
 using UnityEngine;
 
 namespace Ganymed.Console.Processor
 {
+    /// <summary>
+    /// Partial CommandProcessor class responsible for handling of console command methods. 
+    /// </summary>
     public static partial class CommandProcessor
     {
         #region --- [INITIALISATION] ---
@@ -19,24 +25,130 @@ namespace Ganymed.Console.Processor
             {
                 foreach (var methodInfo in type.GetMethods(CommandFlags))
                 {
-                    var attribute = methodInfo.GetCustomAttribute(typeof(CommandAttribute)) as CommandAttribute;
+                    // --- Check for Command Attributes...
+                    var attribute = methodInfo.GetCustomAttribute(typeof(ConsoleCommandAttribute)) as ConsoleCommandAttribute;
                     if (attribute == null) continue;
-                    if (attribute.HideInBuild && !Application.isEditor) continue;
+                    if (attribute.BuildSettings.HasFlag(CmdBuildSettings.ExcludeFromBuild) && !Application.isEditor)continue;
                     
                     var isNative = methodInfo.GetCustomAttribute(typeof(NativeCommandAttribute)) is NativeCommandAttribute;
                     var key = attribute.Key;
                   
-                    var signature = new Signature(methodInfo, attribute.Priority, attribute.Description, attribute.DisableNBP);
+                    // --- create a new Signature for the found method...
+                    var signature = new Signature(
+                        methodInfo: methodInfo,
+                        priority: attribute.Priority,
+                        hiddenPriority: isNative? attribute.Priority + short.MaxValue : attribute.Priority,
+                        description: attribute.Description,
+                        disableNBP: attribute.DisableNBP,
+                        disableListings: attribute.BuildSettings.HasFlag(CmdBuildSettings.DisableListings),
+                        disableAutoCompletion: attribute.BuildSettings.HasFlag(CmdBuildSettings.DisableAutoCompletion));
+                    
                     if (!MethodCommands.ContainsKey(key))
                     {
+                        // --- if the method is the only signature (for now) 
                         MethodCommands.Add(key, new Command(signature, key, isNative));
                     }
                     else
                     {
+                        // --- if a method with the same key already exists add an overload to the command. 
                         MethodCommands[key].AddOverload(signature);
                     }
                 }
             }
+        }
+
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+        
+        #region --- [COMMANDS] ---
+
+        [NativeCommand]
+        [ConsoleCommand(CommandsKey, Priority = 1000, Description = "Log available commands and their descriptions")]
+        private static void LogCommands()
+        {
+            Transmission.Start(TransmissionOptions.Enumeration);
+            Transmission.AddBreak();
+
+            var commands = MethodCommands.Select(cmd => cmd.Value).ToList();
+
+            commands.Sort(delegate(Command a, Command b)
+            {
+                if (a.hasNativeAttribute && !b.hasNativeAttribute) return -1;
+
+                if (b.hasNativeAttribute && !a.hasNativeAttribute) return 1;
+
+                if (a.Priority > b.Priority) return -1;
+                if (b.Priority > a.Priority) return 1;
+                return 0;
+            });
+
+
+            if (commands.Any(command => command.hasNativeAttribute))
+            {
+                Transmission.AddTitle("Native Commands");
+                Transmission.AddLine(
+                    new MessageFormat("Key", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Priority", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Signature", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
+                Transmission.AddBreak();
+            }
+            
+            
+            var nativeCount = commands.Count(command => command.hasNativeAttribute);
+
+            for (var j = 0; j < commands.Count; j++)
+            {
+                var count = commands[j].Signatures.Count;
+                for (byte i = 0; i < count; i++)
+                    if (count > 1)
+                        Transmission.AddLine(
+                            new MessageFormat($"{commands[j].Key}",
+                                MessageOptions.Brackets),
+                            new MessageFormat($"{commands[j].Signatures[i].priority}",
+                                MessageOptions.Brackets),
+                            new MessageFormat($"{i}",
+                                MessageOptions.Brackets),
+                            new MessageFormat($"{commands[j].Signatures[i].description}",
+                                MessageOptions.Brackets));
+                    
+                    else if (commands[j].hasNativeAttribute)
+                        Transmission.AddLine(
+                            new MessageFormat($"{commands[j].Key}", Core.Console.ColorEmphasize,
+                                MessageOptions.Brackets),
+                            new MessageFormat($"{commands[j].Signatures[i].priority}",
+                                MessageOptions.Brackets),
+                            new MessageFormat($"{i}",
+                                MessageOptions.Brackets),
+                            new MessageFormat($"{commands[j].Signatures[i].description}",
+                                MessageOptions.Brackets));
+                    
+                    else if(!commands[j].Signatures[i].disableListings || Application.isEditor)
+                        Transmission.AddLine(
+                            new MessageFormat($"{commands[j].Key}",
+                                MessageOptions.Brackets),
+                            new MessageFormat($"{commands[j].Signatures[i].priority}",
+                                MessageOptions.Brackets),
+                            new MessageFormat($"{i}",
+                                MessageOptions.Brackets),
+                            new MessageFormat($"{commands[j].Signatures[i].description}",
+                                MessageOptions.Brackets));
+
+                if (j == nativeCount - 1)
+                {
+                    Transmission.AddBreak();
+                    Transmission.AddTitle("Commands");
+                    Transmission.AddLine(
+                        new MessageFormat("Key", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                        new MessageFormat("Priority", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                        new MessageFormat("Signature", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                        new MessageFormat("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
+                    Transmission.AddBreak();
+                }
+            }
+
+            Transmission.ReleaseAsync();
         }
 
         #endregion
@@ -81,15 +193,36 @@ namespace Ganymed.Console.Processor
                         
                         #region --- [STRING] ---
 
-                        //  --- Replace . with , to ensure that the value is interpreted correctly
-                        if (parameterInfos[i].ParameterType == typeof(string))
+                        else if (parameterInfos[i].ParameterType == typeof(string))
                         {
+                            //TODO: FIX
+                            if (parameterInfos.Indices() == i && args.Count > parameterInfos.Length)
+                            {
+                                for (var j = i + 1; j < args.Count; j++)
+                                {
+                                    args[i] = $"{args[i]} {args[j]}";
+                                }
+                            }
+                                
+                            
                             args[i] = args[i].Replace('"'.ToString(), string.Empty);
                             parameters[i] = Convert.ChangeType(args[i], parameterInfos[i].ParameterType);
                         }
 
                         #endregion
 
+                        #region --- [CHAR] ---
+
+                        //
+                        else if (parameterInfos[i].ParameterType == typeof(char))
+                        {
+                            args[i] = args[i][0].ToString();
+                            parameters[i] = Convert.ChangeType(args[i], parameterInfos[i].ParameterType);
+                        }
+
+                        #endregion
+                        
+                        
                         #region --- [ENUM] ---
 
                         else if (parameterInfos[i].ParameterType.IsEnum)
@@ -157,9 +290,7 @@ namespace Ganymed.Console.Processor
                             var XY = new float[2]; 
                             for (var j = 0; j < vectorArgsString.Count; j++)
                             {
-                                vectorArgsString[j] = vectorArgsString[j].Replace('.', ',');
-                                vectorArgsString[j] = vectorArgsString[j].Replace("(", string.Empty);
-                                vectorArgsString[j] = vectorArgsString[j].Replace(")", string.Empty);
+                                vectorArgsString[j] = Regex.Replace(vectorArgsString[j].Replace('.',','), "[^., 0-9]", "");
                                 if(float.TryParse(vectorArgsString[j], out var f))
                                 {
                                     XY[j] = f;
@@ -192,6 +323,7 @@ namespace Ganymed.Console.Processor
                             var XYZ = new float[3]; 
                             for (var j = 0; j < vectorArgsString.Count; j++)
                             {
+                                vectorArgsString[j] = Regex.Replace(vectorArgsString[j].Replace('.',','), "[^., 0-9]", "");
                                 if(float.TryParse(vectorArgsString[j], out var result))
                                 {
                                     XYZ[j] = result;
@@ -231,9 +363,7 @@ namespace Ganymed.Console.Processor
                                 var XYZW = new float[4]; 
                                 for (var j = 0; j < vectorArgsString.Count; j++)
                                 {
-                                    vectorArgsString[j] = vectorArgsString[j].Replace('.', ',');
-                                    vectorArgsString[j] = vectorArgsString[j].Replace("(", string.Empty);
-                                    vectorArgsString[j] = vectorArgsString[j].Replace(")", string.Empty);
+                                    vectorArgsString[j] = Regex.Replace(vectorArgsString[j].Replace('.',','), "[^., 0-9]", "");
                                     if(float.TryParse(vectorArgsString[j], out var f))
                                     {
                                         XYZW[j] = f;
@@ -261,9 +391,7 @@ namespace Ganymed.Console.Processor
                             var XY = new int[2]; 
                             for (var j = 0; j < vectorArgsString.Count; j++)
                             {
-                                vectorArgsString[j] = vectorArgsString[j].Replace('.', ',');
-                                vectorArgsString[j] = vectorArgsString[j].Replace("(", string.Empty);
-                                vectorArgsString[j] = vectorArgsString[j].Replace(")", string.Empty);
+                                vectorArgsString[j] = Regex.Replace(vectorArgsString[j].Replace('.',','), "[^., 0-9]", "");
                                 if(int.TryParse(vectorArgsString[j], out var f))
                                 {
                                     XY[j] = f;
@@ -335,9 +463,7 @@ namespace Ganymed.Console.Processor
                                 var XYZW = new int[4]; 
                                 for (var j = 0; j < vectorArgsString.Count; j++)
                                 {
-                                    vectorArgsString[j] = vectorArgsString[j].Replace('.', ',');
-                                    vectorArgsString[j] = vectorArgsString[j].Replace("(", string.Empty);
-                                    vectorArgsString[j] = vectorArgsString[j].Replace(")", string.Empty);
+                                    vectorArgsString[j] = Regex.Replace(vectorArgsString[j].Replace('.',','), "[^., 0-9]", "");
                                     if(int.TryParse(vectorArgsString[j], out var f))
                                     {
                                         XYZW[j] = f;
@@ -385,9 +511,7 @@ namespace Ganymed.Console.Processor
 
                             for (var j = 0; j < colorArgsString.Count; j++)
                             {
-                                colorArgsString[j] = colorArgsString[j].Replace('.', ',');
-                                colorArgsString[j] = colorArgsString[j].Replace("(", string.Empty);
-                                colorArgsString[j] = colorArgsString[j].Replace(")", string.Empty);
+                                colorArgsString[j] = Regex.Replace(colorArgsString[j].Replace('.',','), "[^., 0-9]", "");
                                 if (float.TryParse(colorArgsString[j], out var f))
                                 {
                                     RGBA[j] = f;
@@ -431,9 +555,7 @@ namespace Ganymed.Console.Processor
                                 
                                 for (var j = 0; j < colorArgsString.Count; j++)
                                 {
-                                    colorArgsString[j] = colorArgsString[j].Replace('.', ',');
-                                    colorArgsString[j] = colorArgsString[j].Replace("(", string.Empty);
-                                    colorArgsString[j] = colorArgsString[j].Replace(")", string.Empty);
+                                    colorArgsString[j] = Regex.Replace(colorArgsString[j].Replace('.',','), "[^., 0-9]", "");
                                     if(byte.TryParse(colorArgsString[j], out var f))
                                     {
                                         RGBA[j] = f;
@@ -572,20 +694,24 @@ namespace Ganymed.Console.Processor
                 foreach (var consoleCommand in MethodCommands)
                 {
                     if (!consoleCommand.Key.StartsWith(key, StringComparison.OrdinalIgnoreCase)) continue;
-                    foreach (var signature in consoleCommand.Value.Signatures.Where(s => s.priority > bestPriority))
+                    foreach (var signature in consoleCommand.Value.Signatures.Where(s => s.hiddenPriority > bestPriority))
                     {
                         bestKey = consoleCommand.Key;
                         bestMatch = consoleCommand.Value;
-                        bestPriority = signature.priority;
+                        bestPriority = signature.hiddenPriority;
                     }
                 }
             
                 if (bestMatch != null)
                 {
                     proposalDescription = bestKey.SetUpperLowerConfig(keyConfiguration).Remove(0,key.Length);
-                    proposal = bestKey.SetUpperLowerConfig(keyConfiguration).Remove(0,key.Length);
+
+                    var proposalDescriptionArgs = proposalDescription.Split('.');
+
+                    proposalDescription = $"{proposalDescriptionArgs[0]}{(proposalDescriptionArgs.Length > 1? "." : "")}";
+                    proposal = proposalDescription;
                     
-                    description += proposalDescription;
+                    description += proposalDescription.Replace(".", "");
                     proposedInput += proposal;
                     inputValidation = InputValidation.Incomplete;
                     cachedProposeReturnValue = true;
@@ -598,6 +724,10 @@ namespace Ganymed.Console.Processor
             //--- Iterate through every console command in dictionary to check for a potential match (key)
             foreach (var consoleCommand in MethodCommands)
             {
+                if(consoleCommand.Value.Signatures.Count == 1 && !Application.isEditor)
+                    if(consoleCommand.Value.Signatures[0].disableAutoCompletion)
+                        continue;
+                
                 #region --- [SEARCH FOR MATCH] ---
 
                 // --- Check every command for potential match
@@ -615,9 +745,13 @@ namespace Ganymed.Console.Processor
                 if (!isKeyPerfectMatch)
                 {
                     proposalDescription = consoleCommand.Key.SetUpperLowerConfig(keyConfiguration).Remove(0,key.Length);
-                    proposal = consoleCommand.Key.SetUpperLowerConfig(keyConfiguration).Remove(0,key.Length);
                     
-                    description += proposalDescription;
+                    var proposalDescriptionArgs = proposalDescription.Split('.');
+                    proposalDescription = $"{proposalDescriptionArgs[0]}{(proposalDescriptionArgs.Length > 1? "." : "")}";
+
+                    proposal = proposalDescription;
+                    
+                    description +=  proposalDescription.Replace(".", "");
                     proposedInput += proposal;
                     inputValidation = InputValidation.Incomplete;
                     cachedInputValidation = inputValidation;
@@ -634,6 +768,7 @@ namespace Ganymed.Console.Processor
                 foreach (var signature in consoleCommand.Value.Signatures)
                 {
                     viewedSignature++;
+                    if(signature.disableAutoCompletion) continue;
                     var parameterInformation = signature.methodInfo.GetParameters();
                     var checkNextSignature = false;
                     var isValid = viewedSignature <= 1;
@@ -661,7 +796,7 @@ namespace Ganymed.Console.Processor
                                     
                                     proposalDescription = parameterInformation[i].TryGetAttribute(out HintAttribute hint)
                                         // --- Hint attribute was found
-                                        ? $" //" +
+                                        ? $" {(!hint.Description.IsNullOrWhiteSpace() && hint.Show != HintConfig.None? " //" : "")}" +
                                           $"{(hint.ShowDefaultValue && parameterInformation[i].HasDefaultValue && parameterInformation[i].DefaultValue != null ? $" [default: {parameterInformation[i].DefaultValue}]" : string.Empty)}" +
                                           $"{(hint.ShowValueType ? $" [type: {(parameterInformation[i].ParameterType.IsEnum ? "Enum" : parameterInformation[i].ParameterType.Name)}]" : string.Empty)}" +
                                           $"{(hint.ShowParameterName ? $" [param name: {parameterInformation[i].Name}]" : string.Empty)}" +
@@ -676,15 +811,29 @@ namespace Ganymed.Console.Processor
                                     {
                                         if (parameterInformation[i].TryGetAttribute(out SuggestionAttribute suggestionAttribute))
                                         {
-                                            proposal = $"{'"'}{suggestionAttribute.Suggestions[0]}{'"'}";
+                                            var useMarks = suggestionAttribute.Suggestions[0] != null;
+                                            proposal = $"{(useMarks? '"'.ToString() : "")}" +
+                                                       $"{suggestionAttribute.Suggestions[0]}" +
+                                                       $"{(useMarks? '"'.ToString() : "")}";
                                         }
                                         else
                                         {
                                             var defaultValue = parameterInformation[i].DefaultValue;
+                                            
                                             if (defaultValue != null)
-                                                proposal = parameterInformation[i].HasDefaultValue
-                                                    ? defaultValue.ToString()
-                                                    : parameterInformation[i].ParameterType.GetDefault().ToString();
+
+                                                if (parameterInformation[i].HasDefaultValue)
+                                                {
+                                                    var useMarks = defaultValue is string;
+                                                        
+                                                    proposal = $"{(useMarks? '"'.ToString() : "")}" +
+                                                               $"{defaultValue}" +
+                                                               $"{(useMarks? '"'.ToString() : "")}";
+                                                }
+                                                else
+                                                {
+                                                    proposal = parameterInformation[i].ParameterType.GetDefault().ToString();
+                                                }
 
                                             proposal = proposal.Replace("RGBA", string.Empty);
                                             proposal = proposal.Replace(",", string.Empty);
@@ -777,19 +926,51 @@ namespace Ganymed.Console.Processor
                             {
                                 foreach (var sug in suggestion.Suggestions)
                                 {
-                                    if (!sug.StartsWith(args[i],
-                                        suggestion.IgnoreCase
-                                            ? StringComparison.OrdinalIgnoreCase
-                                            : StringComparison.CurrentCulture)) continue;
+                                    if (args[i].Equals($"{'"'}{sug}{'"'}")) return false;
+                                    if (args[i].Equals($"{sug}")) return false;
                                     
-                                    proposalDescription = sug.Remove(0, args[i].Length);
-                                    proposal = proposalDescription;
+                                    var _case = suggestion.IgnoreCase
+                                        ? StringComparison.OrdinalIgnoreCase
+                                        : StringComparison.CurrentCulture;
+
+                                    var spaces = 0;
+                                    for (var j = rawInput.Length - 1; j >= 0; j--)
+                                    {
+                                        if (rawInput[j] == ' ')
+                                            spaces++;
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (sug.StartsWith(args[i], _case))
+                                    {
+                                        args[i] = args[i];
+                                        proposalDescription = sug.Remove(0, args[i].Length + spaces);
+                                        proposal = proposalDescription;
                                 
-                                    if(inputValidation != InputValidation.Optional) inputValidation = InputValidation.Incomplete;
-                                    description += proposalDescription;
-                                    proposedInput = proposedInput.Remove(proposedInput.Length - args[i].Length, args[i].Length);
-                                    proposedInput += $"{'"'}{sug}{'"'}";
-                                    return true;
+                                        if(inputValidation != InputValidation.Optional) inputValidation = InputValidation.Incomplete;
+                                        
+                                        description += proposalDescription;
+                                        proposedInput = proposedInput.Remove(proposedInput.Length - args[i].Length, args[i].Length);
+                                        proposedInput = proposedInput.Replace('"'.ToString(), string.Empty);
+                                        proposedInput += $"{'"'}{sug}{'"'}";
+                                        return true;
+                                    }
+                                    else if($"{'"'}{sug}".StartsWith(args[i], _case))
+                                    {
+                                        args[i] = args[i];
+                                        proposalDescription = sug.Remove(0, args[i].Length - 1);
+                                        proposal = proposalDescription;
+                                
+                                        if(inputValidation != InputValidation.Optional) inputValidation = InputValidation.Incomplete;
+                                        description += proposalDescription;
+                                        proposedInput = proposedInput.Remove(proposedInput.Length - args[i].Length, args[i].Length);
+                                        proposedInput = proposedInput.Replace('"'.ToString(), string.Empty);
+                                        proposedInput += $"{'"'}{sug}{'"'}";
+                                        return true;
+                                    }
                                 }
                             }
 
@@ -1286,7 +1467,6 @@ namespace Ganymed.Console.Processor
                         cachedProposeReturnValue = true;
                         return true;
                     }
-                    
                     else
                     {
                         if(inputValidation != InputValidation.Optional) inputValidation = InputValidation.Incorrect;

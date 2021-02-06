@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5876235033300141709}
   - component: {fileID: 5876235033300141708}
+  - component: {fileID: 5814778451226304283}
   m_Layer: 0
   m_Name: MonitorBehaviour
   m_TagString: Untagged
@@ -43,22 +44,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c632bd7cce822f4ebe23c3669c3ca53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameObjectHideFlags: 0
-  componentHideFlags: 0
   config: {fileID: 11400000, guid: e43a94a3b4be36a4cb4dbadf6587c108, type: 2}
-  ModulesUpperLeft:
+  modulesUpperLeft:
   - {fileID: 11400000, guid: b641334507dabb147801144033263e18, type: 2}
-  ModulesUpperRight:
+  modulesUpperRight:
   - {fileID: 11400000, guid: ed0be4637454d98468c7f1f050b10645, type: 2}
   - {fileID: 11400000, guid: 1dde403291c082f449fe7cf8a61830d6, type: 2}
-  - {fileID: 11400000, guid: 16070b598a6ebaa4f8d41ee31bcaae4f, type: 2}
   - {fileID: 11400000, guid: 57e613cc271059b48b7c0d53e9c00fcc, type: 2}
-  ModulesLowerLeft: []
-  ModulesLowerRight:
+  - {fileID: 11400000, guid: 16070b598a6ebaa4f8d41ee31bcaae4f, type: 2}
+  modulesLowerLeft: []
+  modulesLowerRight:
+  - {fileID: 11400000, guid: 478811b8f61f75146a43b1c20cc49db0, type: 2}
   - {fileID: 11400000, guid: 966511edd97915a47a4128e40df8199a, type: 2}
   GUIElementPrefab: {fileID: 3876159015935912231, guid: ead3b594570348d4cbfe485c4b9bde12,
     type: 3}
   GUIObjectPrefab: {fileID: 3765565696045478534, guid: 9c8c71a648e504d41988f0f39db4bc98,
     type: 3}
-  positionInHierarchy: 2
-  placeObjectAtSceneRoot: 1
+  SetRootObject: {fileID: 5814778451226304283}
+  enableLifePreview: 1
+  showReferences: 0
+  hideCanvas: 1
+  showRootComponent: 0
+--- !u!114 &5814778451226304283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5876235033300141706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b267fc0c0c4ca843ac8948ccf176ca2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  executeOn: 1
+  enableInEditMode: 0
+  enable: 1
+  parent: 1
+  customParentTransform: {fileID: 0}

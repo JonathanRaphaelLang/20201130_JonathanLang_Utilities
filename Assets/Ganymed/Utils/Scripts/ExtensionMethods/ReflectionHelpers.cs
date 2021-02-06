@@ -2,15 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Assembly = System.Reflection.Assembly;
 
 namespace Ganymed.Utils.ExtensionMethods
 {
+    /// <summary>
+    /// Helper class containing Extension Methods for Reflection
+    /// </summary>
     public static class ReflectionHelpers
     {
+        #region --- [FIELDS] ---
+
         private const BindingFlags MemberFlags 
             = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-        
+
+        #endregion
         
         #region --- [TYPE EXTENSIONS] ---
 
@@ -118,7 +123,20 @@ namespace Ganymed.Utils.ExtensionMethods
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
-       
+
+        #region --- [TYPES FROM ASSEMBLIES] ---
+
+        /// <summary>
+        /// out params of all Assembles.
+        /// </summary>
+        /// <param name="aAppDomain"></param>
+        /// <param name="types"></param>
+        /// <param name="fieldInfos"></param>
+        /// <param name="propertyInfos"></param>
+        /// <param name="methodInfos"></param>
+        /// <param name="constructorInfos"></param>
+        /// <param name="eventInfos"></param>
+        /// <param name="memberInfos"></param>
         public static void GetAll(this AppDomain aAppDomain, 
             out List<Type> types,
             out List<FieldInfo> fieldInfos,
@@ -151,9 +169,21 @@ namespace Ganymed.Utils.ExtensionMethods
             }
         }
         
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         
-        public static void GetUnityEditorAssemblies(this AppDomain aAppDomain, 
+        /// <summary>
+        /// Out params of unity assemblies. 
+        /// </summary>
+        /// <param name="aAppDomain"></param>
+        /// <param name="unityAssemblyDefinitions"></param>
+        /// <param name="types"></param>
+        /// <param name="fieldInfos"></param>
+        /// <param name="propertyInfos"></param>
+        /// <param name="methodInfos"></param>
+        /// <param name="constructorInfos"></param>
+        /// <param name="eventInfos"></param>
+        /// <param name="memberInfos"></param>
+        public static void GetTypesFromUnityAssemblies(this AppDomain aAppDomain, 
             IEnumerable<UnityEditor.Compilation.Assembly> unityAssemblyDefinitions,
             out List<Type> types,
             out List<FieldInfo> fieldInfos,
@@ -171,28 +201,23 @@ namespace Ganymed.Utils.ExtensionMethods
             constructorInfos= new List<ConstructorInfo>();
             eventInfos= new List<EventInfo>();
             
-            var assemblies = new List<Assembly>();
-            foreach (var assembly in unityAssemblyDefinitions)
+            var assemblies = unityAssemblyDefinitions.Select(assembly
+                => aAppDomain.GetAssemblies().SingleOrDefault(a
+                    => a.GetName().Name == assembly.name)).ToList();
+
+            foreach (var type in assemblies.SelectMany(assembly => assembly.GetTypes()))
             {
-                assemblies.Add(aAppDomain.GetAssemblies().SingleOrDefault(a => a.GetName().Name == assembly.name));
-            }
-            
-            foreach (var assembly in assemblies)
-            {
-                foreach (var type in assembly.GetTypes())
-                {
-                    types.Add(type);
-                    memberInfos.AddRange(type.GetMembers(MemberFlags));
-                    fieldInfos.AddRange(type.GetFields(MemberFlags));
-                    propertyInfos.AddRange(type.GetProperties(MemberFlags));
-                    methodInfos.AddRange(type.GetMethods(MemberFlags));
-                    constructorInfos.AddRange(type.GetConstructors(MemberFlags));
-                    eventInfos.AddRange(type.GetEvents(MemberFlags));
-                }
+                types.Add(type);
+                memberInfos.AddRange(type.GetMembers(MemberFlags));
+                fieldInfos.AddRange(type.GetFields(MemberFlags));
+                propertyInfos.AddRange(type.GetProperties(MemberFlags));
+                methodInfos.AddRange(type.GetMethods(MemberFlags));
+                constructorInfos.AddRange(type.GetConstructors(MemberFlags));
+                eventInfos.AddRange(type.GetEvents(MemberFlags));
             }
         }
         
-        #endif
+#endif
         
         public static AttributeTargets GetTarget(this Type type)
         {
@@ -292,5 +317,6 @@ namespace Ganymed.Utils.ExtensionMethods
 
             return result;
         }
+        #endregion
     }
 }

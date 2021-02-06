@@ -4,33 +4,20 @@ using UnityEngine;
 
 namespace Ganymed.Utils.ExtensionMethods
 {
+    /// <summary>
+    /// Class containing Type Extension Methods
+    /// </summary>
     public static class TypeExtensions
     {
-        #region --- [DEFAULT]
+        #region --- [DEFAULT] ---
 
         /// <summary>
-        /// [ <c>public static object GetDefault(this Type type)</c> ]
-        /// <para></para>
-        /// Retrieves the default value for a given Type
+        /// Returns an object with a default value for the given type.
+        /// If the type is a string the method will return an empty string instead of null.
         /// </summary>
-        /// <param name="type">The Type for which to get the default value</param>
-        /// <returns>The default value for <paramref name="type"/></returns>
-        /// <remarks>
-        /// If a null Type, a reference Type, or a System.Void Type is supplied, this method always returns null.  If a value type 
-        /// is supplied which is not publicly visible or which contains generic parameters, this method will fail with an 
-        /// exception.
-        /// </remarks>
-        /// <example>
-        /// To use this method in its native, non-extension form, make a call like:
-        /// <code>
-        ///     object Default = DefaultValue.GetDefault(someType);
-        /// </code>
-        /// To use this method in its Type-extension form, make a call like:
-        /// <code>
-        ///     object Default = someType.GetDefault();
-        /// </code>
-        /// </example>
-        /// <seealso cref="GetDefault"/>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static object GetDefault(this Type type)
         {
             // If no Type was supplied, if the Type was a reference type, or if the Type was a System.Void, return null
@@ -80,28 +67,68 @@ namespace Ganymed.Utils.ExtensionMethods
                                         "> is not a publicly-visible type, so the default value cannot be retrieved");
         }
         #endregion
-        
-        public static bool IsString(this Type type) => type == typeof(string);
 
+        #region --- [TYPEOF] ---
+
+        /// <summary>
+        /// True if the type is a string.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsString(this Type type)
+            => type == typeof(string);
+
+        
+        /// <summary>
+        /// True if the type is a struct.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsStruct(this Type type)
             => type.IsValueType && !type.IsEnum && !type.IsPrimitive;
 
+        
+        /// <summary>
+        /// True if the type is a Vector2 or Vector3 or Vector4.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsVector(this Type type) 
             => (type == typeof(Vector2) || type == typeof(Vector3) || type == typeof(Vector4));
         
+        
+        /// <summary>
+        /// True if the type is a Vector2Int or Vector3Int.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsVectorInt(this Type type) 
             => (type == typeof(Vector2Int) || type == typeof(Vector3Int));
         
+        
+        /// <summary>
+        /// True if the type is a Color or Color32.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsColor(this Type type)
             => (type == typeof(Color) || type == typeof(Color32));
         
+        
+        /// <summary>
+        /// True if the type is a delegate.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsDelegate(this Type type)
             => typeof (MulticastDelegate).IsAssignableFrom(type.BaseType);
         
-        public static Type GetNullableUnderlying(this Type nullableType)
-            => Nullable.GetUnderlyingType(nullableType) ?? nullableType;
         
-        
+        /// <summary>
+        /// Returns affiliation flags for the given type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static TypeAffiliations GetTypeAffiliation(this Type type)
         {
             return
@@ -113,5 +140,20 @@ namespace Ganymed.Utils.ExtensionMethods
                 type.IsInterface ? TypeAffiliations.Interface :
                 type.IsClass ? TypeAffiliations.Class : TypeAffiliations.None;
         }
+
+        #endregion
+
+        #region --- [UNDERLYING] ---
+
+        /// <summary>
+        /// Returns the underlying type.
+        /// </summary>
+        /// <param name="nullableType"></param>
+        /// <returns></returns>
+        public static Type GetNullableUnderlying(this Type nullableType)
+            => Nullable.GetUnderlyingType(nullableType) ?? nullableType;
+        
+
+        #endregion
     }
 }

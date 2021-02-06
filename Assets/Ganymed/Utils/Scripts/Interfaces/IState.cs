@@ -2,45 +2,22 @@
 
 namespace Ganymed.Utils
 {
-    public interface IState
+    public interface IState : IEnabled, IActive, IVisible
     {
-        /// <summary>
-        /// Set the enabled state of the object instance.
-        /// </summary>
-        /// <param name="enabled"></param>
-        void SetEnabled(bool enabled);
         
         /// <summary>
-        /// Set the active state of the object instance. Objects will only activate if they are enabled
-        /// </summary>
-        /// <param name="active"></param>
-        void SetActive(bool active);
-        
-        /// <summary>
-        /// Set the active and enabled state of the object instance.
+        /// Set the enabled, visible and visibility state of the object instance.
         /// </summary>
         /// <param name="value"></param>
-        void SetActiveAndEnabled(bool value);
-
-        /// <summary>
-        /// Returns the enabled state
-        /// </summary>
-        bool IsEnabled { get; }
+        void SetStates(bool value);
         
         /// <summary>
-        /// Returns the active state
+        /// Is the object enabled, visible and visible
         /// </summary>
-        bool IsActive { get;}
-        
-        /// <summary>
-        /// Is the object active and enabled
-        /// </summary>
-        bool IsActiveAndEnabled { get; }
+        bool IsEnabledActiveAndVisible { get; }
 
         //--------------------------------------------------------------------------------------------------------------
         
-        event ActiveAndEnabledDelegate OnActiveAndEnabledStateChanged;
-        event ActiveDelegate OnActiveStateChanged;
-        event EnabledDelegate OnEnabledStateChanged;
+        event ActiveAndVisibleDelegate OnAnyStateChanged;
     }
 }

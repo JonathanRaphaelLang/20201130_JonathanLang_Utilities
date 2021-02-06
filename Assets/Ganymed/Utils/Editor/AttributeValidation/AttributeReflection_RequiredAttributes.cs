@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Ganymed.Utils.Attributes;
-using Ganymed.Utils.ColorTables;
 using Ganymed.Utils.ExtensionMethods;
+using Ganymed.Utils.Helper;
 using UnityEngine;
 
 // ReSharper disable PossibleMultipleEnumeration
@@ -14,7 +14,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
     internal static partial class AttributeReflection
     {
         /// <summary>
-        /// Method checks integrity of 'RequiredAttributesAttribute' instances present within the passes member/types.
+        /// Method checks integrity of 'RequiresAdditionalAttributesAttribute' instances present within the passes member/types.
         /// </summary>
         /// <param name="types"></param>
         /// <param name="fieldInfos"></param>
@@ -40,7 +40,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                 {
                     foreach (var potentialMatch in inspectedAttribute.GetType().GetCustomAttributes())
                     {
-                        if (potentialMatch is RequiredAttributesAttribute required)
+                        if (potentialMatch is RequiresAdditionalAttributesAttribute required)
                         {
                             var missing = GetMissingAttributeTypes(required, type.GetCustomAttributes());
                                 
@@ -65,7 +65,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                         var potentialMatches = inspectedAttribute.GetType().GetCustomAttributes();
                         foreach (var potentialMatch in potentialMatches) 
                         {
-                            if (potentialMatch is RequiredAttributesAttribute required)
+                            if (potentialMatch is RequiresAdditionalAttributesAttribute required)
                             {
                                 var missing = GetMissingAttributeTypes(required, attributes);
                                 
@@ -96,7 +96,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                     var potentialMatches = inspectedAttribute.GetType().GetCustomAttributes();
                     foreach (var potentialMatch in potentialMatches) 
                     {
-                        if (potentialMatch is RequiredAttributesAttribute required)
+                        if (potentialMatch is RequiresAdditionalAttributesAttribute required)
                         {
                             var missing = GetMissingAttributeTypes(required, attributes);
                                 
@@ -124,7 +124,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                     var potentialMatches = inspectedAttribute.GetType().GetCustomAttributes();
                     foreach (var potentialMatch in potentialMatches) 
                     {
-                        if (potentialMatch is RequiredAttributesAttribute required)
+                        if (potentialMatch is RequiresAdditionalAttributesAttribute required)
                         {
                             var missing = GetMissingAttributeTypes(required, attributes);
                                 
@@ -153,7 +153,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                     var potentialMatches = inspectedAttribute.GetType().GetCustomAttributes();
                     foreach (var potentialMatch in potentialMatches) 
                     {
-                        if (potentialMatch is RequiredAttributesAttribute required)
+                        if (potentialMatch is RequiresAdditionalAttributesAttribute required)
                         {
                             var missing = GetMissingAttributeTypes(required, attributes);
                             
@@ -182,7 +182,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                     var potentialMatches = inspectedAttribute.GetType().GetCustomAttributes();
                     foreach (var potentialMatch in potentialMatches) 
                     {
-                        if (potentialMatch is RequiredAttributesAttribute required)
+                        if (potentialMatch is RequiresAdditionalAttributesAttribute required)
                         {
                             var missing = GetMissingAttributeTypes(required, attributes);
                                 
@@ -210,7 +210,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                     var potentialMatches = inspectedAttribute.GetType().GetCustomAttributes();
                     foreach (var potentialMatch in potentialMatches) 
                     {
-                        if (potentialMatch is RequiredAttributesAttribute required)
+                        if (potentialMatch is RequiresAdditionalAttributesAttribute required)
                         {
                             var missing = GetMissingAttributeTypes(required, attributes);
                                 
@@ -239,7 +239,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                     var potentialMatches = inspectedAttribute.GetType().GetCustomAttributes();
                     foreach (var potentialMatch in potentialMatches)
                     {
-                        if (potentialMatch is RequiredAttributesAttribute required)
+                        if (potentialMatch is RequiresAdditionalAttributesAttribute required)
                         {
                             var missing = GetMissingAttributeTypes(required, attributes);
 
@@ -271,7 +271,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                         var potentialMatches = inspectedAttribute.GetType().GetCustomAttributes();
                         foreach (var potentialMatch in potentialMatches)
                         {
-                            if (potentialMatch is RequiredAttributesAttribute required)
+                            if (potentialMatch is RequiresAdditionalAttributesAttribute required)
                             {
                                 var missing = GetMissingAttributeTypes(required, attributes);
 
@@ -301,7 +301,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                         var potentialMatches = inspectedAttribute.GetType().GetCustomAttributes();
                         foreach (var potentialMatch in potentialMatches)
                         {
-                            if (potentialMatch is RequiredAttributesAttribute required)
+                            if (potentialMatch is RequiresAdditionalAttributesAttribute required)
                             {
                                 var missing = GetMissingAttributeTypes(required, attributes);
 
@@ -340,7 +340,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                         var potentialMatches = inspectedAttribute.GetType().GetCustomAttributes();
                         foreach (var potentialMatch in potentialMatches)
                         {
-                            if (potentialMatch is RequiredAttributesAttribute required)
+                            if (potentialMatch is RequiresAdditionalAttributesAttribute required)
                             {
                                 var missing = GetMissingAttributeTypes(required, attributes);
 
@@ -375,7 +375,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                         var potentialMatches = inspectedAttribute.GetType().GetCustomAttributes();
                         foreach (var potentialMatch in potentialMatches)
                         {
-                            if (potentialMatch is RequiredAttributesAttribute required)
+                            if (potentialMatch is RequiresAdditionalAttributesAttribute required)
                             {
                                 var missing = GetMissingAttributeTypes(required, attributes);
 
@@ -395,23 +395,23 @@ namespace Ganymed.Utils.Editor.AttributeValidation
 
         #region --- [HELPER] ---
         
-        private static Type[] GetMissingAttributeTypes(RequiredAttributesAttribute requiredAttributes, IEnumerable<Attribute> attributes)
+        private static Type[] GetMissingAttributeTypes(RequiresAdditionalAttributesAttribute requiresAdditionalAttributes, IEnumerable<Attribute> attributes)
         {
             var enumerable = attributes as Attribute[] ?? attributes.ToArray();
             
-            if(enumerable.Count() == 1 && enumerable[0].GetType() == typeof(RequiredAttributesAttribute))
-                return requiredAttributes.RequiredAttributes;
+            if(enumerable.Count() == 1 && enumerable[0].GetType() == typeof(RequiresAdditionalAttributesAttribute))
+                return requiresAdditionalAttributes.RequiredAttributes;
             
             var missingTypes = new List<Type>();
 
-            foreach (var type in requiredAttributes.RequiredAttributes)
+            foreach (var type in requiresAdditionalAttributes.RequiredAttributes)
             {
                 var typeAvailable = false;
                 
                 foreach (var attribute in enumerable)
                 {
                     var aType = attribute.GetType();
-                    if (requiredAttributes.Inherited)
+                    if (requiresAdditionalAttributes.Inherited)
                     {
                         if (aType.IsSubclassOf(type) ||aType.IsAssignableFrom(type) || aType == type)
                         {
@@ -436,36 +436,37 @@ namespace Ganymed.Utils.Editor.AttributeValidation
             return missingTypes.ToArray();
         }
 
-        private static bool IsInspectedValid(Type[] missing, RequiredAttributesAttribute requiredAttributes)
+        private static bool IsInspectedValid(Type[] missing, RequiresAdditionalAttributesAttribute requiresAdditionalAttributes)
         {
-            if(missing.Length < requiredAttributes.RequiredAttributes.Length && requiredAttributes.RequiresAny) return true;
+            if(missing.Length < requiresAdditionalAttributes.RequiredAttributes.Length && requiresAdditionalAttributes.RequiresAny) return true;
             return missing.Length <= 0;
         }
         
-        private static void LogWarningMessage(RequiredAttributesAttribute requiredAttributes, Type[] missingTypes, Attribute inspected, Context ctx)
+        private static void LogWarningMessage(RequiresAdditionalAttributesAttribute requiresAdditionalAttributes, Type[] missingTypes, Attribute inspected, Context ctx)
         {
-            Type[] requiredTypes = requiredAttributes.RequiredAttributes;
+            var requiredTypes = requiresAdditionalAttributes.RequiredAttributes;
 
-            var any = requiredAttributes.RequiresAny;
+            var any = requiresAdditionalAttributes.RequiresAny;
             var one = requiredTypes.Length == 1;
             
-            var warningMessage =
-                $"Warning: the {CS.Violet}{ctx.Target}{CS.Clear} attribute " +
-                $"'{CS.Orange}{inspected.GetType().Name.Replace("Attribute", "")}{CS.Clear}' in " +
-                $"'{CS.LightGray}{ctx.Declaring.Namespace?.Replace("+", ".")}.{CS.Blue}{ctx.Declaring.Name}{CS.Clear}" +
-                $"{(ctx.MemberInfo != null ? $".{CS.Blue}{ctx.MemberInfo.Name}{CS.Clear}" : "")}" +
-                $"{(ctx.ParameterInfo != null ? $"| parameter: {CS.Blue}{ctx.ParameterInfo.Name} | type: [{ctx.ParameterInfo.ParameterType.Name}]{CS.Clear}" : "")}" +
-                $"{CS.Clear}' requires {(one? "the following" : any? "any of the listed" : "all of the listed")} attribute{(one? "" : "s")}: ";
+            var message =
+                $"Warning: the {RichText.Violet}{ctx.Target}{RichText.ClearColor} attribute " +
+                $"'{RichText.Orange}{inspected.GetType().Name.Replace("Attribute", "")}{RichText.ClearColor}' in " +
+                $"'{RichText.LightGray}{ctx.Declaring.Namespace?.Replace("+", ".")}{ctx.Declaring.Name}" +
+                $"{(ctx.MemberInfo != null ? $".{RichText.Blue}{ctx.MemberInfo.Name}{RichText.ClearColor}" : "")}" +
+                $"{(ctx.ParameterInfo != null ? $"| parameter: {RichText.Blue}{ctx.ParameterInfo.Name} | type: [{ctx.ParameterInfo.ParameterType.Name}]{RichText.ClearColor}" : "")}" +
+                $"{RichText.ClearColor}' requires " +
+                $"{(one? "the" : any? "any of the listed" : "all of the listed")} attribute{(one? "" : "s")}: ";
 
             foreach (var type in requiredTypes)
             {
-                warningMessage += $"{(missingTypes.Contains(type) ? CS.Red : CS.Green)}" +
-                                  $"{type.Name}{CS.Clear} | ";
+                message += $"{(missingTypes.Contains(type) ? RichText.Red : RichText.Green)}" +
+                                  $"{type.Name}{RichText.ClearColor} | ";
             }
 
-            warningMessage = warningMessage.Remove(warningMessage.Length - 3, 3);
+            message = $"{message.Remove(message.Length - 3, 3)}\n";
             
-            Debug.LogWarning(warningMessage);
+            Debug.LogWarning(message);    
         }
         #endregion
     }

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enabled: 1
   active: 1
+  visible: 1
   commandPrefix: /
   infoOperator: '?'
   allowCommandPreProcessing: 1
@@ -25,36 +26,35 @@ MonoBehaviour:
   logTimeOnInput: 1
   inputCacheSize: 10
   bindConsoles: 1
-  allowedUnityMessages: 31
+  allowedUnityMessages: 23
   logStackTraceOn: 21
   allowShaderAndAnimations: 1
-  allowFrostedGlassEffect: 1
+  allowShader: 1
   allowAnimations: 1
-  showRichText: 0
+  showRichText: 1
+  inputFontSize: 6
+  fontSize: 6
+  breakLineHeight: 150
+  defaultLineHeight: 100
   colorConsoleBackground: {r: 0.05335529, g: 0.06595987, b: 0.103773594, a: 0.9607843}
   colorScrollbar: {r: 0.19188322, g: 0.19188322, b: 0.26415092, a: 0.654902}
   colorScrollbarHandle: {r: 0, g: 0, b: 0, a: 0.54901963}
-  colorOutput: {r: 0.89, g: 0.87, b: 1, a: 1}
-  colorInput: {r: 1, g: 1, b: 1, a: 1}
-  colorValid: {r: 0.59, g: 1, b: 0.62, a: 1}
+  colorDefault: {r: 0.8326362, g: 0.8673506, b: 0.9339623, a: 1}
+  colorTitles: {r: 0, g: 0.4937954, b: 1, a: 1}
+  colorSubHeading: {r: 0.2688679, g: 0.89342386, b: 1, a: 1}
+  colorEmphasize: {r: 1, g: 0.5952402, b: 0, a: 1}
+  colorInputLines: {r: 0.41037738, g: 0.8361453, b: 1, a: 1}
+  colorVariables: {r: 1, g: 0.97503865, b: 0, a: 1}
+  colorValidInput: {r: 0.5518868, g: 1, b: 0.6437014, a: 1}
   colorOptionalParamsLeft: {r: 0.53, g: 1, b: 0.96, a: 1}
   colorIncompleteInput: {r: 1, g: 1, b: 0.58, a: 1}
   colorIncorrectInput: {r: 1, g: 0, b: 0.44, a: 1}
   colorInformation: {r: 0.93, g: 0.71, b: 1, a: 1}
   colorAutocompletion: {r: 0.33, g: 0.31, b: 0.44, a: 1}
-  colorTitles: {r: 0, g: 0.4937954, b: 1, a: 1}
-  colorSubHeading: {r: 0.2688679, g: 0.89342386, b: 1, a: 1}
-  colorEmphasize: {r: 1, g: 0.5952402, b: 0, a: 1}
-  colorCommandInput: {r: 0, g: 1, b: 0.83948016, a: 1}
-  colorTextInput: {r: 0, g: 1, b: 1, a: 1}
-  colorComment: {r: 0.69695455, g: 0.6650944, b: 1, a: 1}
-  colorSender: {r: 0, g: 0.532712, b: 1, a: 1}
-  colorLog: {r: 0.48718405, g: 0.8679245, b: 0.6951239, a: 1}
-  colorWarning: {r: 1, g: 0.9249252, b: 0.3962264, a: 1}
-  colorError: {r: 1, g: 0, b: 0.2422409, a: 1}
-  colorLogCondition: {r: 0.8070688, g: 0.7924528, b: 1, a: 1}
+  colorUnityLog: {r: 1, g: 0.8915094, b: 1, a: 1}
+  colorUnityWarning: {r: 1, g: 0.94832873, b: 0, a: 1}
+  colorUnityError: {r: 1, g: 0, b: 0.034242153, a: 1}
   colorStackTrace: {r: 0.47, g: 0.45, b: 0.73, a: 1}
-  inputFontSize: 7
-  fontSize: 7
-  breakLineHeight: 130
-  defaultLineHeight: 100
+  customColor1: {r: 1, g: 0, b: 1, a: 1}
+  customColor2: {r: 1, g: 0, b: 1, a: 1}
+  customColor3: {r: 1, g: 0, b: 1, a: 1}

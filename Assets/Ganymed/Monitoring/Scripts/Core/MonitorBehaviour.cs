@@ -1,66 +1,63 @@
 ﻿using System;
+using System.Collections.Generic;
 using Ganymed.Monitoring.Configuration;
 using Ganymed.Utils;
 using Ganymed.Utils.Callbacks;
+using Ganymed.Utils.Optimization;
 using Ganymed.Utils.Singleton;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Ganymed.Monitoring.Core
 {
-    [ExecuteInEditMode]
+    [ExecuteAlways]
+    [AddComponentMenu("Monitoring/Monitor")]
     public class MonitorBehaviour : MonoSingleton<MonitorBehaviour>
     {
         #region --- [CONFIG] ---
 #pragma warning disable 649
 
-        [Header("GlobalConfiguration Configuration")]
-        [SerializeField] private GlobalConfiguration config = null;
-
-        [Header("ModuleDictionary")]
-        [SerializeField] private Module[] ModulesUpperLeft;
-        [SerializeField] private Module[] ModulesUpperRight;
-        [SerializeField] private Module[] ModulesLowerLeft;
-        [SerializeField] private Module[] ModulesLowerRight;
+        [HideInInspector][SerializeField] public MonitoringConfiguration config = null;
+        [FormerlySerializedAs("ModulesUpperLeft")]
+        [Space]
+        [SerializeField] public List<Module> modulesUpperLeft = new List<Module>();
+        [SerializeField] public List<Module> modulesUpperRight = new List<Module>();
+        [SerializeField] public List<Module> modulesLowerLeft = new List<Module>();
+        [SerializeField] public List<Module> modulesLowerRight = new List<Module>();
+        
+        
         
         [Header("Prefabs")]
-        [SerializeField] private GameObject GUIElementPrefab;
-        [SerializeField] private GameObject GUIObjectPrefab;
-
-        [Header("Position In Hierarchy")]
-        [SerializeField] private PositionInHierarchy positionInHierarchy= PositionInHierarchy.BottomOfHierarchy;
-        [SerializeField] private bool placeObjectAtSceneRoot = true;
-       
+        [HideInInspector][SerializeField] public GameObject GUIElementPrefab;
+        [HideInInspector][SerializeField] public GameObject GUIObjectPrefab;
+        [HideInInspector][SerializeField] public SetRootOnLoad SetRootObject;
+        
+        [Tooltip("When enabled, Modules will be instantiated and updated in Edit-Mode.")]
+        [HideInInspector] [SerializeField] public bool enableLifePreview = false;
+        
+        [Tooltip("Expose references.")]
+        [HideInInspector] [SerializeField] public bool showReferences = false;
+        
+        [Tooltip("Show/Hide the gameObject containing the canvas elements.")]
+        [HideInInspector] [SerializeField] public bool hideCanvas = false;
+        
+        [Tooltip("Show/Hide the SetRootOnLoad component of this gameObject.")]
+        [HideInInspector] [SerializeField] public bool showRootComponent = true;
+        
         #endregion
 
         #region --- [PROPERTIES] ---
-        public GlobalConfiguration GlobalConfiguration => (config != null)? config : GlobalConfiguration.Instance;
+       
+        public MonitoringConfiguration MonitoringConfiguration => (config != null)? config : MonitoringConfiguration.Instance;
 
+        public MonitoringCanvasBehaviour CanvasBehaviour { get; private set; }
+        
         #endregion
 
         #region --- [FIELDS] ---
-
-        public MonitoringCanvasBehaviour MonitoringCanvasBehaviour => GUIcanvas;
-        private MonitoringCanvasBehaviour GUIcanvas;
-        private Configuration.Configurable lastConfigurable;
-
-        private PositionInHierarchy lastPositionInHierarchy;
-        private bool lastPlaceObjects;
         
-        private enum PositionInHierarchy
-        {
-            /// <summary>
-            /// Dont set the position.
-            /// </summary>
-            Ignore,
-            /// <summary>
-            /// Place the object at the top of the hierarchy.
-            /// </summary>
-            TopOfHierarchy,
-            /// <summary>
-            /// Place the object at the bottom of the hierarchy.
-            /// </summary>
-            BottomOfHierarchy
-        }
+        private StyleBase lastStyleBase;
+        private bool lastPlaceObjects;
 
         #endregion
 
@@ -72,8 +69,8 @@ namespace Ganymed.Monitoring.Core
         {
             if (!Input.GetKeyDown(config.toggleKey)) return;
             
-            GUIcanvas.SetActive(!GUIcanvas.IsActive);
-        }        
+            CanvasBehaviour.SetVisible(!CanvasBehaviour.IsVisible);
+        }
 
         #endregion
 
@@ -101,60 +98,88 @@ namespace Ganymed.Monitoring.Core
         protected override void Awake()
         {
             base.Awake();
-            this.gameObject.name = nameof(MonitorBehaviour);
             Initialize(InvokeOrigin.UnityMessage);
         }
+
+        /// <summary>
+        /// Validate the integrity of the canvas instance.
+        /// </summary>
+        /// <param name="origin"></param>
+        public void ValidateCanvas(InvokeOrigin origin)
+        {
+            if(config.logValidationEvents)
+                Debug.Log("Validating Canvas.");
+            ValidateCanvasInstance(origin);
+        }
         
-        
+                
+        /// <summary>
+        /// Force every canvas elements to reload.
+        /// </summary>
+        public void Repaint()
+        {
+            try
+            {
+                InstantiateModules(InvokeOrigin.GUI);
+            }
+            catch (Exception exception)
+            {
+                if(config.logValidationEvents)
+                    Debug.Log(exception);
+            }
+        }
+
         private void Initialize(InvokeOrigin source)
         {
             ValidateCanvasInstance(source);
 
             UnityEventCallbacks.ValidateUnityEventCallbacks();
-
-            ValidatePositionsInHierarchy(source, positionInHierarchy,placeObjectAtSceneRoot);
             
             InstantiateModules(source);
 
-            if (!GUIcanvas || !config.automateCanvasState) return;
+            if (!CanvasBehaviour || !config.automateCanvasState) return;
             
             
             if (Application.isPlaying)
             {
-                if(!GUIcanvas.IsActive && config.openCanvasOnEnterPlay)
-                    GUIcanvas.SetActive(true);
+                if(!CanvasBehaviour.IsVisible && config.openCanvasOnEnterPlay)
+                    CanvasBehaviour.SetVisible(true);
             }
-            else if(Application.isEditor && GUIcanvas.IsActive)
+            else if(Application.isEditor && CanvasBehaviour.IsVisible)
             {
-                GUIcanvas.SetActive(!config.closeCanvasOnEdit);
+                CanvasBehaviour.SetVisible(!config.closeCanvasOnEdit);
             }
         }
         
         
         private void InstantiateModules(InvokeOrigin source)
         {
-            if(GUIcanvas == null) return;
-            GUIcanvas.ClearAllChildren(source);
+            if(CanvasBehaviour == null) return;
+            CanvasBehaviour.ClearAllChildren(source);
             
-            foreach (var module in ModulesUpperLeft)
+            foreach (var module in modulesUpperLeft)
             {
                 if (module == null) continue;
-                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, GUIcanvas.UpperLeft), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, CanvasBehaviour.UpperLeft), module);
+                
             }
-            foreach (var module in ModulesUpperRight)
+            foreach (var module in modulesUpperRight)
             {
                 if (module == null) continue;
-                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, GUIcanvas.UpperRight), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, CanvasBehaviour.UpperRight), module);
+                
             }
-            foreach (var module in ModulesLowerLeft)
+            foreach (var module in modulesLowerLeft)
             {
                 if (module == null) continue;
-                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, GUIcanvas.LowerLeft), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, CanvasBehaviour.LowerLeft), module);
+                
             }
-            foreach (var module in ModulesLowerRight)
+            foreach (var module in modulesLowerRight)
             {
                 if (module == null) continue;
-                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, GUIcanvas.LowerRight), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, CanvasBehaviour.LowerRight), module);
+                
             }
         }
 
@@ -164,77 +189,44 @@ namespace Ganymed.Monitoring.Core
 
         #region --- [VALIDATE] ---
         
-        private void OnValidate()
-        {
-            if(config == null) Debug.LogError("Monitoring configuration is null! Please select a configuration");
-            
-            if (positionInHierarchy == lastPositionInHierarchy && lastPlaceObjects == placeObjectAtSceneRoot) return;
-            ValidatePositionsInHierarchy(InvokeOrigin.UnityMessage, positionInHierarchy, placeObjectAtSceneRoot);
-            lastPositionInHierarchy = positionInHierarchy;
-            lastPlaceObjects = placeObjectAtSceneRoot;
-        }
-        
-        
         /// <summary>
         /// Check the presence of a MonitoringCanvasBehaviour instance 
         /// </summary>
         /// <param name="origin"></param>
         private void ValidateCanvasInstance(InvokeOrigin origin)
         {
-            if (GUIcanvas == null && origin != InvokeOrigin.Recompile)
+            if (CanvasBehaviour == null && origin != InvokeOrigin.Recompile)
             {
                 if (MonitoringCanvasBehaviour.TryGetInstance(out var i))
                 {
-                    GUIcanvas = i;
+                    CanvasBehaviour = i;
+#if UNITY_EDITOR
+                    if (UnityEditor.PrefabUtility.IsAnyPrefabInstanceRoot(i.gameObject))
+                    {
+                        UnityEditor.PrefabUtility.UnpackPrefabInstance(
+                            i.gameObject,
+                            UnityEditor.PrefabUnpackMode.Completely,
+                            UnityEditor.InteractionMode.AutomatedAction);    
+                    }
+#endif
+                    
                 }
                 else
                 {
-#if UNITY_EDITOR
-                    UnityEditor.PrefabUtility.InstantiatePrefab(GUIObjectPrefab);
-#else
-                    Instantiate(GUIObjectPrefab); 
-#endif
-                    GUIcanvas = MonitoringCanvasBehaviour.Instance;
+                    Instantiate(GUIObjectPrefab);
+                    if(config.logValidationEvents)
+                        Debug.Log("Canvas instance was not valid! New instance instantiated!" +
+                                  "(You can toggle this message in the monitoring configuration)");
+                    CanvasBehaviour = MonitoringCanvasBehaviour.Instance;
                 }
             }
-        }
-
-        
-        /// <summary>
-        /// Check if the placement of the object in the hierarchy is up-to-date
-        /// </summary>
-        /// <param name="origin"></param>
-        /// <param name="placement"></param>
-        /// <param name="root">place the object at the root of the hierarchy</param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        private void ValidatePositionsInHierarchy(InvokeOrigin origin, PositionInHierarchy placement, bool root = true)
-        {
-            if (root)
+            else
             {
-                transform.SetParent(null);
-                if(GUIcanvas != null)
-                    GUIcanvas.transform.SetParent(null);
-            }
-
-            switch (placement)
-            {
-                case PositionInHierarchy.Ignore:
-                    return;
-                case PositionInHierarchy.TopOfHierarchy:
-                    transform.SetAsFirstSibling();
-                    if(GUIcanvas != null)
-                        GUIcanvas.transform.SetSiblingIndex(transform.GetSiblingIndex());
-                    break;
-                case PositionInHierarchy.BottomOfHierarchy:
-                    transform.SetAsLastSibling();
-                    if(GUIcanvas != null)
-                        GUIcanvas.transform.SetSiblingIndex(transform.GetSiblingIndex());
-                    return;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(placement), placement, null);
+                if(config.logValidationEvents)
+                    Debug.Log("Canvas instance is valid! (You can toggle this message in the monitoring configuration)");
             }
         }
-        
+
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------

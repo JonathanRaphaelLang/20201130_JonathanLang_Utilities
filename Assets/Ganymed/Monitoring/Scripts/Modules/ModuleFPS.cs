@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Ganymed.Monitoring.Modules
 {
-    [CreateAssetMenu(fileName = "Module_FPS", menuName = "Monitoring/ModuleDictionary/FPS")]
+    [CreateAssetMenu(fileName = "Module_FPS", menuName = "Monitoring/Modules/FPS")]
     public sealed class ModuleFPS : Module<float>
     {
         #region --- [INSPECTOR] ---
@@ -28,8 +28,8 @@ namespace Ganymed.Monitoring.Modules
         
         #region --- [FIELDS] ---
 
-        private int lastThresholdOne;
-        private int lastThresholdTwo;
+        private int thresholdOneCache;
+        private int thresholdTwoCache;
         private string colorMinMarkup = "<color=#FFF>";
         private string colorMidMarkup = "<color=#FFF>";
         private string cMax = "<color=#FFF>";
@@ -44,7 +44,7 @@ namespace Ganymed.Monitoring.Modules
         #region --- [PROPERTIES] ---
         
         
-        public static float CurrentFps { get; private set; } = 0;
+        public static float LastMeasuredFps { get; private set; } = 0;
         public static float MeasurePeriod { get; private set; } = 0;
         
 
@@ -52,27 +52,26 @@ namespace Ganymed.Monitoring.Modules
         
         #region --- [EVENTS] ---
 
-        public static event Action<float> OnValueChanged;
+        public static event ModuleUpdateDelegate OnValueChanged;
 
         #endregion
 
         //--------------------------------------------------------------------------------------------------------------
         
         #region --- [MODULE] ---
-
-        protected override string ValueToString(float currentValue)
+        
+        protected override string ParseToString(float currentValue)
         { return
                 $"{(currentValue >= thresholdTwo ? cMax : currentValue >= thresholdOne ? colorMidMarkup : colorMinMarkup)}" +
                 $"{currentValue.ToString($"{preDecimalPlaces.Repeat("0")}.{postDecimalPlaces.Repeat("0")}", culture)}";
         }
         
         protected override void OnInitialize()
-        {
+        { 
+            InitializeUpdateEvent(ref OnValueChanged);
             MeasurePeriod = measurePeriod;
-            SetUpdateDelegate(ref OnValueChanged);
             ResetValues();
             CompileMarkup();
-            OnValueChanged?.Invoke(CurrentFps);
         }
         
         #endregion
@@ -86,7 +85,7 @@ namespace Ganymed.Monitoring.Modules
             fps = 0;
             timer = 0;
             lastFPS = 0;
-            CurrentFps = 0;
+            LastMeasuredFps = 0;
         }
 
         protected override void OnValidate()
@@ -102,18 +101,18 @@ namespace Ganymed.Monitoring.Modules
             colorMidMarkup = colorMid.AsRichText();
             cMax = colorMax.AsRichText();
 
-            if (thresholdOne > lastThresholdOne)
+            if (thresholdOne > thresholdOneCache)
             {
                 if (thresholdTwo < thresholdOne)
                     thresholdTwo = thresholdOne;
             }
-            else if (thresholdTwo < lastThresholdTwo)
+            else if (thresholdTwo < thresholdTwoCache)
             {
                 if (thresholdOne > thresholdTwo)
                     thresholdOne = thresholdTwo;
             }
-            lastThresholdOne = thresholdOne;
-            lastThresholdTwo = thresholdTwo;
+            thresholdOneCache = thresholdOne;
+            thresholdTwoCache = thresholdTwo;
         }
         
         #endregion
@@ -129,10 +128,10 @@ namespace Ganymed.Monitoring.Modules
 
             if (timer < measurePeriod) return;
 
-            CurrentFps = (fps / timer);
+            LastMeasuredFps = (fps / timer);
            
-            if (Math.Abs(CurrentFps - lastFPS) > .1f)
-                OnValueChanged?.Invoke(CurrentFps);
+            if (Math.Abs(LastMeasuredFps - lastFPS) > .1f)
+                OnValueChanged?.Invoke(LastMeasuredFps);
 
             lastFPS = fps;
             fps = 0;

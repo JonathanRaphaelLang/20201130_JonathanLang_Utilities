@@ -23,13 +23,14 @@ MonoBehaviour:
   marginTop: 3
   marginRight: 3
   marginBottom: 3
+  alignment: 257
   autoBrackets: 0
   autoSpace: 0
-  useTextStyle: 0
+  useCustomRichText: 0
   prefixTextStyle: 
   infixTextStyle: 
   suffixTextStyle: 
-  colorBackground: {r: 0.05, g: 0.05, b: 0.11, a: 1}
+  colorBackground: {r: 0.05, g: 0.05, b: 0.11, a: 0.53333336}
   prefixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}
   infixColor: {r: 0.7350036, g: 0.7411609, b: 0.7830189, a: 1}
   suffixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}

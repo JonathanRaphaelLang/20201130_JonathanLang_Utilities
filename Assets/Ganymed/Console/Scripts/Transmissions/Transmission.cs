@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using Ganymed.Utils;
+using Ganymed.Utils.Callbacks;
 using Ganymed.Utils.ExtensionMethods;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Ganymed.Console.Transmissions
@@ -31,12 +33,34 @@ namespace Ganymed.Console.Transmissions
 
         private static object Sender = null;
 
+        private static int BreakLineHeight => (int) (breakLineHeight ?? (breakLineHeight = Core.Console.Configuration.breakLineHeight));
+        private static int? breakLineHeight = null;
+        
+        private static volatile CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private static CancellationToken ct;
+        
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+
+        #region --- [CONSTRUCTOR] ---
+
+        static Transmission()
+        {
+            UnityEventCallbacks.AddEventListener(CancelRelease, UnityEventType.ApplicationQuit);
+        }
+
         #endregion
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         #region --- [START] ---
         
+        /// <summary>
+        /// Begin a transmission.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="sender"></param>
         public static void Start(TransmissionOptions options = TransmissionOptions.None, object sender = null)
         {
             isTransmitting = true;
@@ -61,6 +85,24 @@ namespace Ganymed.Console.Transmissions
 
         #region --- [RELEASE] ---
 
+
+        #region --- [TASK HELPER] ---
+
+        private static void ResetCancellationToken()
+        {
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = new CancellationTokenSource();
+        }
+
+        private static void CancelRelease()
+        {
+            cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = new CancellationTokenSource();
+        }
+
+        #endregion
+        
         /// <summary>
         /// End transmission and log collected messages to the console.
         /// </summary>
@@ -73,16 +115,27 @@ namespace Ganymed.Console.Transmissions
             }
             
             if(Sender != null)
-                Core.Console.Log(Sender, Core.Console.ColorSender, LogOptions.IsInput | LogOptions.EndLine);
+                Core.Console.Log(Sender, Core.Console.ColorEmphasize, LogOptions.IsInput | LogOptions.EndLine);
 
             isReleasing = true;
-            Task.Run(CompileTransmissionMessage).Then(delegate
+
+            ct = cancellationTokenSource.Token;
+            ct.ThrowIfCancellationRequested();
+
+            try
+            {
+                Task.Run(CompileTransmissionMessage, ct).Then(delegate
                 {
                     Core.Console.Log(message);
                     isTransmitting = false;
                     isReleasing = false;
                     callback?.Invoke();
                 });
+            }
+            catch
+            {
+                ResetCancellationToken();
+            }
         }
 
 
@@ -98,7 +151,7 @@ namespace Ganymed.Console.Transmissions
             }
             
             if(Sender != null)
-                Core.Console.Log(Sender, Core.Console.ColorSender, LogOptions.IsInput | LogOptions.EndLine);
+                Core.Console.Log(Sender, Core.Console.ColorEmphasize, LogOptions.IsInput | LogOptions.EndLine);
 
             isReleasing = true;
             CompileTransmissionMessage();
@@ -111,7 +164,7 @@ namespace Ganymed.Console.Transmissions
 
         #region --- [COMPILE TRANSMISSION] ---
 
-        private static void CompileTransmissionMessage()
+        private static Task CompileTransmissionMessage()
         {
             message = string.Empty;
             //--- Prefix / Suffix
@@ -152,12 +205,12 @@ namespace Ganymed.Console.Transmissions
                                     suffix += "</u>";
                                     continue;
 
-                                case MessageOptions.Uppercase:
+                                case MessageOptions.UpperCase:
                                     prefix += "<uppercase>";
                                     suffix += "</uppercase>";
                                     continue;
 
-                                case MessageOptions.Lowercase:
+                                case MessageOptions.LowerCase:
                                     prefix += "<lowercase>";
                                     suffix += "</lowercase>";
                                     continue;
@@ -184,8 +237,8 @@ namespace Ganymed.Console.Transmissions
                     }
                     else
                     {
-                        transmissionPrefix[transmissionPrefix.Cut()].Add(prefix);
-                        transmissionSuffix[transmissionSuffix.Cut()].Add(suffix);
+                        transmissionPrefix[transmissionPrefix.Indices()].Add(prefix);
+                        transmissionSuffix[transmissionSuffix.Indices()].Add(suffix);
                     }
                 }
             }
@@ -195,7 +248,7 @@ namespace Ganymed.Console.Transmissions
             {
                 for (var j = 0; j < transmission.Count; j++)
                 {
-                    if (transmissionLengths.Cut() < j)
+                    if (transmissionLengths.Indices() < j)
                         transmissionLengths.Add(0);
 
                     if (transmission[j].Length > transmissionLengths[j])
@@ -220,10 +273,11 @@ namespace Ganymed.Console.Transmissions
                         $"{transmissionSuffix[i][j]}" +
                         $"{transmissionExtraSuffix[i][j]}" +
                         //------------------------
-                        $"{(j < transmissionMessages[i].Cut() ? (transmissionLengths[j] - transmissionMessages[i][j].Length + 1).Repeat() : string.Empty)}" +
-                        $"{(i == transmissionMessages.Cut() ? 150.AsLineHeight() : string.Empty)}";
+                        $"{(j < transmissionMessages[i].Indices() ? (transmissionLengths[j] - transmissionMessages[i][j].Length + 1).Repeat() : string.Empty)}" +
+                        $"{(i == transmissionMessages.Indices() ? 150.AsLineHeight() : string.Empty)}";
                 }
             }
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -246,12 +300,12 @@ namespace Ganymed.Console.Transmissions
             {
                 messages[i] = messages[i] ?? string.Empty;
                 
-                if (messages[i] is Message)
+                if (messages[i] is MessageFormat)
                 {
                     if (i == 0)
                     {
-                        var m = (Message)messages[i];
-                        transmissionMessages.Add(new List<string>(){m.Content});
+                        var m = (MessageFormat)messages[i];
+                        transmissionMessages.Add(new List<string>(){m.ContainedMessage});
                         transmissionOptions.Add(new List<MessageOptions>(){m.Options});
                     
                         transmissionExtraPrefix.Add(new List<string>(){$"{m.Color}"});
@@ -259,10 +313,10 @@ namespace Ganymed.Console.Transmissions
                     }
                     else
                     {
-                        var m = (Message)messages[i];
-                        var index = transmissionMessages.Cut();
+                        var m = (MessageFormat)messages[i];
+                        var index = transmissionMessages.Indices();
                     
-                        transmissionMessages[index].Add(m.Content);
+                        transmissionMessages[index].Add(m.ContainedMessage);
                         transmissionOptions[index].Add(m.Options);
                     
                         transmissionExtraPrefix[index].Add($"{m.Color}");
@@ -280,7 +334,7 @@ namespace Ganymed.Console.Transmissions
                     }
                     else
                     {
-                        var index = transmissionMessages.Cut();
+                        var index = transmissionMessages.Indices();
                         transmissionMessages[index].Add(messages[i].ToString());
                         transmissionOptions[index].Add(0);
                         transmissionExtraPrefix[index].Add(string.Empty);
@@ -293,7 +347,7 @@ namespace Ganymed.Console.Transmissions
         /// <summary>
         /// Add multiple columns as text. Each column can be transmitted as a Message (struct) to add formatting options.
         /// </summary>
-        public static void AddLine(params Message[] messages)
+        public static void AddLine(params MessageFormat[] messages)
         {
             if (!isTransmitting)
                 return;
@@ -304,7 +358,7 @@ namespace Ganymed.Console.Transmissions
                 if (i == 0)
                 {
                     var m = messages[i];
-                    transmissionMessages.Add(new List<string>(){messages[i].Content});
+                    transmissionMessages.Add(new List<string>(){messages[i].ContainedMessage});
                     transmissionOptions.Add(new List<MessageOptions>(){messages[i].Options});
                     
                     transmissionExtraPrefix.Add(new List<string>(){$"{m.Color}"});
@@ -313,9 +367,9 @@ namespace Ganymed.Console.Transmissions
                 else
                 {
                     var m = messages[i];
-                    var index = transmissionMessages.Cut();
+                    var index = transmissionMessages.Indices();
                     
-                    transmissionMessages[index].Add(m.Content);
+                    transmissionMessages[index].Add(m.ContainedMessage);
                     transmissionOptions[index].Add(m.Options);
                     
                     transmissionExtraPrefix[index].Add($"{m.Color}");
@@ -332,12 +386,12 @@ namespace Ganymed.Console.Transmissions
         /// Add a break after the last transmitted line.
         /// </summary>
         /// <param name="lineHeight"></param>
-        public static void AddBreak(int lineHeight = 150)
+        public static void AddBreak(int? lineHeight = null)
         {
             try
             {
-                transmissionExtraSuffix[transmissionExtraSuffix.Cut()][transmissionExtraSuffix[transmissionExtraSuffix.Cut()].Cut()] +=
-                    lineHeight.AsLineHeight();
+                transmissionExtraSuffix[transmissionExtraSuffix.Indices()][transmissionExtraSuffix[transmissionExtraSuffix.Indices()].Indices()] +=
+                    (lineHeight ?? BreakLineHeight).AsLineHeight();
             }
             catch
             {
@@ -353,24 +407,36 @@ namespace Ganymed.Console.Transmissions
         /// Add a single column line that will be formatted like a title.
         /// </summary>
         /// <param name="title"></param>
-        /// <param name="space"></param>
-        /// <param name="options"></param>
-        public static void AddTitle(string title, int space = 150, MessageOptions options = MessageOptions.Bold | MessageOptions.Brackets | MessageOptions.Underline)
+        /// <param name="preset"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static void AddTitle(string title, TitlePreset preset = TitlePreset.Main)
         {
-            AddLine(new Message($"> {title}", Core.Console.ColorTitleMain, options));
-            AddBreak(space);
+            switch (preset)
+            {
+                case TitlePreset.Main:
+                    AddTitle(title, 150, Core.Console.ColorTitleMain, MessageOptions.Bold | MessageOptions.Brackets);
+                    break;
+                case TitlePreset.Sub:
+                    AddTitle(title, 130, Core.Console.ColorTitleSub,  MessageOptions.Brackets);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(preset), preset, null);
+            }
         }
         
+        
+        
         /// <summary>
-        /// Add a column line that will be formatted like a subheading. 
+        /// Add a single column line that will be formatted like a title.
         /// </summary>
         /// <param name="title"></param>
-        /// <param name="space"></param>
+        /// <param name="spacing"></param>
+        /// <param name="color"></param>
         /// <param name="options"></param>
-        public static void AddSubheading(string title, int space = 130, MessageOptions options = MessageOptions.Brackets)
+        private static void AddTitle(string title, int spacing, Color color, MessageOptions options)
         {
-            AddLine(new Message($"> {title}", Core.Console.ColorTitleSub, options));
-            AddBreak(space);
+            AddLine(new MessageFormat($"> {title}", color, options));
+            AddBreak(spacing);
         }
 
         #endregion

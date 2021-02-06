@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Ganymed.Monitoring.Modules
 {
-    [CreateAssetMenu(fileName = "Module_RecentFPS", menuName = "Monitoring/ModuleDictionary/RecentFPS")]
+    [CreateAssetMenu(fileName = "Module_RecentFPS", menuName = "Monitoring/Modules/RecentFPS")]
     public sealed class ModuleRecentFPS : Module<Vector2>
     {
         #region --- [INSPECTOR] ---
@@ -39,24 +39,24 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [EVENTS] ---
 
-        private event Action<Vector2> OnValueChanged;
+        private event ModuleUpdateDelegate OnValueChanged;
 
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
         
-        protected override string ValueToString(Vector2 currentValue)
+        protected override string ParseToString(Vector2 currentValue)
         {
             return
-                $"Max:{fontSize.ToFontSize()}[{(recentMaximum >= thresholdTwo ? colorMax.AsRichText() : recentMaximum >= thresholdOne ? colorMid.AsRichText() : colorMin.AsRichText())}{recentMaximum}{Configuration.infixColor.AsRichText()}]{Configuration.infixFontSize.ToFontSize()} | " +
-                $"Min:{fontSize.ToFontSize()}[{(recentMinimum >= thresholdTwo ? colorMax.AsRichText() : recentMinimum >= thresholdOne ? colorMid.AsRichText() : colorMin.AsRichText())}{recentMinimum}{Configuration.infixColor.AsRichText()}]{Configuration.infixFontSize.ToFontSize()}" +
+                $"Max:{fontSize.ToFontSize()}[{(currentValue.y >= thresholdTwo ? colorMax.AsRichText() : currentValue.y >= thresholdOne ? colorMid.AsRichText() : colorMin.AsRichText())}{currentValue.y}{Configuration.infixColor.AsRichText()}]{Configuration.infixFontSize.ToFontSize()} | " +
+                $"Min:{fontSize.ToFontSize()}[{(currentValue.x >= thresholdTwo ? colorMax.AsRichText() : currentValue.x >= thresholdOne ? colorMid.AsRichText() : colorMin.AsRichText())}{currentValue.x}{Configuration.infixColor.AsRichText()}]{Configuration.infixFontSize.ToFontSize()}" +
                 $"{(showFPSMeasurePeriod? $" |{(abbreviations? " MP:" : " Measure Period:")} [{numColor.AsRichText()}{ModuleFPS.MeasurePeriod:0.0}{Configuration.infixColor.AsRichText()}]" : string.Empty )}" +
                 $"{(showCacheDuration? $" |{(abbreviations? " CD:" : " Cache Duration:")} [{numColor.AsRichText()}{cacheDuration}{Configuration.infixColor.AsRichText()}]" : string.Empty )}";
         }
 
         protected override void OnInitialize()
         {
-            SetUpdateDelegate(ref OnValueChanged);
+            InitializeUpdateEvent(ref OnValueChanged);
             
             ModuleFPS.OnValueChanged -= CalculateRecentBorderValues;
             ModuleFPS.OnValueChanged += CalculateRecentBorderValues;

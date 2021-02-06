@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Ganymed.Utils.Attributes;
-using Ganymed.Utils.ColorTables;
 using Ganymed.Utils.ExtensionMethods;
+using Ganymed.Utils.Helper;
 using UnityEngine;
 
 namespace Ganymed.Utils.Editor.AttributeValidation
@@ -136,32 +136,32 @@ namespace Ganymed.Utils.Editor.AttributeValidation
             MemberInfo memberInfo,
             Type propertyFieldType)
         {
-            var warning =
-                $"Warning: the {CS.Violet}{memberInfo.MemberType}{CS.Clear} " +
-                $"'{CS.Orange}{memberInfo.Name}{CS.Clear}' in " +
-                $"'{CS.LightGray}{memberInfo.ReflectedType?.Namespace}.{memberInfo.ReflectedType?.Name}{CS.Clear}" +
-                $"{CS.Blue}.{memberInfo.Name}{CS.Clear}' " +
-                $"has invalid type: {CS.Red}'{propertyFieldType}'.{CS.Clear}" +
+            var message =
+                $"Warning: the {RichText.Violet}{memberInfo.MemberType}{RichText.ClearColor} " +
+                $"'{RichText.Orange}{memberInfo.Name}{RichText.ClearColor}' in " +
+                $"'{RichText.LightGray}{memberInfo.ReflectedType?.Namespace}.{memberInfo.ReflectedType?.Name}{RichText.ClearColor}" +
+                $"{RichText.Blue}.{memberInfo.Name}{RichText.ClearColor}' " +
+                $"has invalid type: {RichText.Red}'{propertyFieldType}'.{RichText.ClearColor}" +
                 $"\nAllowed types for attribute are '{memberInfo.GetType().Name}': " +
                             
-                $"{(allowedInheritingTypes.Count > 0? $"Inheriting types: [{CS.Blue}" : "")}" +
+                $"{(allowedInheritingTypes.Count > 0? $"Inheriting types: [{RichText.Blue}" : "")}" +
                 $"{string.Join(" ", allowedInheritingTypes.Select(x => $"{x.Name}, ")).RemoveFormEnd(2)}" +
-                $"{(allowedInheritingTypes.Count > 0? $"{CS.Clear}] " : "")}" +
+                $"{(allowedInheritingTypes.Count > 0? $"{RichText.ClearColor}] " : "")}" +
                             
-                $"{(allowedTypes.Count > 0? $"Types: [{CS.Blue}" : "")}" +
+                $"{(allowedTypes.Count > 0? $"Types: [{RichText.Blue}" : "")}" +
                 $"{string.Join(" ", allowedTypes.Select(x => $"{x.Name}, ")).RemoveFormEnd(2)}" +
-                $"{(allowedTypes.Count > 0? $"{CS.Clear}] " : "")}" +
+                $"{(allowedTypes.Count > 0? $"{RichText.ClearColor}] " : "")}" +
                             
-                $"{(allowedAffiliations != TypeAffiliations.None? $"Categories: [{CS.Blue}" : "")}" +
+                $"{(allowedAffiliations != TypeAffiliations.None? $"Categories: [{RichText.Blue}" : "")}" +
                 $"{allowedAffiliations}" +
-                $"{(allowedAffiliations != TypeAffiliations.None? $"{CS.Clear}] " : "")}" +
+                $"{(allowedAffiliations != TypeAffiliations.None? $"{RichText.ClearColor}] " : "")}" +
                             
                 $"You should either validate the type of the property or use the " +
-                $"{CS.Orange}" +
-                $"{nameof(AllowUnsafeAttribute).Replace(nameof(Attribute), "")}{CS.Clear} " +
+                $"{RichText.Orange}" +
+                $"{nameof(AllowUnsafeAttribute).Replace(nameof(Attribute), "")}{RichText.ClearColor} " +
                 $"attribute to suppress this Warning";
 
-            Debug.LogWarning(warning);
+            Debug.LogWarning(message);    
         }
     }
 }

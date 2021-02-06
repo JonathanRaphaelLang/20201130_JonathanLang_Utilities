@@ -6,7 +6,7 @@ namespace Ganymed.Console.Attributes
     /// This attribute will expose the property/field to be issued via console commands
     /// </summary>
     [PropertyAccessRequirement(RequiresRead = true)]
-    public sealed class GetterAttribute : GetterSetterAttribute
+    public sealed class GetterAttribute : GetterSetterBase
     {
         #region --- [CONSTRUCTOR] ---
 

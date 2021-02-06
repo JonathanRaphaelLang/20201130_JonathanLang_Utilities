@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Ganymed.Monitoring.Modules
 {
-    [CreateAssetMenu(fileName = "Module_TargetFrameRate", menuName = "Monitoring/ModuleDictionary/TargetFrameRate")]
+    [CreateAssetMenu(fileName = "Module_TargetFrameRate", menuName = "Monitoring/Modules/TargetFrameRate")]
     public sealed class ModuleTargetFrameRate : Module<int>
     {
         #region --- [INSPECTOR] ---
@@ -24,7 +24,7 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [EVENTS] ---
 
-        private static event Action<int> OnValueChanged; 
+        private static event ModuleUpdateDelegate OnValueChanged; 
 
         #endregion
         
@@ -32,15 +32,15 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [MODULE] ---
 
-        protected override string ValueToString(int currentValue)
+        protected override string ParseToString(int currentValue)
         {
             return currentValue == int.MaxValue || currentValue <= 0 ? "none" : currentValue.ToString();
         }
 
         protected override void OnInitialize()
         {
-            SetUpdateDelegate(ref OnValueChanged);
-            OverrideDefaultValue(int.MaxValue);
+            InitializeUpdateEvent(ref OnValueChanged);
+            InitializeValue(int.MaxValue);
             SetTargetFPS(true);
         }        
 

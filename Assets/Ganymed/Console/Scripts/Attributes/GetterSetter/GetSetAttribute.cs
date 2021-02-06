@@ -1,14 +1,18 @@
 ﻿using Ganymed.Utils;
 using Ganymed.Utils.Attributes;
+using UnityEngine;
 
 namespace Ganymed.Console.Attributes
 {
     /// <summary>
-    /// This attribute will expose the property/field to be issued and altered via console commands
+    /// Attributes that exposes the target property/field to be issued and altered via console commands
     /// </summary>
     [PropertyAccessRequirement(RequiresRead = true, RequiresWrite = true)]
-    [TargetTypeRestriction(ValidTypeAffiliations = TypeAffiliations.String | TypeAffiliations.Primitive | TypeAffiliations.Struct | TypeAffiliations.Enum)]
-    public sealed class GetSetAttribute : GetterSetterAttribute, ISetter
+    [TargetTypeRestriction(AllowStrings = true, AllowPrimitives = true, AllowEnums = true, AllowStruct = false)]
+    [TargetTypeRestriction(typeof(Vector2), typeof(Vector3), typeof(Vector4))]
+    [TargetTypeRestriction(typeof(Vector2Int), typeof(Vector3Int))]
+    [TargetTypeRestriction(typeof(Color), typeof(Color32))]
+    public sealed class GetSetAttribute : GetterSetterBase, ISetter
     {
         #region --- [PROPERTIES] ---
         
@@ -24,7 +28,7 @@ namespace Ganymed.Console.Attributes
         #region --- [CONSTRUCTOR] ---
 
         /// <summary>
-        /// Flag a property / field as gettable and settable (read/write) by console commands.
+        /// Mark a property / field as gettable and settable (read/write) by commands.
         /// Use /get or /set to view a list of available getter and setter.
         /// Initialize a new instance of the GetAndSetAttribute class. 
         /// </summary>
@@ -32,7 +36,7 @@ namespace Ganymed.Console.Attributes
         
         
         /// <summary>
-        /// Flag a property / field as gettable and settable (read/write) by console commands.
+        /// Mark a property / field as gettable and settable (read/write) by commands.
         /// Use /get or /set to view a list of available getter and setter.
         /// Initialize a new instance of the GetAndSetAttribute class. 
         /// </summary>
@@ -40,7 +44,7 @@ namespace Ganymed.Console.Attributes
         public GetSetAttribute(string shortcut) => this.shortcut = shortcut;
 
         /// <summary>
-        /// Flag a property / field as gettable and settable (read/write) by console commands.
+        /// Mark a property / field as gettable and settable (read/write) by commands.
         /// Use /get or /set to view a list of available getter and setter.
         /// Initialize a new instance of the GetAndSetAttribute class. 
         /// </summary>
@@ -53,7 +57,7 @@ namespace Ganymed.Console.Attributes
         }
 
         /// <summary>
-        /// Flag a property / field as gettable and settable (read/write) by console commands.
+        /// Mark a property / field as gettable and settable (read/write) by commands.
         /// Use /get or /set to view a list of available getter and setter.
         /// Initialize a new instance of the GetAndSetAttribute class. 
         /// </summary>

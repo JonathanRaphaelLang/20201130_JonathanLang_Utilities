@@ -15,13 +15,17 @@ MonoBehaviour:
   isEnabled: 1
   isActive: 1
   useCustomStyle: 1
-  customStyle: {fileID: 11400000, guid: 2523c059b1b1268498f1424081fa59bb, type: 2}
+  customStyleBase: {fileID: 11400000, guid: 2523c059b1b1268498f1424081fa59bb, type: 2}
+  enableWarnings: 1
+  enableSetUpdateEventWarnings: 1
+  enableSetValueWarnings: 0
   previewValueAs: 0
+  resetValueOnQuit: 0
   prefixText: 'Rescent fps: '
   suffixText: 
   prefixBreak: 0
   suffixBreak: 0
-  description: 
+  description: Displays the recent average maximum and minimum frames per second.
   enableAutoInspection: 0
   secondsBetweenInspections: 1
   showRecentValues: 1

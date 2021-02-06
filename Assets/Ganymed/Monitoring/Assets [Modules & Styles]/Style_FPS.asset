@@ -21,15 +21,16 @@ MonoBehaviour:
   marginsAll: 5
   marginLeft: 0
   marginTop: 3
-  marginRight: 0
+  marginRight: 2
   marginBottom: 2
+  alignment: 257
   autoBrackets: 1
   autoSpace: 0
-  useTextStyle: 0
+  useCustomRichText: 0
   prefixTextStyle: 
   infixTextStyle: 
   suffixTextStyle: 
-  colorBackground: {r: 0.027901389, g: 0.028155256, b: 0.103773594, a: 0.84705883}
+  colorBackground: {r: 0.050980393, g: 0.050980393, b: 0.10980392, a: 0.84705883}
   prefixColor: {r: 1, g: 1, b: 1, a: 1}
   infixColor: {r: 0.5990566, g: 0.9485229, b: 1, a: 1}
   suffixColor: {r: 0.6600659, g: 0.69638586, b: 0.8584906, a: 1}

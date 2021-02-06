@@ -4,7 +4,7 @@ using Ganymed.Utils.Attributes;
 namespace Ganymed.Console.Attributes
 {
     [AttributeUsage(AttributeTargets.Method)]
-    [RequiredAttributes(typeof(CommandAttribute), Inherited = true)]
+    [RequiresAdditionalAttributes(typeof(ConsoleCommandAttribute), Inherited = true)]
     public class AllowUnsafeCommandAttribute : AllowUnsafeAttribute
     {
         /// <summary>

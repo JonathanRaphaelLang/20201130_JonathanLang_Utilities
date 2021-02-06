@@ -13,7 +13,6 @@
         OnEnable,
         OnDisable,
         BuildPlayer,
-        ManuallyInvoked,
         
         //--------------------------------------------------------------------------------------------------------------
 
@@ -32,6 +31,7 @@
         InspectorUpdate,
         SubsystemRegistration,
         BeforeSplashScreen,
-        PreProcessorBuild
+        PreProcessorBuild,
+        OnLoad
     }
 }

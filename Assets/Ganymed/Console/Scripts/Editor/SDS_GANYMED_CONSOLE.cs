@@ -2,6 +2,9 @@
 
 namespace Ganymed.Console.Scripts.Editor
 {
+    /// <summary>
+    /// Class adding scripting define symbols (SDS).
+    /// </summary>
     [InitializeOnLoad]
     internal sealed class SDS_GANYMED_CONSOLE
     {

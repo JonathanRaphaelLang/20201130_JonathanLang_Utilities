@@ -1,8 +1,6 @@
-//TODO: Clean reflection helpers
-//TODO: Documentation
-//TODO: Reverse Get/Set/Command base class
-//TODO: Fix set System.XXX (Vsync will be displayed in any case)
-
-//Backlog:
-//TODO: Create params array
-//TODO: Rework Paint class
+//TODO: Add params array support for console commands.
+//TODO: Fix string arguments for command with multiple parameter.
+//TODO: Complete Documentation.
+//TODO: Add Example Modules [X]
+//TODO: Add Module Creation to documentation.
+//TODO: Add support for multiple module layouts

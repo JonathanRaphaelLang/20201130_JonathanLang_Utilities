@@ -8,16 +8,14 @@ using UnityEngine;
 
 namespace Ganymed.Console.Core
 {
-    [CreateAssetMenu(fileName = "Console_Configuration", menuName = "Command/Configuration")]
+    [CreateAssetMenu(fileName = "Console_Configuration", menuName = "Console/Configuration")]
     [DeclaringName("Console")]
     public sealed class ConsoleConfiguration : ScriptableObject
     {
 #pragma warning disable 414
 #pragma warning disable 67
 
-        [Getter]
-        public static ConsoleConfiguration Instance { get; set; } = null;
-
+        
 
         #region --- [INSPECTOR] ---
         
@@ -26,6 +24,9 @@ namespace Ganymed.Console.Core
         
         [Tooltip("NA")]
         [SerializeField] internal bool active = true;
+        
+        [Tooltip("NA")]
+        [SerializeField] internal bool visible = true;
         
         
         
@@ -51,7 +52,7 @@ namespace Ganymed.Console.Core
         [Tooltip("should the console be activated on start")]
         [SerializeField] internal bool activateConsoleOnStart = true;
                 
-        [Tooltip("should the cursor be enabled if the console is active")]
+        [Tooltip("should the cursor be active if the console is visible")]
         [SerializeField] internal bool enableCursorOnActivation = true;
         
         [Tooltip("log configuration of the console on start")]
@@ -61,7 +62,7 @@ namespace Ganymed.Console.Core
         [SerializeField] internal bool logTimeOnInput = true;
         
         [Tooltip("how many previous inputs are cached")]
-        [SerializeField] internal int inputCacheSize = 20;
+        [SerializeField] [Range(0,100)] internal byte inputCacheSize = 20;
 
         
         
@@ -79,8 +80,8 @@ namespace Ganymed.Console.Core
         [Tooltip("NA")]
         [SerializeField] internal bool allowShaderAndAnimations = true;
         
-        [Tooltip("Is the frosted glass shader enabled. This shader will drain a lot of performance")]
-        [SerializeField] internal bool allowFrostedGlassEffect = true;
+        [Tooltip("Is the frosted glass shader active. This shader will drain a lot of performance")]
+        [SerializeField] internal bool allowShader = true;
         
         [Tooltip("NA")]
         [SerializeField] internal bool allowAnimations = true;
@@ -89,50 +90,7 @@ namespace Ganymed.Console.Core
         [SerializeField] internal bool showRichText = false;
         
         
-        
-        [Header("Command Color")]
-        [SerializeField] internal Color colorConsoleBackground = Color.magenta;
-        [SerializeField] internal Color colorScrollbar = Color.magenta;
-        [SerializeField] internal Color colorScrollbarHandle = Color.magenta;
-        
-        
-        
-        [Header("Font Color")]
-        [SerializeField] internal Color colorOutput = Color.magenta;
-        [SerializeField] internal Color colorInput = Color.magenta;
-        
-        
-        
-        [Header("Color Input")]
-        [SerializeField] internal Color colorValid = Color.magenta;
-        [SerializeField] internal Color colorOptionalParamsLeft = Color.magenta;
-        [SerializeField] internal Color colorIncompleteInput = Color.magenta;
-        [SerializeField] internal Color colorIncorrectInput = Color.magenta;
-        [SerializeField] internal Color colorInformation = Color.magenta;
-        [SerializeField] internal Color colorAutocompletion = Color.magenta;
-
-        
-        
-        [Header("Color Console")]
-        [SerializeField] internal Color colorTitles = Color.magenta;
-        [SerializeField] internal Color colorSubHeading = Color.magenta;
-        [Tooltip("Color to stress certain areas of interest")]
-        [SerializeField] internal Color colorEmphasize = Color.magenta;
-        [SerializeField] internal Color colorCommandInput = Color.magenta;
-        [SerializeField] internal Color colorTextInput = Color.magenta;
-        [SerializeField] internal Color colorComment = Color.magenta;
-        [SerializeField] internal Color colorSender = Color.magenta;
-        
-        
-        [Header("Color Unity Console Log/Warning/Error")]
-        [SerializeField] internal Color colorLog = Color.magenta;
-        [SerializeField] internal Color colorWarning = Color.magenta;
-        [SerializeField] internal Color colorError = Color.magenta;
-        [SerializeField] internal Color colorLogCondition = Color.magenta;
-        [SerializeField] internal Color colorStackTrace = Color.magenta;
-        
-        
-        
+                
         [Header("Font")]
         [Tooltip("font size of the input")]
         [SerializeField] [Range(MinFontSize, MaxFontSize)] internal float inputFontSize = 6;
@@ -143,20 +101,50 @@ namespace Ganymed.Console.Core
         [SerializeField] [Range(0, 300)] internal int breakLineHeight = 130;
         [Tooltip("line height after a break")]
         [SerializeField] [Range(0, 300)] internal int defaultLineHeight = 100;
+        
+        
+        [Header("Console")]
+        [SerializeField] internal Color colorConsoleBackground = Color.magenta;
+        [SerializeField] internal Color colorScrollbar = Color.magenta;
+        [SerializeField] internal Color colorScrollbarHandle = Color.magenta;
+        
+        [Header("Text")]
+        [SerializeField] internal Color colorDefault = Color.magenta;
+        [SerializeField] internal Color colorTitles = Color.magenta;
+        [SerializeField] internal Color colorSubHeading = Color.magenta;
+        [SerializeField] internal Color colorEmphasize = Color.magenta;
+        [SerializeField] internal Color colorInputLines = Color.magenta;
+        [SerializeField] internal Color colorVariables = Color.magenta;
+
+        [Header("Validation (Input)")]
+        [SerializeField] internal Color colorValidInput = Color.magenta;
+        [SerializeField] internal Color colorOptionalParamsLeft = Color.magenta;
+        [SerializeField] internal Color colorIncompleteInput = Color.magenta;
+        [SerializeField] internal Color colorIncorrectInput = Color.magenta;
+        [SerializeField] internal Color colorInformation = Color.magenta;
+        [SerializeField] internal Color colorAutocompletion = Color.magenta;
+       
+        [Header("Color Unity Console Log/Warning/Error")]
+        [SerializeField] internal Color colorUnityLog = Color.magenta;
+        [SerializeField] internal Color colorUnityWarning = Color.magenta;
+        [SerializeField] internal Color colorUnityError = Color.magenta;
+        [SerializeField] internal Color colorStackTrace = Color.magenta;
+        
+        [Header("Custom Color")]
+        [SerializeField] internal Color customColor1 = Color.magenta;
+        [SerializeField] internal Color customColor2 = Color.magenta;
+        [SerializeField] internal Color customColor3 = Color.magenta;
 
         #endregion
-
+        
+        
         #region --- [PROPERTIES] ---
 
-                
-        [Getter] public static bool Enabled => Instance.enabled;
+        public static ConsoleConfiguration Instance { get; set; } = null;
         
-        [Getter] public static bool Active => Instance.active;
         [Getter] public static string CommandPrefix => Instance.commandPrefix;
 
-
-
-        [GetSet]
+        [GetSet(Description = "Enable / Disable autocompletion and console color validation")]
         public static bool AllowCommandPreProcessing
         {
             get => Instance.allowCommandPreProcessing;
@@ -178,9 +166,20 @@ namespace Ganymed.Console.Core
             }
         }
         
+        [GetSet(Description = "Enable / Disable the background shader of the console.")]
+        public static bool AllowBackgroundShader
+        {
+            get => Instance.allowShader;
+            set
+            {
+                Instance.allowShader = value;
+                Instance.ValidateIntegrity();
+            }
+        }
         
-        [GetSet]
-        public static bool ShowRichText
+        
+        [GetSet(Description = "Enable / Disable RichText.")]
+        public static bool RichText
         {
             get => Instance.showRichText;
             set
@@ -224,111 +223,109 @@ namespace Ganymed.Console.Core
 
         #region --- [COMMANDS] ---
         
-        [Command("Configuration", Priority = 500, Description = "Log the current configuration of the console")]
+        [NativeCommand]
+        [ConsoleCommand("Configuration", Priority = 500, Description = "Log the current configuration of the console")]
         private static void LogConsoleConfiguration(
             [Hint("Log the configuration of the consoles color scheme")]bool includeColorScheme = false)
             => Console.Configuration.LogConfiguration(includeColorScheme);
 
         public void LogConfiguration(bool includeColorScheme)
         {
-            const MessageOptions options = MessageOptions.Bold | MessageOptions.Brackets;
-            const MessageOptions comment = MessageOptions.Brackets;
+            const MessageOptions options = MessageOptions.Brackets;
 
             Transmission.Start(TransmissionOptions.Enumeration);
             Transmission.AddBreak();
             Transmission.AddTitle("Console Configuration");
             Transmission.AddBreak();
-            Transmission.AddSubheading("Commands");
+            Transmission.AddTitle("Commands", TitlePreset.Sub);
             
             Transmission.AddLine("Command Prefix:",
-                new Message(commandPrefix, options),
-                new Message($"// {GetTooltip(nameof(commandPrefix))}", colorComment, comment));
+                new MessageFormat(commandPrefix, options),
+                new MessageFormat($"// {GetTooltip(nameof(commandPrefix))}", options));
             
             Transmission.AddLine("Info Operator",
-                new Message(infoOperator, options),
-                new Message($"// {GetTooltip(nameof(infoOperator))}", colorComment, comment));
+                new MessageFormat(infoOperator, options),
+                new MessageFormat($"// {GetTooltip(nameof(infoOperator))}", options));
             
             Transmission.AddLine("Command Pre- Processing",
-                new Message(allowCommandPreProcessing, options),
-                new Message($"// {GetTooltip(nameof(allowCommandPreProcessing))}", colorComment, comment));
+                new MessageFormat(allowCommandPreProcessing, options),
+                new MessageFormat($"// {GetTooltip(nameof(allowCommandPreProcessing))}", options));
             
             Transmission.AddLine("Numeric Bool Processing",
-                new Message(allowNumericBoolProcessing, options),
-                new Message($"// {GetTooltip(nameof(allowNumericBoolProcessing))}", colorComment, comment));
+                new MessageFormat(allowNumericBoolProcessing, options),
+                new MessageFormat($"// {GetTooltip(nameof(allowNumericBoolProcessing))}", options));
             
             Transmission.AddBreak();
             
             
             
-            Transmission.AddSubheading("Eye Candy");
+            Transmission.AddTitle("Eye Candy", TitlePreset.Sub);
             
             Transmission.AddLine("Allow Shader and Animations",
-                new Message(allowShaderAndAnimations, options),
-                new Message($"// {GetTooltip(nameof(allowShaderAndAnimations))}", colorComment, comment));
+                new MessageFormat(allowShaderAndAnimations, options),
+                new MessageFormat($"// {GetTooltip(nameof(allowShaderAndAnimations))}", options));
             
             Transmission.AddLine("Forested Glass Shader",
-                new Message(allowFrostedGlassEffect, options),
-                new Message($"// {GetTooltip(nameof(allowFrostedGlassEffect))}", colorComment, comment));
+                new MessageFormat(allowShader, options),
+                new MessageFormat($"// {GetTooltip(nameof(allowShader))}", options));
             
             Transmission.AddLine("Animations",
-                new Message(allowAnimations, options),
-                new Message($"// {GetTooltip(nameof(allowAnimations))}", colorComment, comment));
+                new MessageFormat(allowAnimations, options),
+                new MessageFormat($"// {GetTooltip(nameof(allowAnimations))}", options));
             
             Transmission.AddBreak();
             
             
             
-            Transmission.AddSubheading("Console");
+            Transmission.AddTitle("Console", TitlePreset.Sub);
             
             Transmission.AddLine("Input Cache:",
-                new Message(inputCacheSize, options),
-                new Message($"// {GetTooltip(nameof(inputCacheSize))}", colorComment, comment));
+                new MessageFormat(inputCacheSize, options),
+                new MessageFormat($"// {GetTooltip(nameof(inputCacheSize))}", options));
             
             Transmission.AddLine("Enable Cursor:",
-                new Message(enableCursorOnActivation, options),
-                new Message($"// {GetTooltip(nameof(enableCursorOnActivation))}", colorComment, comment));
+                new MessageFormat(enableCursorOnActivation, options),
+                new MessageFormat($"// {GetTooltip(nameof(enableCursorOnActivation))}", options));
             
             Transmission.AddLine("Activate OnStart:",
-                new Message(activateConsoleOnStart, options),
-                new Message($"// {GetTooltip(nameof(activateConsoleOnStart))}", colorComment, comment));
+                new MessageFormat(activateConsoleOnStart, options),
+                new MessageFormat($"// {GetTooltip(nameof(activateConsoleOnStart))}", options));
             
             Transmission.AddLine("Log Config OnStart:",
-                new Message(logConfigurationOnStart, options),
-                new Message($"// {GetTooltip(nameof(logConfigurationOnStart))}", colorComment, comment));
+                new MessageFormat(logConfigurationOnStart, options),
+                new MessageFormat($"// {GetTooltip(nameof(logConfigurationOnStart))}", options));
             
             Transmission.AddBreak();
             Transmission.AddLine("Unity Console Integration:",
-                new Message(bindConsoles, options));
+                new MessageFormat(bindConsoles, options));
             
             Transmission.AddLine("Allowed Messages:",
-                new Message(allowedUnityMessages, options),
-                new Message($"// {GetTooltip(nameof(allowedUnityMessages))}", colorComment, comment));
+                new MessageFormat(allowedUnityMessages, options),
+                new MessageFormat($"// {GetTooltip(nameof(allowedUnityMessages))}", options));
             
             Transmission.AddLine("Allowed Stacktrace:",
-                new Message(logStackTraceOn, options),
-                new Message($"// {GetTooltip(nameof(logStackTraceOn))}", colorComment, comment));
+                new MessageFormat(logStackTraceOn, options),
+                new MessageFormat($"// {GetTooltip(nameof(logStackTraceOn))}", options));
             
             Transmission.AddBreak();
             
-            
-            
-            Transmission.AddSubheading("Format");
+            Transmission.AddTitle("Format", TitlePreset.Sub);
             
             Transmission.AddLine("FontSize Input:",
-                new Message(inputFontSize, options),
-                new Message($"// {GetTooltip(nameof(inputFontSize))}", colorComment, comment));
+                new MessageFormat(inputFontSize, options),
+                new MessageFormat($"// {GetTooltip(nameof(inputFontSize))}", options));
             
             Transmission.AddLine("FontSize Command:",
-                new Message(fontSize, options),
-                new Message($"// {GetTooltip(nameof(fontSize))}", colorComment, comment));
+                new MessageFormat(fontSize, options),
+                new MessageFormat($"// {GetTooltip(nameof(fontSize))}", options));
             
             Transmission.AddLine("LineHeight (Break):",
-                new Message(breakLineHeight, options),
-                new Message($"// {GetTooltip(nameof(breakLineHeight))}", colorComment, comment));
+                new MessageFormat(breakLineHeight, options),
+                new MessageFormat($"// {GetTooltip(nameof(breakLineHeight))}", options));
             
             Transmission.AddLine("LineHeight (Default):",
-                new Message(defaultLineHeight, options),
-                new Message($"// {GetTooltip(nameof(defaultLineHeight))}", colorComment, comment));
+                new MessageFormat(defaultLineHeight, options),
+                new MessageFormat($"// {GetTooltip(nameof(defaultLineHeight))}", options));
             
             Transmission.AddBreak();
             
@@ -337,37 +334,41 @@ namespace Ganymed.Console.Core
             
             if (includeColorScheme)
             {
-                Transmission.AddSubheading("Color");
-                Transmission.AddLine("Background", new Message(colorConsoleBackground, colorConsoleBackground, options));
-                Transmission.AddLine("Scrollbar", new Message(colorScrollbar, colorScrollbar, options));
-                Transmission.AddLine("Scrollbar Handle", new Message(colorScrollbarHandle, colorScrollbarHandle, options));
+                Transmission.AddTitle("Color", TitlePreset.Sub);
+                Transmission.AddLine("Background", new MessageFormat(colorConsoleBackground, options));
+                Transmission.AddLine("Scrollbar", new MessageFormat(colorScrollbar, options));
+                Transmission.AddLine("Scrollbar Handle", new MessageFormat(colorScrollbarHandle, options));
+                Transmission.AddBreak();
+                
+                Transmission.AddLine("Default Color", new MessageFormat(colorDefault, colorDefault, options));
                 Transmission.AddBreak();
 
-                Transmission.AddLine("Default", new Message(colorOutput, colorOutput, options));
-                Transmission.AddLine("Input", new Message(colorInput, colorInput, options));
+                Transmission.AddLine("Input: Valid", new MessageFormat(colorValidInput, colorValidInput, options));
+                Transmission.AddLine("Input: Optional Params Left", new MessageFormat(colorOptionalParamsLeft, colorOptionalParamsLeft, options));
+                Transmission.AddLine("Input: Incomplete", new MessageFormat(colorIncompleteInput, colorIncompleteInput, options));
+                Transmission.AddLine("Input: Incorrect", new MessageFormat(colorIncorrectInput, colorIncorrectInput, options));
+                Transmission.AddLine("Input: Information", new MessageFormat(colorInformation, colorInformation, options));
+                Transmission.AddLine("Autocompletion", new MessageFormat(colorAutocompletion, colorAutocompletion, options));
                 Transmission.AddBreak();
 
-                Transmission.AddLine("Valid", new Message(colorValid, colorValid, options));
-                Transmission.AddLine("Optional Params Left",
-                    new Message(colorOptionalParamsLeft, colorOptionalParamsLeft, options));
-                Transmission.AddLine("Incomplete", new Message(colorIncompleteInput, colorIncompleteInput, options));
-                Transmission.AddLine("Incorrect", new Message(colorIncorrectInput, colorIncorrectInput, options));
-                Transmission.AddLine("Information", new Message(colorInformation, colorInformation, options));
-                Transmission.AddLine("Autocompletion", new Message(colorAutocompletion, colorAutocompletion, options));
-                Transmission.AddBreak();
-
-                Transmission.AddLine("Titles", new Message(colorTitles, colorTitles, options));
-                Transmission.AddLine("Emphasize", new Message(colorEmphasize, colorEmphasize, options));
-                Transmission.AddLine("Command", new Message(colorCommandInput, colorCommandInput, options));
-                Transmission.AddLine("Text", new Message(colorTextInput, colorTextInput, options));
+                Transmission.AddLine("Formatting: Titles", new MessageFormat(colorTitles, colorTitles, options));
+                Transmission.AddLine("Formatting: Subheadings", new MessageFormat(colorSubHeading, colorSubHeading, options));
+                Transmission.AddLine("Formatting: Emphasize", new MessageFormat(colorEmphasize, colorEmphasize, options));
+                Transmission.AddLine("Formatting: Input Lines", new MessageFormat(colorInputLines, colorInputLines, options));
+                Transmission.AddLine("Formatting: Variables", new MessageFormat(colorVariables, colorVariables, options));
                 Transmission.AddBreak();    
                 
-                Transmission.AddLine("Warning", new Message(colorWarning, colorWarning, options));
-                Transmission.AddLine("Error", new Message(colorError, colorError, options));
-                Transmission.AddLine("Condition", new Message(colorLogCondition, colorLogCondition, options));
-                Transmission.AddLine("Stacktrace", new Message(colorStackTrace, colorStackTrace, options));
+                Transmission.AddLine("Unity Log", new MessageFormat(colorUnityLog, colorUnityLog, options));
+                Transmission.AddLine("Unity Warning", new MessageFormat(colorUnityWarning, colorUnityWarning, options));
+                Transmission.AddLine("Unity Error", new MessageFormat(colorUnityError, colorUnityError, options));
+                Transmission.AddLine("Stacktrace", new MessageFormat(colorStackTrace, colorStackTrace, options));
+                
                 Transmission.AddBreak();    
                 
+                Transmission.AddLine("Custom 1", new MessageFormat(customColor1, customColor1, options));
+                Transmission.AddLine("Custom 2", new MessageFormat(customColor2, customColor2, options));
+                Transmission.AddLine("Custom 3", new MessageFormat(customColor3, customColor3, options));
+                Transmission.AddBreak();
             }
 
             Transmission.ReleaseAsync();
@@ -385,7 +386,7 @@ namespace Ganymed.Console.Core
         {
             if (!allowShaderAndAnimations)
             {
-                allowFrostedGlassEffect = false;
+                allowShader = false;
                 allowAnimations = false;
             }
             OnConsoleConfigurationChanged?.Invoke();
@@ -408,15 +409,6 @@ namespace Ganymed.Console.Core
             }
 
             return string.Empty;
-            // try
-            // {
-            //     
-            // }
-            // catch (Exception exception)
-            // {
-            //     Debug.Log(exception);
-            //     return string.Empty;
-            // }
         }
         #endregion
     }

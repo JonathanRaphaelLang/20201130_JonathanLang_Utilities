@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Ganymed.Console.Attributes;
 using Ganymed.Console.Transmissions;
-using Ganymed.Utils.ColorTables;
+using Ganymed.Utils;
 using Ganymed.Utils.ExtensionMethods;
 using Ganymed.Utils.Structures;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Ganymed.Console.Processor
@@ -23,35 +21,35 @@ namespace Ganymed.Console.Processor
         #region --- [COMMAND] ---
 
         [NativeCommand]
-        [Command(SetterKey, Priority = 10000, Description = SetterDescription)]
+        [ConsoleCommand(SetterKey, Priority = 10000, Description = SetterDescription)]
         private static void SetterCommand(
-            [CanBeNull] [Hint("Case sensitive input", Show = HintShowFlags.None)]
+            [Hint("Case sensitive input", Show = HintConfig.None)]
             string key,
-            [CanBeNull] [Hint("Value", Show = HintShowFlags.None)]
+            [Hint("Value", Show = HintConfig.None)]
             object value)
         {
             if (key == null) LogSetter();
             else if (SetterShortcuts.TryGetValue(key, out var setterShortcut))
             {
-                if (ConvertAndSetValue(setterShortcut.SetValue, value, setterShortcut.ValueType, 
-                    Exception: delegate
+                if (TryConvertAndSetValue(setterShortcut.SetValue, value, setterShortcut.ValueType, 
+                    ExceptionCallback: delegate
                     {
                         Core.Console.Log(
                             $"Could not convert " +
-                            $"{CS.Red}[{value ?? "null"}]{CS.Clear}" +
+                            $"{RichText.Red}[{value ?? "null"}]{RichText.ClearColor}" +
                             $" in type " +
-                            $"{CS.Orange}[{setterShortcut.ValueType.Name}]{CS.Clear}", LogOptions.Tab);
+                            $"{RichText.Orange}[{setterShortcut.ValueType.Name}]{RichText.ClearColor}", LogOptions.Tab);
                     }))
                 {
                     var message =
                         $"Successfully set " +
                         $"{Core.Console.ColorTitleSub.AsRichText()}" +
                         $"[{setterShortcut.MemberKey}]" +
-                        $"{CS.Clear} " +
+                        $"{RichText.ClearColor} " +
                         $"to " +
-                        $"{Core.Console.ColorEmphasize.AsRichText()}" +
+                        $"{Core.Console.ColorVariables.AsRichText()}" +
                         $"[{setterShortcut.GetValue() ?? value?.ToString()}]" +
-                        $"{CS.Clear} " +
+                        $"{RichText.ClearColor} " +
                         $"Type: {setterShortcut.ValueType.Name} " +
                         $"{(setterShortcut.Description != null ? $"Description: '{setterShortcut.Description}'" : "")}";
                     Core.Console.Log(message, LogOptions.Tab);
@@ -64,25 +62,25 @@ namespace Ganymed.Console.Processor
                 if (!Setter.TryGetValue(args[0], out var setterInfos)) return;
                 if (setterInfos.TryGetValue(args[1], out var setter))
                 {
-                    if (ConvertAndSetValue(setter.SetValue, value, setter.ValueType, 
-                        Exception: delegate
+                    if (TryConvertAndSetValue(setter.SetValue, value, setter.ValueType, 
+                        ExceptionCallback: delegate
                     {
                         Core.Console.Log(
                             $"Could not convert " +
-                            $"{CS.Red}[{value ?? "null"}]{CS.Clear}" +
+                            $"{RichText.Red}[{value ?? "null"}]{RichText.ClearColor}" +
                             $" in type " +
-                            $"{CS.Orange}[{setter.ValueType.Name}]{CS.Clear}", LogOptions.Tab);
+                            $"{RichText.Orange}[{setter.ValueType.Name}]{RichText.ClearColor}", LogOptions.Tab);
                     }))
                     {
                         var message =
                             $"Successfully set " +
                             $"{Core.Console.ColorTitleSub.AsRichText()}" +
                             $"[{setter.MemberKey}]" +
-                            $"{CS.Clear} " +
+                            $"{RichText.ClearColor} " +
                             $"to " +
-                            $"{Core.Console.ColorEmphasize.AsRichText()}" +
+                            $"{Core.Console.ColorVariables.AsRichText()}" +
                             $"[{setter.GetValue() ?? value?.ToString()}]" +
-                            $"{CS.Clear} " +
+                            $"{RichText.ClearColor} " +
                             $"Type: {setter.ValueType.Name} " +
                             $"{(setter.Description != null ? $"Description: '{setter.Description}'" : "")}";
                         Core.Console.Log(message, LogOptions.Tab);
@@ -97,7 +95,15 @@ namespace Ganymed.Console.Processor
 
         #region --- [CONVERTION] ---
 
-        private static bool ConvertAndSetValue(Action<object> Set, object value, Type type, Action Exception)
+        /// <summary>
+        /// Method will try to set the value of the given property/field "set value" Method. 
+        /// </summary>
+        /// <param name="Set">The Property/Field "Set Value" Method</param>
+        /// <param name="value">The value</param>
+        /// <param name="type"></param>
+        /// <param name="ExceptionCallback"></param>
+        /// <returns></returns>
+        private static bool TryConvertAndSetValue(Action<object> Set, object value, Type type, Action ExceptionCallback)
         {
             try
             {
@@ -284,7 +290,7 @@ namespace Ganymed.Console.Processor
             }
             catch
             {
-                Exception?.Invoke();
+                ExceptionCallback?.Invoke();
                 return false;
             }
             return true;
@@ -306,12 +312,12 @@ namespace Ganymed.Console.Processor
             if (separateShortcuts)
             {
                 Transmission.AddLine(
-                    new Message($"> Shortcut Keys", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("ValueType", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Shortcut", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Type", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Priority",Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
+                    new MessageFormat($"> Key", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Type", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Shortcut", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Member Type", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Priority",Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
 
                 foreach (var member in SetterShortcuts)
                 {
@@ -332,12 +338,12 @@ namespace Ganymed.Console.Processor
             foreach (var target in Setter)
             {
                 Transmission.AddLine(
-                    new Message($"> Shortcut Keys", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("ValueType", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Shortcut", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Type", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Priority",Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
+                    new MessageFormat($"> Key", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Type", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Shortcut", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Member Type", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Priority",Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
 
                 Transmission.AddBreak();
 
@@ -364,11 +370,11 @@ namespace Ganymed.Console.Processor
                         // --- ValueType
                         $"{(type.IsEnum? $"{type.Name} (Enum)" : type.Name)}",
                         // --- Shortcut
-                        new Message(list[i].ShortCut ?? string.Empty, Core.Console.ColorEmphasize),
+                        new MessageFormat(list[i].ShortCut ?? string.Empty, Core.Console.ColorEmphasize),
                         // --- Field/Property Type
                         list[i].MemberInfoType.Name.Replace("Info", string.Empty),
                         // --- Priority
-                        new Message(list[i].Priority, MessageOptions.Brackets),
+                        new MessageFormat(list[i].Priority, MessageOptions.Brackets),
                         // --- Description
                         list[i].Description);
 
@@ -510,8 +516,7 @@ namespace Ganymed.Console.Processor
             }
         }
 
-        [CanBeNull]
-        private static string ValidateSetterShortcut([CanBeNull] string shortcut)
+        private static string ValidateSetterShortcut(string shortcut)
         {
             if (shortcut == null) return null;
 
@@ -545,7 +550,7 @@ namespace Ganymed.Console.Processor
         }
 
 
-        private static void TryAddSetterShortCut([CanBeNull] string shortcut, SetterInfo setterInfo)
+        private static void TryAddSetterShortCut(string shortcut, SetterInfo setterInfo)
         {
             if (shortcut == null) return;
             SetterShortcuts.Add(shortcut, setterInfo);
@@ -1084,7 +1089,7 @@ namespace Ganymed.Console.Processor
             return false;
         }
 
-        private static bool PrepareInput(string input, [CanBeNull] out string key, [CanBeNull] out string value)
+        private static bool PrepareInput(string input, out string key, out string value)
         {
             key = input.EndsWith(" ") ? string.Empty : null;
 
@@ -1094,7 +1099,7 @@ namespace Ganymed.Console.Processor
                 split.Length > 2 ? split[split.Length - 2].Cut() : null;
 
 
-            var split2 = input.Cut(StringExtensions.CutArea.Start).Split(' ');
+            var split2 = input.Cut(StartEnd.Start).Split(' ');
             value = split2.Length > 2 ? string.Empty : null;
             if (split2.Length > 2)
             {

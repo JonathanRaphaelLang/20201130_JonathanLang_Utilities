@@ -6,7 +6,7 @@ namespace Ganymed.Utils.Attributes
     /// Attribute determines accessibility requirements of the member to which the target attribute can be assigned.
     /// Attributes only attribute. 
     /// </summary>
-    [AttributesOnly]
+    [AttributeTarget(typeof(Attribute), Inherited = true)]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class RequiredAccessAttribute : Attribute
     {

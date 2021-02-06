@@ -4,9 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Ganymed.Console.Attributes;
 using Ganymed.Console.Transmissions;
-using Ganymed.Utils.ColorTables;
 using Ganymed.Utils.ExtensionMethods;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Ganymed.Console.Processor
@@ -19,8 +17,8 @@ namespace Ganymed.Console.Processor
         #region --- [COMMAND] ---
 
         [NativeCommand]
-        [Command(GetterKey, Priority = 10000, Description = GetterDescription)]
-        private static void GetCommand([CanBeNull] string key)
+        [ConsoleCommand(GetterKey, Priority = 10000, Description = GetterDescription)]
+        private static void GetCommand(string key)
         {
             if (key == null) LogGetter();
             else if (GetterShortcuts.TryGetValue(key, out var getterShortcut))
@@ -28,10 +26,10 @@ namespace Ganymed.Console.Processor
                 var message =
                     $"{Core.Console.ColorTitleSub.AsRichText()}" +
                     $"[{getterShortcut.MemberKey}]" +
-                    $"{CS.Clear}: " +
-                    $"{Core.Console.ColorEmphasize.AsRichText()}" +
+                    $"{RichText.ClearColor}: " +
+                    $"{Core.Console.ColorVariables.AsRichText()}" +
                     $"[{getterShortcut.GetValue()}]" +
-                    $"{CS.Clear} " +
+                    $"{RichText.ClearColor} " +
                     $"Type: {getterShortcut.ValueType.Name} " +
                     $"{(getterShortcut.Description != null ? $"Description: '{getterShortcut.Description}'" : "")}";
 
@@ -48,10 +46,10 @@ namespace Ganymed.Console.Processor
                     var message =
                         $"{Core.Console.ColorTitleSub.AsRichText()}" +
                         $"[{getter.MemberKey}]" +
-                        $"{CS.Clear}: " +
-                        $"{Core.Console.ColorEmphasize.AsRichText()}" +
+                        $"{RichText.ClearColor}: " +
+                        $"{Core.Console.ColorVariables.AsRichText()}" +
                         $"[{getter.GetValue()}]" +
-                        $"{CS.Clear} " +
+                        $"{RichText.ClearColor} " +
                         $"Type: {getter.ValueType.Name} " +
                         $"{(getter.Description != null ? $"Description: '{getter.Description}'" : "")}";
                     
@@ -76,12 +74,12 @@ namespace Ganymed.Console.Processor
             if (separateShortcuts)
             {
                 Transmission.AddLine(
-                    new Message($"> Shortcut Keys", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("ValueType", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Shortcut", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Type", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Priority",Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
+                    new MessageFormat($"> Key", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Type", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Shortcut", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Member Type", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Priority",Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
                 
                 foreach (var member in GetterShortcuts)
                 {
@@ -101,12 +99,12 @@ namespace Ganymed.Console.Processor
             foreach (var target in Getter)
             {
                 Transmission.AddLine(
-                    new Message($"> Shortcut Keys", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("ValueType", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Shortcut", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Type", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Priority",Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new Message("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
+                    new MessageFormat($"> Key", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Type", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Shortcut", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Member Type", Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Priority",Core.Console.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
 
                 Transmission.AddBreak();
 
@@ -134,11 +132,11 @@ namespace Ganymed.Console.Processor
                         // --- ValueType
                         $"{(type.IsEnum? $"{type.Name} (Enum)" : type.Name)}",
                         // --- Shortcut
-                        new Message(list[i].ShortCut ?? string.Empty, Core.Console.ColorEmphasize),
+                        new MessageFormat(list[i].ShortCut ?? string.Empty, Core.Console.ColorEmphasize),
                         // --- Field/Property Type
                         list[i].MemberInfoType.Name.Replace("Info", string.Empty),
                         // --- Priority
-                        new Message(list[i].Priority, MessageOptions.Brackets),
+                        new MessageFormat(list[i].Priority, MessageOptions.Brackets),
                         // --- Description
                         list[i].Description);
 
@@ -273,8 +271,7 @@ namespace Ganymed.Console.Processor
             }
         }
 
-        [CanBeNull]
-        private static string ValidateGetterShortcut([CanBeNull] string shortcut)
+        private static string ValidateGetterShortcut(string shortcut)
         {
             if (shortcut == null) return null;
 
@@ -308,7 +305,7 @@ namespace Ganymed.Console.Processor
         }
 
 
-        private static void TryAddGetterShortCut([CanBeNull] string shortcut, GetterInfo getterInfo)
+        private static void TryAddGetterShortCut(string shortcut, GetterInfo getterInfo)
         {
             if (shortcut == null) return;
             GetterShortcuts.Add(shortcut, getterInfo);
@@ -466,7 +463,7 @@ namespace Ganymed.Console.Processor
             return false;
         }
 
-        private static bool PrepareInput(string input, [CanBeNull] out string key)
+        private static bool PrepareInput(string input, out string key)
         {
             key = input.EndsWith(" ") ? string.Empty : null;
             var split = input.Cut().Split(' ');

@@ -6,7 +6,7 @@ namespace Ganymed.Utils.Attributes
     /// Base class for attributes that suppress exceptions on "unsafe" Types that would otherwise provoke an exception.
     /// </summary>
     [AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = true)]
-    [RequiredAttributes(typeof(Attribute), Inherited = true)]
+    [RequiresAdditionalAttributes(typeof(Attribute), Inherited = true)]
     public abstract class AllowUnsafeAttribute : Attribute
     {
         /// <summary>

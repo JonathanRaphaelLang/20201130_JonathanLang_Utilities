@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Ganymed.Utils.Attributes;
-using Ganymed.Utils.ColorTables;
 using Ganymed.Utils.ExtensionMethods;
 using UnityEngine;
 
@@ -88,28 +87,28 @@ namespace Ganymed.Utils.Editor.AttributeValidation
             Attribute inspected)
         {
             var warning =
-                $"Parameter '{CS.Blue}{parameterInfo.Name}{CS.Clear} " +
-                $"of Method '{CS.LightGray}{methodBase.DeclaringType?.Namespace}{CS.Clear}." +
-                $"{CS.Blue}{methodBase.Name}{CS.Clear}' " +
-                $"has invalid type: {CS.Red}'{parameterInfo.ParameterType}'.{CS.Clear}" +
+                $"Parameter '{RichText.Blue}{parameterInfo.Name}{RichText.ClearColor} " +
+                $"of Method '{RichText.LightGray}{methodBase.DeclaringType?.Namespace}{RichText.ClearColor}." +
+                $"{RichText.Blue}{methodBase.Name}{RichText.ClearColor}' " +
+                $"has invalid type: {RichText.Red}'{parameterInfo.ParameterType}'.{RichText.ClearColor}" +
                 $"\nAllowed types for methods with the attribute " +
-                $"[{CS.Blue}{inspected.GetType().Name.Delete("Attribute")}{CS.Clear}] are: " +
+                $"[{RichText.Blue}{inspected.GetType().Name.Delete("Attribute")}{RichText.ClearColor}] are: " +
                             
-                $"{(allowedInheritingTypes.Count > 0? $"Inheriting types: [{CS.Blue}" : "")}" +
+                $"{(allowedInheritingTypes.Count > 0? $"Inheriting types: [{RichText.Blue}" : "")}" +
                 $"{string.Join(" ", allowedInheritingTypes.Select(x => $"{x.Name}, ")).RemoveFormEnd(2)}" +
-                $"{(allowedInheritingTypes.Count > 0? $"{CS.Clear}] " : "")}" +
+                $"{(allowedInheritingTypes.Count > 0? $"{RichText.ClearColor}] " : "")}" +
                             
-                $"{(allowedTypes.Count > 0? $"Types: [{CS.Blue}" : "")}" +
+                $"{(allowedTypes.Count > 0? $"Types: [{RichText.Blue}" : "")}" +
                 $"{string.Join(" ", allowedTypes.Select(x => $"{x.Name}, ")).RemoveFormEnd(2)}" +
-                $"{(allowedTypes.Count > 0? $"{CS.Clear}] " : "")}" +
+                $"{(allowedTypes.Count > 0? $"{RichText.ClearColor}] " : "")}" +
                             
-                $"{(allowedAffiliations != TypeAffiliations.None? $"Affiliations: [{CS.Blue}" : "")}" +
+                $"{(allowedAffiliations != TypeAffiliations.None? $"Affiliations: [{RichText.Blue}" : "")}" +
                 $"{allowedAffiliations}" +
-                $"{(allowedAffiliations != TypeAffiliations.None? $"{CS.Clear}] " : "")}" +
+                $"{(allowedAffiliations != TypeAffiliations.None? $"{RichText.ClearColor}] " : "")}" +
                             
                 $"You should either validate the type of the parameter or use the " +
-                $"{CS.Orange}" +
-                $"{nameof(AllowUnsafeAttribute).Replace(nameof(Attribute), "")}{CS.Clear} " +
+                $"{RichText.Orange}" +
+                $"{nameof(AllowUnsafeAttribute).Replace(nameof(Attribute), "")}{RichText.ClearColor} " +
                 $"attribute to suppress this Warning";
 
             Debug.LogWarning(warning);

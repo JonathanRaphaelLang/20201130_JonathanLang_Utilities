@@ -6,7 +6,7 @@ namespace Ganymed.Utils.Attributes
     /// TargetTypeRestrictionAttribute limits the types to which a target attribute can be assigned.
     /// Both individual types and categories can be specified.
     /// </summary>
-    [AttributesOnly]
+    [AttributeTarget(typeof(Attribute), Inherited = true)]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public sealed class TargetTypeRestrictionAttribute : Attribute
     {
@@ -41,9 +41,6 @@ namespace Ganymed.Utils.Attributes
             }
         }
 
-        #endregion
-
-        #region --- [ALLOWED] ---
         
         /// <summary>
         /// Are primitive types valid as the type of the target property.
@@ -181,12 +178,15 @@ namespace Ganymed.Utils.Attributes
         private TypeAffiliations validTypeAffiliations;
 
         #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
 
         #region --- [CONSTRUCTOR] ---
 
         /// <summary>
-        /// Attribute allows you to define types for a target attribute to which this target attribute can be applied.
+        /// Attribute limits the types to which a target attribute can be assigned.
         /// Both individual types and categories can be specified.
+        /// This attribute can only target other attributes.
         /// </summary>
         /// <param name="validTypes"></param>
         public TargetTypeRestrictionAttribute(params Type[] validTypes)

@@ -4,6 +4,9 @@ using JetBrains.Annotations;
 
 namespace Ganymed.Utils.Editor.AttributeValidation
 {
+    /// <summary>
+    /// Helper struct for attribute reflection
+    /// </summary>
     internal readonly struct Context
     {
         public readonly AttributeTargets Target;

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Ganymed.Monitoring.Configuration;
 using Ganymed.Utils;
 using TMPro;
 using UnityEngine;
@@ -30,6 +30,7 @@ namespace Ganymed.Monitoring.Core
         
         #region --- [FIELDS] ---
 
+        private GameObject element;
         private Module module;
         private float scale = 1;
         private static readonly int DecInst = Animator.StringToHash("DecInst");
@@ -63,36 +64,36 @@ namespace Ganymed.Monitoring.Core
         public void DeactivateModule()
         {
             layoutGroup.childControlWidth = true;
-            module.SetActive(false);
+            module.SetVisible(false);
         }
 
         public void ActivateModule()
         {
-            module.SetActive(true);
+            module.SetVisible(true);
             scale = 1;
             scaleTarget.localScale = new Vector3(scale,scale,scale);
             LayoutRebuilder.ForceRebuildLayoutImmediate(scaleRoot);
             sizeDisplayTextField.text = $"{scale * 100:000}%";
         }
         
-        private async void ModuleActiveAndEnabledStateChanged(bool active, bool enable)
+        private async void ModuleActiveAndEnabledStateChanged(bool enable, bool active, bool visible)
         {
             if (this == null || header == null)
             {
-                module.OnActiveAndEnabledStateChanged -= ModuleActiveAndEnabledStateChanged;
+                module.OnAnyStateChanged -= ModuleActiveAndEnabledStateChanged;
                 return;
             }
 
             await Task.Run(delegate { });
             
-            if (active && enable)
+            if (active && enable && visible)
             {
                 header.SetActive(true);
                 reactivationButton.SetActive(false);
                 moduleText.enabled = true;
             }
             
-            else if(!active && enable)
+            else if(!visible && active && enable)
             {
                 if(Application.isPlaying)
                     animator.SetTrigger(DecInst);
@@ -103,8 +104,7 @@ namespace Ganymed.Monitoring.Core
             
             else
             {
-                if(Application.isPlaying)
-                    header.SetActive(false);
+                header.SetActive(false);
                 reactivationButton.SetActive(false);
                 moduleText.enabled = false;
             }
@@ -116,15 +116,20 @@ namespace Ganymed.Monitoring.Core
         public static ModuleCanvasElement CreateComponent(GameObject where, Module module)
         {
             var target = where.GetComponent<ModuleCanvasElement>();
-            target.SetText(module.GetState(ValueInterpretationOption.DefaultValue), InvokeOrigin.Constructor);
+            target.SetText(module.GetState(ValueInterpretationOption.Default), InvokeOrigin.Constructor);
             target.module = module;
+            target.element = where;
             
             module.AddOnValueChangedListener(OnValueChangedContext.Initialization, target.ModuleEventInitialization);
             module.AddOnValueChangedListener(OnValueChangedContext.Update, target.ModuleEventUpdate);
             
             module.AddOnRepaintChangedListener(target.ModuleGUIEvent);
-            module.OnActiveAndEnabledStateChanged += target.ModuleActiveAndEnabledStateChanged;
-
+            module.OnAnyStateChanged += target.ModuleActiveAndEnabledStateChanged;
+            
+            module.Repaint(InvokeOrigin.Constructor);
+            
+            target.moduleText.enabled = module.IsVisible;
+            
             return target;
         }
 
@@ -135,7 +140,7 @@ namespace Ganymed.Monitoring.Core
             module.RemoveOnValueChangedListener(OnValueChangedContext.Update);
             
             module.RemoveOnRepaintChangedListener(ModuleGUIEvent);
-            module.OnActiveAndEnabledStateChanged -= ModuleActiveAndEnabledStateChanged;
+            module.OnAnyStateChanged -= ModuleActiveAndEnabledStateChanged;
         }
 
         private void OnApplicationQuit()
@@ -145,21 +150,22 @@ namespace Ganymed.Monitoring.Core
             module.RemoveOnValueChangedListener(OnValueChangedContext.Update);
             
             module.RemoveOnRepaintChangedListener(ModuleGUIEvent);
-            module.OnActiveAndEnabledStateChanged -= ModuleActiveAndEnabledStateChanged;
+            module.OnAnyStateChanged -= ModuleActiveAndEnabledStateChanged;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         #region --- MODULE GUI EVENT ----
 
-        private void ModuleGUIEvent(Configuration.Configurable elementConfigurable, string state, InvokeOrigin invokeOrigin)
+        private void ModuleGUIEvent(StyleBase style, string state, InvokeOrigin invokeOrigin)
         {
-            if(elementConfigurable == null) return;
+            if(style == null) return;
             
             SetText(state,invokeOrigin);
-            SetMargins(elementConfigurable.Margins, invokeOrigin);
-            SetColor(elementConfigurable.ColorBackground, invokeOrigin);
-            SetFontSize(elementConfigurable.FontSize, invokeOrigin);
+            SetMargins(style.Margins, invokeOrigin);
+            SetColor(style.ColorBackground, invokeOrigin);
+            SetFontSize(style.FontSize, invokeOrigin);
+            SetAlignment(style.alignment);
         }
 
         #endregion
@@ -215,7 +221,7 @@ namespace Ganymed.Monitoring.Core
         private void SetFontSize(float size, InvokeOrigin source)
         {
             if(moduleText != null)
-                moduleText.fontSize = Mathf.Clamp(size, Configuration.Configurable.MINFONTSIZE, Configuration.Configurable.MAXFONTSIZE);
+                moduleText.fontSize = Mathf.Clamp(size, Configuration.StyleBase.MINFONTSIZE, Configuration.StyleBase.MAXFONTSIZE);
         }
 
         private void SetMargins(Vector4 margin, InvokeOrigin source)
@@ -237,6 +243,12 @@ namespace Ganymed.Monitoring.Core
                 Canvas.ForceUpdateCanvases();
         }
 
+        private void SetAlignment(TextAlignmentOptions alignment)
+        {
+            moduleText.alignment = alignment;
+        }
+
         #endregion
+
     }
 }

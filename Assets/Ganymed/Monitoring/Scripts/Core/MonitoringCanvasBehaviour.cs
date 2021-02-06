@@ -1,23 +1,28 @@
 ﻿using System;
 using Ganymed.Monitoring.Configuration;
 using Ganymed.Utils;
+using Ganymed.Utils.Attributes;
 using Ganymed.Utils.Singleton;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Ganymed.Monitoring.Core
 {
     /// <summary>
-    /// MonitoringCanvasBehaviour for Monitoring ModuleDictionary 
+    /// MonitoringCanvasBehaviour for Monitoring ModuleDictionary
+    /// The prefab of this gameObject will be unpacked automatically.
     /// </summary>
     [ExecuteInEditMode]
+    [AddComponentMenu("Monitoring/Monitoring Canvas")]
+    [RequireComponent(typeof(Canvas))]
     public class MonitoringCanvasBehaviour : MonoSingleton<MonitoringCanvasBehaviour>, IState
     {
         #region --- [FIELDS] ---
 
 #pragma warning disable 649
 #pragma warning disable 414
+
+        [HideInInspector] [SerializeField] internal bool showFields = false;
         
         [Header("Parents")]
         [SerializeField] private Transform upperLeft;
@@ -40,8 +45,6 @@ namespace Ganymed.Monitoring.Core
         [SerializeField] private Image lowerRightBackground;
         [Space]
         [SerializeField] private Canvas canvas;
-        [Space]
-        [SerializeField] private bool autoRename = true;
 
         [Space]
         [SerializeField] private Transform[] parentsToClear;
@@ -60,11 +63,13 @@ namespace Ganymed.Monitoring.Core
         //--------------------------------------------------------------------------------------------------------------
 
         #region --- [STATE] ---
-
-                
-        public event ActiveAndEnabledDelegate OnActiveAndEnabledStateChanged;
-        public event ActiveDelegate OnActiveStateChanged;
+        
         public event EnabledDelegate OnEnabledStateChanged;
+        public event ActiveAndVisibleDelegate OnAnyStateChanged;
+        public event VisibilityDelegate OnVisibilityStateChanged;
+        public event ActiveDelegate OnActiveStateChanged;
+
+        
 
         public bool IsEnabled
         {
@@ -72,15 +77,12 @@ namespace Ganymed.Monitoring.Core
             private set
             {
                 isEnabled = value;
-            
-                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+                IsVisible = isEnabled;
+                IsActive = isEnabled;
                 OnEnabledStateChanged?.Invoke(value);
-                
-                gameObject.SetActive(value);
-                canvas.enabled = value;
             }
         }
-        [SerializeField] [HideInInspector] private bool isEnabled = true;
+        [SerializeField] [HideInInspector] private bool isEnabled;
         public void SetEnabled(bool enable)
             => IsEnabled = enable;
 
@@ -91,36 +93,61 @@ namespace Ganymed.Monitoring.Core
             private set
             {
                 isActive = value;
-                
-                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+            
+                OnAnyStateChanged?.Invoke(IsEnabled, IsActive, IsVisible);
                 OnActiveStateChanged?.Invoke(value);
                 
                 gameObject.SetActive(value);
                 canvas.enabled = value;
             }
         }
-        
-        [SerializeField] [HideInInspector] private bool isActive;
+        [SerializeField] [HideInInspector] private bool isActive = true;
         public void SetActive(bool active)
-            => IsActive = isEnabled? active : isActive;
-        
+            => IsActive = active;
 
-        public bool IsActiveAndEnabled
+
+        public bool IsVisible
         {
-            get => IsEnabled && IsActive;
+            get => isVisible;
             private set
             {
-                isEnabled = value;
-                isActive = value;
+                isVisible = value;
                 
-                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
-                OnEnabledStateChanged?.Invoke(value);
-                OnActiveStateChanged?.Invoke(value);
+                OnAnyStateChanged?.Invoke(IsEnabled, IsActive, IsVisible);
+                OnVisibilityStateChanged?.Invoke(value);
+
+                try
+                {
+                    gameObject.SetActive(value);
+                }
+                finally
+                {
+                    canvas.enabled = value;    
+                }
             }
         }
         
-        public void SetActiveAndEnabled(bool value)
-            => IsActiveAndEnabled = value;
+        [SerializeField] [HideInInspector] private bool isVisible;
+        public void SetVisible(bool visible)
+            => IsVisible = isActive? visible : isVisible;
+        
+
+        public bool IsEnabledActiveAndVisible
+        {
+            get => IsEnabled && IsActive && IsVisible;
+            private set
+            {
+                isActive = value;
+                isVisible = value;
+                
+                OnAnyStateChanged?.Invoke(IsEnabled, IsActive, IsVisible);
+                OnActiveStateChanged?.Invoke(value);
+                OnVisibilityStateChanged?.Invoke(value);
+            }
+        }
+        
+        public void SetStates(bool value)
+            => IsEnabledActiveAndVisible = value;
       
 
 
@@ -139,27 +166,27 @@ namespace Ganymed.Monitoring.Core
         
         private MonitoringCanvasBehaviour()
         {
-            GlobalConfiguration.OnActiveConfigurationChanged += RepaintCanvas;
-            GlobalConfiguration.OnActiveStateChanged += SetActive;
+            MonitoringConfiguration.OnActiveConfigurationChanged += RepaintCanvas;
+            MonitoringConfiguration.OnActiveStateChanged += SetVisible;
         }
         
         
         ~MonitoringCanvasBehaviour()
         {
-            GlobalConfiguration.OnActiveConfigurationChanged -= RepaintCanvas;
-            GlobalConfiguration.OnActiveStateChanged -= SetActive;
+            MonitoringConfiguration.OnActiveConfigurationChanged -= RepaintCanvas;
+            MonitoringConfiguration.OnActiveStateChanged -= SetVisible;
         }
 
         
         private void OnDestroy()
         {
-            GlobalConfiguration.OnActiveConfigurationChanged -= RepaintCanvas;
-            GlobalConfiguration.OnActiveStateChanged -= SetActive;
-
-            #endregion
+            MonitoringConfiguration.OnActiveConfigurationChanged -= RepaintCanvas;
+            MonitoringConfiguration.OnActiveStateChanged -= SetVisible;
         }
         
-
+        
+        #endregion
+        
         //---------------------------------------------------------------------------------------------------------------
 
         #region --- [CLEAR CHILDREN] ---
@@ -174,19 +201,19 @@ namespace Ganymed.Monitoring.Core
         
         private static void ClearChildren(InvokeOrigin origin, Transform parent)
         {
-            try
+            var childrenNum = parent.childCount;
+            for (var i = childrenNum - 1; i >= 0; i--)
             {
-                var childrenNum = parent.childCount;
-                for (var i = childrenNum - 1; i >= 0; i--)
+                var target = parent.GetChild(i).gameObject;
+                if(target == null) continue;
+                try
                 {
-                    var target = parent.GetChild(i).gameObject;
-                    if(target == null) continue;
                     DestroyImmediate(parent.GetChild(i).gameObject, true);
                 }
-            }
-            catch
-            {
-                // ignored
+                catch
+                {
+                    continue;
+                }
             }
         }
 
@@ -200,7 +227,7 @@ namespace Ganymed.Monitoring.Core
        /// Set new values for canvas elements based on the global config
        /// </summary>
        /// <param name="ctx"></param>
-        private void RepaintCanvas(GlobalConfiguration ctx)
+        private void RepaintCanvas(MonitoringConfiguration ctx)
         {
             if(frame == null || rightGroup == null || leftGroup == null) return;
 
@@ -276,4 +303,29 @@ namespace Ganymed.Monitoring.Core
         }
         #endregion
     }
+    
+        
+#if UNITY_EDITOR
+
+    [UnityEditor.CustomEditor(typeof(MonitoringCanvasBehaviour))]
+    [UnityEditor.CanEditMultipleObjects]
+    internal class MonitoringCanvasBehaviourInspector : UnityEditor.Editor
+    {
+        private MonitoringCanvasBehaviour Target;
+        private void OnEnable()
+        {
+            Target = (MonitoringCanvasBehaviour) target;
+        }
+
+        public override void OnInspectorGUI()
+        {
+            Target.showFields = UnityEditor.EditorGUILayout.ToggleLeft("Show Fields", Target.showFields);
+            if (Target.showFields)
+            {
+                DrawDefaultInspector();
+            }
+        }
+    }
+    
+#endif
 }

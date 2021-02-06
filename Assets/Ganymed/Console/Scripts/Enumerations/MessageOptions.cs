@@ -41,13 +41,13 @@ namespace Ganymed.Console
         /// Make content uppercase
         /// </summary>
         [Description("Make content uppercase")]
-        Uppercase  = 16,
+        UpperCase  = 16,
         
         /// <summary>
         /// Make content lowercase
         /// </summary>
         [Description("Make content lowercase")]
-        Lowercase = 32,
+        LowerCase = 32,
         
         /// <summary>
         /// Make content smallcaps

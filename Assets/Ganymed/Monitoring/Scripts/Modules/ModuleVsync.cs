@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Ganymed.Monitoring.Modules
 {
-    [CreateAssetMenu(fileName = "Module_VSync", menuName = "Monitoring/ModuleDictionary/VSync")]
+    [CreateAssetMenu(fileName = "Module_VSync", menuName = "Monitoring/Modules/VSync")]
     public class ModuleVsync : Module<VSyncCount>
     {
         #region --- [INSPECTOR] ---
@@ -23,7 +23,7 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [EVENTS] ---
 
-        public static event Action<VSyncCount> OnValueChanged; 
+        public static event ModuleUpdateDelegate OnValueChanged; 
 
         #endregion
         
@@ -31,19 +31,21 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [MODULE] ---
 
-        protected override string ValueToString(VSyncCount currentValue)
+        protected override string ParseToString(VSyncCount currentValue)
         {
             return (currentValue > 0) ? currentValue.ToString() : "none";
         } 
 
         protected override void OnInitialize()
         {
-            SetUpdateDelegate(ref OnValueChanged);
+            InitializeUpdateEvent(ref OnValueChanged);
             
-            if (setVsync) {
+            if (setVsync)
+            {
                 QualitySettings.vSyncCount = (int) VSync;
             }
-            Default = (VSyncCount)QualitySettings.vSyncCount;
+            
+            InitializeValue((VSyncCount)QualitySettings.vSyncCount);
         }
         
         protected override void OnValidate()

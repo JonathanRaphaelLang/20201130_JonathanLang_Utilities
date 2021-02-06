@@ -1,4 +1,8 @@
-﻿using System;
+﻿// #define logStart             
+// #define logCancellation
+// #define logEnd
+
+using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +31,8 @@ namespace Ganymed.Utils.Editor.AttributeValidation
 
         private static Assembly[] AssemblyDefinitions;
         
+        private static volatile float time;
+        
         #endregion
         
         /// <summary>
@@ -36,7 +42,11 @@ namespace Ganymed.Utils.Editor.AttributeValidation
         [InitializeOnLoadMethod]
         private static void Initialize()
         {
-            var time = Time.realtimeSinceStartup;
+            time = Time.realtimeSinceStartup;
+            
+            #if logStart
+            Debug.Log($"started attribute reflection task");
+            #endif
             
             AssemblyDefinitions = CompilationPipeline.GetAssemblies();
             
@@ -44,7 +54,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
             {
                 ct.ThrowIfCancellationRequested();
                 try{
-                    AppDomain.CurrentDomain.GetUnityEditorAssemblies(
+                    AppDomain.CurrentDomain.GetTypesFromUnityAssemblies(
                         AssemblyDefinitions,
                         out var types,
                         out var fieldInfos,
@@ -54,7 +64,7 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                         out var eventInfos,
                         out var memberInfos);
 
-                    ReflectAttributesOnly(types);
+                    ReflectAttributeTarget(types);
                     ReflectValidBindingFlagsAttribute(memberInfos);
                     ReflectTargetParameterTypeRestrictions(methodInfos);
                     ReflectTargetTypeRestriction(propertyInfos, fieldInfos);
@@ -67,6 +77,9 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                     if (!(exception is ThreadAbortException)) {
                         Debug.LogException(exception);
                     }
+#if logCancellation
+                Debug.Log($"cancelled attribute reflection task");
+#endif
                 }
                 finally
                 {
@@ -74,7 +87,9 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                 }
             }, ct).Then(delegate
             {
-                //Debug.Log($"End >[{Time.realtimeSinceStartup - time}]");
+                #if logEnd
+                Debug.Log($"successfully ended attribute reflection task after: {Time.realtimeSinceStartup - time:0.00}s");
+                #endif
             });
         }
 

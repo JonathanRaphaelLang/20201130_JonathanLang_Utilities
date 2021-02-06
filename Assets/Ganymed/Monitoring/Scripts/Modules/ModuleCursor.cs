@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Ganymed.Monitoring.Modules
 {
-    [CreateAssetMenu(fileName = "Module_Cursor", menuName = "Monitoring/ModuleDictionary/Cursor")]
+    [CreateAssetMenu(fileName = "Module_Cursor", menuName = "Monitoring/Modules/Cursor")]
     public sealed class ModuleCursor : Module<bool>
     {
 
@@ -59,7 +59,7 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [EVENTS] ---
 
-        public static event Action<bool> OnCursorStateChanged;  
+        public static event ModuleUpdateDelegate OnCursorStateChanged;  
 
         #endregion
 
@@ -81,7 +81,7 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [MODULE] ---
 
-        protected override string ValueToString(bool currentValue)
+        protected override string ParseToString(bool currentValue)
         {
             if (!useDynamicColoring)
             {
@@ -113,15 +113,11 @@ namespace Ganymed.Monitoring.Modules
 
         protected override void OnInitialize()
         {
-            SetUpdateDelegate(ref OnCursorStateChanged);
+            InitializeUpdateEvent(ref OnCursorStateChanged);
 
-            if (controlCursorState && Application.isPlaying)
-            {
-                SetCursor(visibleDuringPlayMode, lockModeDuringPlayMode);
-                OnCursorStateChanged?.Invoke(Cursor.visible);
-            }
+            if (!controlCursorState || !Application.isPlaying) return;
             
-            OnCursorStateChanged?.Invoke(Cursor.visible);
+            SetCursor(visibleDuringPlayMode, lockModeDuringPlayMode);
         }
 
         protected override void OnInspection()
@@ -165,24 +161,20 @@ namespace Ganymed.Monitoring.Modules
             if (Input.GetKeyDown(HoldKey))
             {
                 SetCursor(visibleDuringHold, lockModeDuringHold);
-                OnCursorStateChanged?.Invoke(Cursor.visible);
             }
             else if(Input.GetKeyUp(HoldKey))
             {
                 SetCursor(visibleDuringPlayMode, lockModeDuringPlayMode);
-                OnCursorStateChanged?.Invoke(Cursor.visible);
             }
             else if(!Application.isPlaying)
             {
                 SetCursor(visibleDuringEditMode, lockModeDuringEditMode);
-                OnCursorStateChanged?.Invoke(Cursor.visible);
             }
         }
 
         private static void ResetCursor()
         {
             SetCursor(true, CursorLockMode.None);
-            OnCursorStateChanged?.Invoke(Cursor.visible);
         }
 
         private static void SetCursor(bool visible, CursorLockMode lockMode)
@@ -192,6 +184,8 @@ namespace Ganymed.Monitoring.Modules
 
             cachedVisible = visible;
             cachedLock = lockMode;
+            
+            OnCursorStateChanged?.Invoke(Cursor.visible);
         }
 
         #endregion

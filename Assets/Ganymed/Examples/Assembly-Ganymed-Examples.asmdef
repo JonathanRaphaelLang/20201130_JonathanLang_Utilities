@@ -1,0 +1,20 @@
+{
+    "name": "Assembly-Ganymed-Examples",
+    "references": [
+        "GUID:69d13bbc0c61c7d4cbbfd4abc9586fcf",
+        "GUID:0104b435fb2d2014aa1921489ea69e89",
+        "GUID:3083bb3583387494e968dc9bd65379bf",
+        "GUID:39a270f9d78babf48b63a9708d419489",
+        "GUID:8d1139ba1684d8842aaab7c626d0d2b7",
+        "GUID:b37517fd18abf5c4cb56c680f5b1256d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

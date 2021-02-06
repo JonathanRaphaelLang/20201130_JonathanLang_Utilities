@@ -4,7 +4,7 @@ using Ganymed.Utils.Attributes;
 namespace Ganymed.Console.Attributes
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    [RequiredAttributes(typeof(GetterSetterAttribute), Inherited = true, RequiresAny = true)]
+    [RequiresAdditionalAttributes(typeof(SetterAttribute), typeof(GetSetAttribute), Inherited = true, RequiresAny = true)]
     public class AllowUnsafeSetterAttribute : AllowUnsafeAttribute
     {
         /// <summary>

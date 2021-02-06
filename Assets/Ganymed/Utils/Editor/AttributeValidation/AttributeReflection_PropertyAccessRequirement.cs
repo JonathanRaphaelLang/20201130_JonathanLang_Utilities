@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using Ganymed.Utils.Attributes;
-using Ganymed.Utils.ColorTables;
-using Ganymed.Utils.MessageCodes;
+using Ganymed.Utils.ExtensionMethods;
+using Ganymed.Utils.Helper;
 using UnityEngine;
 
 namespace Ganymed.Utils.Editor.AttributeValidation
@@ -31,31 +31,40 @@ namespace Ganymed.Utils.Editor.AttributeValidation
                         if (propertyRestrictionAttribute.RequiresReadAndWrite && !canRead && !canWrite)
                         {
                             var message =
-                                $"Warning: the {CS.Violet}Property{CS.Clear} " +
-                                $"'{CS.Orange}{propertyInfo.Name}{CS.Clear}' in " +
-                                $"'{CS.LightGray}{propertyInfo.DeclaringType?.Namespace}.{CS.Clear}{CS.Blue}{propertyInfo.DeclaringType?.Name}.{propertyInfo.Name}'{CS.Clear} " +
-                                $"requires {CS.Red}read and write accessibility. {CS.Clear}(Getter/Setter)";
-                            Debug.LogWarning(message);
+                                $"Warning: the {RichText.Violet}Property{RichText.ClearColor} " +
+                                $"'{RichText.Orange}{propertyInfo.Name}{RichText.ClearColor}' in " +
+                                $"'{RichText.LightGray}{propertyInfo.DeclaringType?.Namespace}" +
+                                $"{(propertyInfo.DeclaringType?.Namespace.IsNullOrWhiteSpace() ?? false? "" : ".")}" +
+                                $"{RichText.ClearColor}{RichText.LightGray}{propertyInfo.DeclaringType?.Name}." +
+                                $"{RichText.Blue}{propertyInfo.Name}'{RichText.ClearColor}{RichText.ClearColor} " +
+                                $"requires {RichText.Red}read and write accessibility. {RichText.ClearColor}(Getter/Setter)\n";
+                            Debug.LogWarning(message);    
                         }
                         // --- if a getter is required
                         if (propertyRestrictionAttribute.RequiresWrite && !canWrite)
                         {
                             var message =
-                                $"Warning: the {CS.Violet}Property{CS.Clear} " +
-                                $"'{CS.Orange}{propertyInfo.Name}{CS.Clear}' in " +
-                                $"'{CS.LightGray}{propertyInfo.DeclaringType?.Namespace}.{CS.Clear}{CS.Blue}{propertyInfo.DeclaringType?.Name}.{propertyInfo.Name}'{CS.Clear} " +
-                                $"requires {CS.Red}write accessibility. {CS.Clear}(Setter)";
-                            Debug.LogWarning(message);
+                                $"Warning: the {RichText.Violet}Property{RichText.ClearColor} " +
+                                $"'{RichText.Orange}{propertyInfo.Name}{RichText.ClearColor}' in " +
+                                $"'{RichText.LightGray}{propertyInfo.DeclaringType?.Namespace}" +
+                                $"{(propertyInfo.DeclaringType?.Namespace.IsNullOrWhiteSpace() ?? false? "" : ".")}" +
+                                $"{RichText.ClearColor}{RichText.LightGray}{propertyInfo.DeclaringType?.Name}." +
+                                $"{RichText.Blue}{propertyInfo.Name}'{RichText.ClearColor}{RichText.ClearColor} " +
+                                $"requires {RichText.Red}write accessibility. {RichText.ClearColor}(Setter)\n";
+                            Debug.LogWarning(message);    
                         }
                         // --- if a setter is required
                         if (propertyRestrictionAttribute.RequiresRead && !canRead)
                         {
                             var message =
-                                $"Warning: the {CS.Violet}Property{CS.Clear} " +
-                                $"'{CS.Orange}{propertyInfo.Name}{CS.Clear}' in " +
-                                $"'{CS.LightGray}{propertyInfo.DeclaringType?.Namespace}.{CS.Clear}{CS.Blue}{propertyInfo.DeclaringType?.Name}.{propertyInfo.Name}'{CS.Clear} " +
-                                $"requires {CS.Red}read accessibility. {CS.Clear}(Getter)";
-                            Debug.LogWarning(message);
+                                $"Warning: the {RichText.Violet}Property{RichText.ClearColor} " +
+                                $"'{RichText.Orange}{propertyInfo.Name}{RichText.ClearColor}' in " +
+                                $"'{RichText.LightGray}{propertyInfo.DeclaringType?.Namespace}" +
+                                $"{(propertyInfo.DeclaringType?.Namespace.IsNullOrWhiteSpace() ?? false? "" : ".")}" +
+                                $"{RichText.ClearColor}{RichText.LightGray}{propertyInfo.DeclaringType?.Name}." +
+                                $"{RichText.Blue}{propertyInfo.Name}'{RichText.ClearColor}{RichText.ClearColor} " +
+                                $"requires {RichText.Red}read accessibility. {RichText.ClearColor}(Getter)\n";
+                            Debug.LogWarning(message);    
                         }
                     }
                 }

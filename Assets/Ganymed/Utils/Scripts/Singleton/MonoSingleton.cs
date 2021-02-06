@@ -1,4 +1,4 @@
-﻿using Ganymed.Utils.Handler;
+﻿using Ganymed.Utils.Helper;
 using UnityEngine;
 
 namespace Ganymed.Utils.Singleton
@@ -11,8 +11,15 @@ namespace Ganymed.Utils.Singleton
     {
         #region --- [FIELDS] ---
 
-        [SerializeField] private HideFlags gameObjectHideFlags = HideFlags.None;
-        private static T _instance;        
+        private static T _instance;
+
+        public static void SetHideFlags(HideFlags flags)
+        {
+            if (TryGetInstance(out var i))
+            {
+                i.gameObject.hideFlags = flags;
+            }
+        }
 
         #endregion
   
@@ -57,7 +64,6 @@ namespace Ganymed.Utils.Singleton
         protected virtual void Awake()
         {
             if(this == null) return;
-            gameObject.hideFlags = gameObjectHideFlags;
             if(Application.isPlaying)
                 Instance.gameObject.DontDestroyOnLoad();
 

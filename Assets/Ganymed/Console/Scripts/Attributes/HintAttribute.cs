@@ -12,16 +12,16 @@ namespace Ganymed.Console.Attributes
         #region --- [PROPERTIES] ---
 
         /// <summary>
-        /// Includes information about what should and what should not be shown as a hint
+        /// Bitmap containing information about what should and what should not be shown as a hint
         /// </summary>
-        public HintShowFlags Show
+        public HintConfig Show
         {
             get => show;
             set
             {
-                showDefaultValue = value.HasFlag(HintShowFlags.ShowValue);
-                showValueType = value.HasFlag(HintShowFlags.ShowType);
-                showParameterName = value.HasFlag(HintShowFlags.ShowName);
+                ShowDefaultValue = value.HasFlag(HintConfig.ShowValue);
+                ShowValueType = value.HasFlag(HintConfig.ShowType);
+                ShowParameterName = value.HasFlag(HintConfig.ShowName);
                 show = value;
             }
         }
@@ -29,32 +29,28 @@ namespace Ganymed.Console.Attributes
         /// <summary>
         /// General description of the parameter
         /// </summary>
-        public string Description => description;
-        
+        public string Description { get; set; } = null;
+
         /// <summary>
         /// Show the default value as a hint when proposing
         /// </summary>
-        public bool ShowDefaultValue => showDefaultValue;
+        public bool ShowDefaultValue { get; private set; } = false;
 
         /// <summary>
         /// Show the parameters type as a hint when proposing
         /// </summary>
-        public bool ShowValueType => showValueType;
+        public bool ShowValueType { get; private set; } = true;
 
         /// <summary>
         /// Show the parameters name as a hint when proposing
         /// </summary>
-        public bool ShowParameterName => showParameterName;
+        public bool ShowParameterName { get; private set; } = true;
 
         #endregion
 
         #region --- [FIELDS] ---
 
-        private HintShowFlags show;
-        private readonly string description;
-        private bool showDefaultValue = false;
-        private bool showValueType = true;
-        private bool showParameterName = true; 
+        private HintConfig show = HintConfig.None;
 
         #endregion
         
@@ -65,10 +61,27 @@ namespace Ganymed.Console.Attributes
         /// <summary>
         /// Create a new instance of the Hint attribute
         /// </summary>
+        public HintAttribute()
+        {
+            
+        }
+        
+        /// <summary>
+        /// Create a new instance of the Hint attribute
+        /// </summary>
+        /// /// <param name="hintConfig"></param>
+        public HintAttribute(HintConfig hintConfig)
+        {
+            Show = hintConfig;
+        }
+        
+        /// <summary>
+        /// Create a new instance of the Hint attribute
+        /// </summary>
         /// <param name="description"></param>
         public HintAttribute(string description)
         {
-            this.description = description;
+            Description = description;
         }
 
         #endregion

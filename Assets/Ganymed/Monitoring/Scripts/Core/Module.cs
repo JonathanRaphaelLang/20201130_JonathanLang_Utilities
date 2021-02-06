@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Ganymed.Monitoring.Configuration;
 using Ganymed.Utils;
 using Ganymed.Utils.Callbacks;
+using Ganymed.Utils.ExtensionMethods;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -13,72 +14,130 @@ namespace Ganymed.Monitoring.Core
     public abstract class Module : ScriptableObject, IState
     {
         #region --- [INSPECTOR] ---
-        
-        [Tooltip("Enabled modules will execute their update and inspection functions. Comparable to MonoBehaviours")]
+       
+        [Tooltip("Enabled modules will be initialized")]
         [SerializeField] private bool isEnabled = true;
         
-        [Tooltip("Active modules are visible")]
+        [Tooltip("Active modules will execute their update and inspection functions. Comparable to MonoBehaviours")]
         [SerializeField] private bool isActive = true;
+        
+        [Tooltip("Visible modules are visible")]
+        [SerializeField] private bool isVisible = true;
         
         
         
         [Header("Settings")]
         [Tooltip("Set a custom style for the module. False will use the default style instead")]
-        [SerializeField] protected bool useCustomStyle = default;
+        [SerializeField] private bool useCustomStyle = default;
         
-        [Tooltip("If enabled, use this style. Null will use the default style instead")]
-        [SerializeField] protected Configurable customStyle = null;
+        [Tooltip("If visible, use this style. Null will use the default style instead")]
+        [SerializeField] private StyleBase customStyleBase = null;
 
+        [Header("Warnings")]
+        [Tooltip("If visible, custom warnings will (can) be logged")]
+        [SerializeField] private bool enableWarnings = true;
+        
+        [Tooltip("If visible, custom warnings will (can) be logged")]
+        [SerializeField] private bool enableInitializeUpdateEventWarnings = true;
+        
+        [Tooltip("If visible, custom warnings will (can) be logged")]
+        [SerializeField] private bool enableInitializeValueWarnings = true;
+       
         
         
         [Space]
         [Tooltip("How should the value be displayed")]
-        [SerializeField] protected ValueInterpretationOption previewValueAs = ValueInterpretationOption.CurrentValue;
+        [SerializeField] private ValueInterpretationOption previewValueAs = ValueInterpretationOption.Value;
+
+        [Tooltip("Reset the displayed value after exiting playmode.")]
+        [SerializeField] private bool resetValueOnQuit = false;
         
+        
+        
+        [Space]
         [Tooltip("Set custom prefix text")]
-        [SerializeField] protected string prefixText = default;
+        [SerializeField] private string prefixText = default;
         
         [Tooltip("Set custom suffix text")]
-        [SerializeField] protected string suffixText = default;
+        [SerializeField] private string suffixText = default;
         
         [Tooltip("Insert a break after the prefix")]
-        [SerializeField] protected bool prefixBreak = false;
+        [SerializeField] private bool prefixBreak = false;
         
         [Tooltip("Insert a break before the suffix")]
-        [SerializeField] protected bool suffixBreak = false;
+        [SerializeField] private bool suffixBreak = false;
         
         
         
         [Space]
-        [Tooltip("What does the module do. Optional field for clarity only. Can be accessed during runtime by console commands if enabled")]
-        [SerializeField] private string description = default;
+        [Tooltip("What does the module do. Optional field for clarity only. Can be accessed during runtime by console commands if visible")]
+        [SerializeField][TextArea] private string description = default;
         
         
         
         [Space]
-        [Tooltip("If enabled OnInspection will be called periodically. Use to validate the values integrity")]
-        [SerializeField] private bool enableAutoInspection;
+        [Tooltip("If visible OnInspection will be called periodically. Use to validate the values integrity")]
+        [SerializeField] private bool enableAutoInspection = default;
         
         [Tooltip("How much time should pass between inspections")]
         [SerializeField][Range(.1f, 60f)] private float secondsBetweenInspections = 1f;
 
         #endregion
         
+        //--------------------------------------------------------------------------------------------------------------
+        
+        #region --- [PROTECTED PROPERTIES] ---
+        
+        protected bool UseCustomStyle => useCustomStyle;
+
+        protected StyleBase CustomStyleBase => customStyleBase;
+        
+        protected bool EnableWarnings => enableWarnings;
+        protected bool EnableInitializeValueWarnings => enableInitializeValueWarnings;
+        protected bool EnableInitializeUpdateEventWarnings => enableInitializeUpdateEventWarnings;
+
+        
+        
+        protected ValueInterpretationOption PreviewValueAs => previewValueAs;
+
+        protected bool ResetValueOnQuit => resetValueOnQuit;
+        
+        protected string PrefixText => prefixText;
+        protected string SuffixText => suffixText;
+        protected bool PrefixBreak => prefixBreak;
+        protected bool SuffixBreak => suffixBreak;
+        
+        
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+        
         #region --- [FIELDS] ---
 
-        protected Configurable previousConfiguration = null;
-        protected string compiledPrefix = string.Empty;         
-        protected string compiledSuffix = string.Empty;
+        protected StyleBase previousConfiguration = null;
+        protected volatile string compiledPrefix = string.Empty;         
+        protected volatile string compiledSuffix = string.Empty;
         private readonly int id = default;
         private bool wasEnabled = true;
+        private bool wasVisible = true;
         private bool wasActive = true;
 
         #endregion
         
-        #region --- [PROPERTIES] ---
+        //--------------------------------------------------------------------------------------------------------------
+        
+        #region --- [DELEGATES] ---
+
+        public delegate void ModuleActivationDelegate(bool state);
+
+        #endregion
+
+        //--------------------------------------------------------------------------------------------------------------
+        
+        #region --- [PUBLIC PROPERTIES] ---
 
         /// <summary>
-        /// What does the module do. Optional field for clarity only. Can be accessed during runtime by console commands if enabled
+        /// What does the module do. Optional field for clarity only. Can be accessed during runtime by console commands if visible
         /// </summary>
         public string Description => description == string.Empty ? null : description;
         
@@ -95,14 +154,14 @@ namespace Ganymed.Monitoring.Core
         /// <summary>
         /// Modules configuration. Determines objects visual style 
         /// </summary>
-        public Configurable Configuration
+        public StyleBase Configuration
         {
             get
             {
                 try
                 {
-                    if (!useCustomStyle) return MonitorBehaviour.Instance.GlobalConfiguration;
-                    return customStyle ? customStyle : MonitorBehaviour.Instance.GlobalConfiguration;
+                    if (!useCustomStyle) return MonitorBehaviour.Instance.MonitoringConfiguration;
+                    return customStyleBase ? customStyleBase : MonitorBehaviour.Instance.MonitoringConfiguration;
                 }
                 catch
                 {
@@ -112,7 +171,7 @@ namespace Ganymed.Monitoring.Core
         }
 
         #endregion
-
+        
         //--------------------------------------------------------------------------------------------------------------
         
         #region --- [STATIC] ---
@@ -166,11 +225,7 @@ namespace Ganymed.Monitoring.Core
         public static Module GetModule(int? id)
             => ModuleDictionary.TryGetValue(id ?? 0, out var value) ? value : null;
         
-
-        /// <summary>
-        /// Enable / Disable every module.
-        /// </summary>
-        /// <param name="enabled"></param>
+        
         public static void EnableAll(bool enabled)
         {
             foreach (var module in ModuleDictionary)
@@ -178,11 +233,7 @@ namespace Ganymed.Monitoring.Core
                 module.Value.SetEnabled(enabled);
             }
         }
-        
-        /// <summary>
-        /// Activate / Deactivate every module
-        /// </summary>
-        /// <param name="active"></param>
+
         public static void ActivateAll(bool active)
         {
             foreach (var module in ModuleDictionary)
@@ -190,16 +241,24 @@ namespace Ganymed.Monitoring.Core
                 module.Value.SetActive(active);
             }
         }
+
+        public static void ShowAll(bool visible)
+        {
+            foreach (var module in ModuleDictionary)
+            {
+                module.Value.SetVisible(visible);
+            }
+        }
         
         /// <summary>
         /// Enable & Activate / Disable & Deactivate every module
         /// </summary>
         /// <param name="activeAndEnable"></param>
-        public static void ActivateAndEnableAll(bool activeAndEnable)
+        public static void InitializeAll(bool activeAndEnable)
         {
             foreach (var module in ModuleDictionary)
             {
-                module.Value.SetActiveAndEnabled(activeAndEnable);
+                module.Value.SetStates(activeAndEnable);
             }
         }
 
@@ -222,13 +281,14 @@ namespace Ganymed.Monitoring.Core
         /// Enable / Disable automatic inspection. This will invoke a asymmetric loop calling OnInspection repeatedly.
         /// </summary>
         /// <param name="value"></param>
-        protected void SetAutoInspection(bool? value = null)
+        protected internal void InitializeAutoInspection(bool? value = null)
         {
             CancelInspection();
-            enableAutoInspection = value ?? enableAutoInspection;
-            if(Application.isPlaying && enableAutoInspection) StartInspection();
+            runInspection = value ?? enableAutoInspection;
+            if(Application.isPlaying && runInspection) StartInspection();
         }
 
+        private bool runInspection;
         
         /// <summary>
         /// Cancel Inspection Task and create a new CancellationTokenSource
@@ -244,7 +304,7 @@ namespace Ganymed.Monitoring.Core
         /// </summary>
         private async void StartInspection()
         {
-            while (enableAutoInspection)
+            while (runInspection && isActive)
             {
                 try
                 {
@@ -265,142 +325,189 @@ namespace Ganymed.Monitoring.Core
         //--------------------------------------------------------------------------------------------------------------
         
         #region --- [STATE] ---
-        
+
         /// <summary>
-        /// Event is invoked if the modules active and / or enabled state has changed
+        /// 
         /// </summary>
-        public event ActiveAndEnabledDelegate OnActiveAndEnabledStateChanged;
+        public event ActiveAndVisibleDelegate OnAnyStateChanged;
+        protected void InvokeOnAnyStateChanged() => OnAnyStateChanged?.Invoke(isEnabled, isActive, isVisible);    
         
         /// <summary>
-        /// Event is invoked if the modules active state has changed
+        /// 
+        /// </summary>
+        public event EnabledDelegate OnEnabledStateChanged;
+
+        /// <summary>
+        /// 
         /// </summary>
         public event ActiveDelegate OnActiveStateChanged;
         
         /// <summary>
-        /// Event is invoked if the modules enabled state has changed
+        /// 
         /// </summary>
-        public event EnabledDelegate OnEnabledStateChanged;
-        
-        
+        public event VisibilityDelegate OnVisibilityStateChanged;
+
         public bool IsEnabled
         {
             get => isEnabled;
             private set
             {
-                if (!value)
-                {
-                    SetActiveAndEnabled(false);
-                }
-                    
+                if(!value) SetStates(false);
                 else
                 {
-                    // We subscribe Tick to Update if we enable it
-                    if (!wasEnabled) {
-                        UnityEventCallbacks.AddEventListener(
-                            listener: Tick, 
-                            removePreviousListener: true,
-                            ApplicationState.PlayMode,
-                            UnityEventType.Update);
-                        
-                        OnModuleEnabled();
-                    }
-                        
+                    if (wasEnabled) return;
                     
+                    StartInitialization(UnityEventType.InspectorUpdate);
+                    ModuleEnabled();
+                        
                     isEnabled = true;
                     wasEnabled = isEnabled;
-            
-                    OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+
+                    OnAnyStateChanged?.Invoke(IsEnabled, IsActive, IsVisible);
                     OnEnabledStateChanged?.Invoke(true);
                 }
             }
         }
-        
-        /// <summary>
-        /// Enable / Disable the module
-        /// </summary>
-        /// <param name="enabled"></param>
-        public void SetEnabled(bool enabled)
-            => IsEnabled = enabled;
-        
-        /// <summary>
-        /// Enable / Disable the module
-        /// </summary>
-        /// <param name="enabled"></param>
-        public void SetEnabled(bool? enabled = null)
-            => IsEnabled = enabled ?? isEnabled;
 
+
+        public void SetEnabled(bool enable)
+            => IsEnabled = enable;
+        
+        public void SetEnabled(bool? enable = null)
+            => IsEnabled = enable ?? isEnabled;
+        
         
         public bool IsActive
         {
             get => isActive;
             private set
             {
-                if(!isEnabled) return;
-                
-                if (!wasActive && value)
-                    OnModuleActivated();
-                if (wasActive && !value)
-                    OnModuleDeactivated();
+                if (!value)
+                {
+                    if (wasActive) {
+                        UnityEventCallbacks.RemoveEventListener(Tick, ApplicationState.PlayMode, UnityEventType.Update);
+                        ModuleDeactivated();
+                    }
+
+                    CancelInspection();
+                    IsVisible = false;
+                }
+                else
+                {
+                    // We subscribe Tick to Update if we enable it
+                    if (!wasActive) {
+                        UnityEventCallbacks.AddEventListener(
+                            listener: Tick, 
+                            removePreviousListener: true,
+                            ApplicationState.PlayMode,
+                            UnityEventType.Update);
+                        InitializeAutoInspection();
+                        ModuleActivated();
+                    }
+                }
                 
                 isActive = value;
                 wasActive = isActive;
-                
-                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+                OnAnyStateChanged?.Invoke(IsEnabled, IsActive, IsVisible);
                 OnActiveStateChanged?.Invoke(value);
             }
         }
         
-        /// <summary>
-        /// Activate / Deactivate the module
-        /// </summary>
-        /// <param name="active"></param>
         public void SetActive(bool active)
-            => IsActive = isEnabled? active : isActive;
+            => IsActive = active;
         
-        /// <summary>
-        /// Activate / Deactivate the module
-        /// </summary>
-        /// <param name="active"></param>
         public void SetActive(bool? active = null)
-            => IsActive = isEnabled? active ?? isActive : isActive;
-        
+            => IsActive = active ?? isActive;
 
-        public bool IsActiveAndEnabled
+        
+        public bool IsVisible
         {
-            get => IsEnabled && IsActive;
+            get => isVisible;
             private set
             {
-                if (!wasEnabled && value) {
+                if (!value)
+                {
+                    isVisible = false;
+                    if(wasVisible) ModuleInvisible();
+                    wasVisible = isVisible;
+                    OnAnyStateChanged?.Invoke(IsEnabled, IsActive, false);
+                    OnVisibilityStateChanged?.Invoke(false);
+                }
+                else
+                {
+                    if(!isEnabled) return;
+                    if(!isActive) return;
+                
+                    if (!wasVisible)
+                        ModuleVisible();
+                
+                    isVisible = true;
+                    wasVisible = isVisible;
+                
+                    OnAnyStateChanged?.Invoke(IsEnabled, IsActive, IsVisible);
+                    OnVisibilityStateChanged?.Invoke(true);
+                }
+            }
+        }
+        
+        public void SetVisible(bool visible)
+            => IsVisible = isActive && visible;
+
+        public void SetVisible(bool? visible = null)
+            => IsVisible = isActive && (visible ?? isVisible);
+        
+
+        public bool IsEnabledActiveAndVisible
+        {
+            get => IsEnabled && IsActive && IsVisible;
+            private set
+            {
+                if (!wasEnabled && value)
+                {
+                    StartInitialization(UnityEventType.InspectorUpdate);
+                    ModuleEnabled();
+                }
+                if (wasEnabled && !value)
+                {
+                    ModuleDisabled(); 
+                }
+                   
+                
+                if (!wasActive && value) {
                     UnityEventCallbacks.AddEventListener(Tick, true, ApplicationState.PlayMode, UnityEventType.Update);
-                    OnModuleEnabled();
+                    ModuleActivated();
                 }
-                if (wasEnabled && !value) {
+                if (wasActive && !value) {
                     UnityEventCallbacks.RemoveEventListener(Tick, ApplicationState.PlayMode, UnityEventType.Update);
-                    OnModuleDisabled();
+                    ModuleDeactivated();
                 }
-                if (!wasActive && value)
-                    OnModuleActivated();
-                if (wasActive && !value)
-                    OnModuleDeactivated();
                 
-                
+                if (!wasVisible && value)
+                    ModuleVisible();
+                if (wasVisible && !value)
+                    ModuleInvisible();
+
+
                 isEnabled = value;
                 isActive = value;
+                isVisible = value;
                 wasEnabled = isEnabled;
                 wasActive = isActive;
+                wasVisible = isVisible;
 
-                OnActiveAndEnabledStateChanged?.Invoke(IsActive, IsEnabled);
+                OnAnyStateChanged?.Invoke(IsEnabled, IsActive, IsVisible);
                 OnEnabledStateChanged?.Invoke(value);
                 OnActiveStateChanged?.Invoke(value);
+                OnVisibilityStateChanged?.Invoke(value);
             }
         }
         
         /// <summary>
-        /// Set the active and enabled state of the module
+        /// Set the visible and visible state of the module
         /// </summary>
         /// <param name="value"></param>
-        public void SetActiveAndEnabled(bool value)
-            => IsActiveAndEnabled = value;
+        public void SetStates(bool value)
+            => IsEnabledActiveAndVisible = value;
 
         #endregion
         
@@ -409,37 +516,68 @@ namespace Ganymed.Monitoring.Core
         #region --- [VIRTUAL] ---
 
         /// <summary>
-        /// Method is called repeatedly if auto inspection and the module are enabled.
-        /// Delay between calls can be determined in the inspector
+        /// Tick is called every Unity-Update if the module is visible.
         /// </summary>
-        protected virtual void OnInspection() {}
+        protected virtual void Tick()
+        {
+        }
         
+        /// <summary>
+        /// Method is called repeatedly if auto inspection and the module are visible.
+        /// Delay between calls can be set in the inspector
+        /// </summary>
+        protected virtual void OnInspection()
+        {
+        }
 
         /// <summary>
-        /// Tick is called every Unity-Update if the module is enabled.
+        /// ModuleEnabled is called when the module is enabled
         /// </summary>
-        protected virtual void Tick() {}
-        
+        protected virtual void ModuleEnabled()
+        {
+        }
+
+        /// <summary>
+        /// ModuleDisabled is called when the module is disabled
+        /// </summary>
+        protected virtual void ModuleDisabled()
+        {
+        }
+
+        /// <summary>
+        /// ModuleActivated is called when the module is activated
+        /// </summary>
+        protected virtual void ModuleActivated()
+        {
+        }
+
+        /// <summary>
+        /// ModuleDeactivated is called when the module is deactivated
+        /// </summary>
+        protected virtual void ModuleDeactivated()
+        {
+        }
         
         /// <summary>
-        /// OnModuleEnabled is called when the module is enabled
+        /// ModuleActivated is called when the module is set visible
         /// </summary>
-        protected virtual void OnModuleEnabled(){}
-        
+        protected virtual void ModuleVisible()
+        {
+        }
+
         /// <summary>
-        /// OnModuleDisabled is called when the module is disabled
+        /// ModuleDeactivated is called when the module is set invisible
         /// </summary>
-        protected virtual void OnModuleDisabled(){}
-        
+        protected virtual void ModuleInvisible()
+        {
+        }
+
         /// <summary>
-        /// OnModuleActivated is called when the module is activated
+        /// OnQuit is called either when exiting playMode or when quitting the application.
         /// </summary>
-        protected virtual void OnModuleActivated(){}
-        
-        /// <summary>
-        /// OnModuleDeactivated is called when the module is deactivated
-        /// </summary>
-        protected virtual void OnModuleDeactivated(){}
+        protected virtual void OnQuit()
+        {
+        }
 
         #endregion
         
@@ -471,13 +609,27 @@ namespace Ganymed.Monitoring.Core
                     num++;
                 }
             } while (doAgain);
+
+            AfterConstruction();
+        }
+
+        private async void AfterConstruction()
+        {
+            await Task.Delay(1);
+            if(IsEnabled) ModuleEnabled();
+            if(IsActive) ModuleActivated();
+            if(IsVisible) ModuleVisible();
         }
 
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
         
-        #region --- [ABSTRACT] ---
+        #region --- [GENERIC OVERRIDES] ---
+        
+        // The abstract member in this region are overriden by the generic inheritor class. 
+
+        public abstract void SetValueDirty<U>(U value);
         
         /// <summary>
         /// Get the type modules type as string.
@@ -489,13 +641,13 @@ namespace Ganymed.Monitoring.Core
         /// Get the type of the modules value.
         /// </summary>
         /// <returns></returns>
-        public abstract Type GetTypeOfT();
+        public abstract Type ValueType();
 
         /// <summary>
         /// Get the value of the modules value T
         /// </summary>
         /// <returns></returns>
-        public abstract object GetValueOfT();
+        public abstract object GetValue();
         
         
         /// <summary>
@@ -510,20 +662,26 @@ namespace Ganymed.Monitoring.Core
         /// <param name="interpretationOption"></param>
         /// <returns></returns>
         public abstract string GetState(ValueInterpretationOption interpretationOption);
-        
+
+
+        /// <summary>
+        /// Force the canvas elements to update.
+        /// </summary>
+        /// <param name="origin"></param>
+        public abstract void Repaint(InvokeOrigin origin);
         
         
         /// <summary>
         /// Add a listener to the modules Repaint event
         /// </summary>
         /// <param name="listener"></param>
-        public abstract void AddOnRepaintChangedListener(Action<Configuration.Configurable, string, InvokeOrigin> listener);
+        public abstract void AddOnRepaintChangedListener(Action<Configuration.StyleBase, string, InvokeOrigin> listener);
        
         /// <summary>
         /// Remove a listener form the modules Repaint event
         /// </summary>
         /// <param name="listener"></param>
-        public abstract void RemoveOnRepaintChangedListener(Action<Configuration.Configurable, string, InvokeOrigin> listener);
+        public abstract void RemoveOnRepaintChangedListener(Action<Configuration.StyleBase, string, InvokeOrigin> listener);
         
         
         
@@ -556,14 +714,17 @@ namespace Ganymed.Monitoring.Core
         /// </summary>
         /// <param name="invoker"></param>
         /// <param name="invert"></param>
-        public abstract void SetActiveDelegate(ref Action<bool> invoker, bool invert = false);
+        public abstract void InitializeActivationEvent(ref ModuleActivationDelegate invoker, bool invert = false);
         
         /// <summary>
         /// Set delegate that will automatically enable/disable the module
         /// </summary>
         /// <param name="invoker"></param>
         /// <param name="invert"></param>
-        public abstract void SetEnableDelegate(ref Action<bool> invoker, bool invert = false);
+        public abstract void InitializeEnableEvent(ref ModuleActivationDelegate invoker, bool invert = false);
+
+
+        protected abstract void StartInitialization(UnityEventType context);
 
         #endregion
     }

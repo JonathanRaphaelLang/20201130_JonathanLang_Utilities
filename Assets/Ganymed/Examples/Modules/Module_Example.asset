@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d58519377bb80643a16d0be235f7625, type: 3}
+  m_Name: Module_Example
+  m_EditorClassIdentifier: 
+  isEnabled: 1
+  isActive: 1
+  isVisible: 1
+  useCustomStyle: 0
+  customStyleBase: {fileID: 11400000, guid: ddebabe2d11477147b0af5c1573e28ee, type: 2}
+  enableWarnings: 1
+  enableInitializeUpdateEventWarnings: 1
+  enableInitializeValueWarnings: 1
+  previewValueAs: 0
+  resetValueOnQuit: 0
+  prefixText: 
+  suffixText: 
+  prefixBreak: 0
+  suffixBreak: 0
+  description: 
+  enableAutoInspection: 1
+  secondsBetweenInspections: 1
+  myValue: 0

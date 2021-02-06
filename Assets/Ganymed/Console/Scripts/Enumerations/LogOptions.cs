@@ -11,6 +11,7 @@ namespace Ganymed.Console
         IsInput = 4,
         EndLine = 8,
         Tab = 16,
-        Cross = 32
+        Cross = 32,
+        Bold = 64,
     }
 }

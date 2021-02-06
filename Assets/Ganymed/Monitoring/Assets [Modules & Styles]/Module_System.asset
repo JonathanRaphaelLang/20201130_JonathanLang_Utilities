@@ -14,16 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isEnabled: 1
   isActive: 1
+  isVisible: 1
   useCustomStyle: 1
-  customStyle: {fileID: 11400000, guid: aba09950eddcdaf4a83cf49d79fcf857, type: 2}
+  customStyleBase: {fileID: 11400000, guid: aba09950eddcdaf4a83cf49d79fcf857, type: 2}
+  enableWarnings: 1
+  enableInitializeUpdateEventWarnings: 1
+  enableInitializeValueWarnings: 0
   previewValueAs: 0
+  resetValueOnQuit: 0
   prefixText: 'System     : Information'
   suffixText: 
   prefixBreak: 1
   suffixBreak: 0
-  description: 
+  description: Displays mostly static information about the current environment /
+    system.
   enableAutoInspection: 0
-  secondsBetweenInspections: 1
+  secondsBetweenInspections: 60
   selectAll: 1
   operatingSystem: 1
   processorType: 1
@@ -32,10 +38,10 @@ MonoBehaviour:
   graphicsDeviceName: 1
   graphicsMemorySize: 1
   graphicsDeviceType: 1
-  graphicsMultiThreaded: 0
+  graphicsMultiThreaded: 1
   renderingThreadingMode: 1
   batteryLevel: 1
-  batteryStatus: 0
-  deviceModel: 0
-  deviceType: 0
+  batteryStatus: 1
+  deviceModel: 1
+  deviceType: 1
   deviceUniqueIdentifier: 0

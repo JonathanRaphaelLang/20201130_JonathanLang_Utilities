@@ -1,4 +1,5 @@
 ﻿using Ganymed.Utils.Attributes;
+using UnityEngine;
 
 namespace Ganymed.Console.Attributes
 {
@@ -6,8 +7,11 @@ namespace Ganymed.Console.Attributes
     /// This attribute will expose the property/field to be altered via console commands.
     /// </summary>
     [PropertyAccessRequirement(RequiresWrite = true)]
-    [TargetTypeRestriction(AllowStrings = true, AllowPrimitives = true, AllowEnums = true, AllowStruct = true)]
-    public sealed class SetterAttribute : GetterSetterAttribute, ISetter
+    [TargetTypeRestriction(AllowStrings = true, AllowPrimitives = true, AllowEnums = true, AllowStruct = false)]
+    [TargetTypeRestriction(typeof(Vector2), typeof(Vector3), typeof(Vector4))]
+    [TargetTypeRestriction(typeof(Vector2Int), typeof(Vector3Int))]
+    [TargetTypeRestriction(typeof(Color), typeof(Color32))]
+    public sealed class SetterAttribute : GetterSetterBase, ISetter
     {
         #region --- [PROPERTIES] ---
 

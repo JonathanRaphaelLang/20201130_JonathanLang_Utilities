@@ -13,12 +13,12 @@ namespace Ganymed.Console.Attributes
         #region --- [PROPERTIES] ---
 
         /// <summary>
-        /// Contains input strings to suggest
+        /// Contains a collection of potential suggestions
         /// </summary>
         public readonly string[] Suggestions;
 
         /// <summary>
-        /// Should case be ignored when comparing input with suggestions
+        /// Should case be ignored when comparing input strings with suggestions
         /// </summary>
         public bool IgnoreCase { get; set; }
 
@@ -27,13 +27,15 @@ namespace Ganymed.Console.Attributes
         #region --- [METHODS] ---
 
         /// <summary>
-        /// Aggregate and return a string containing every suggestion split by '&'. 
+        /// Aggregate and return a string containing every suggestion split by character. 
         /// </summary>
         /// <returns>Every suggestion</returns>
-        public string GetAllSuggestions()
+        public string GetAllSuggestions(char split = '&')
         {
-            var aggregate = Suggestions.Aggregate(string.Empty, (current, VARIABLE) => current + $" {'"'}{VARIABLE}{'"'} &");
-            return aggregate.Remove(aggregate.Length - 1, 1);
+            var all = Suggestions.Aggregate(
+                string.Empty, (current, VARIABLE) => current + $" {'"'}{VARIABLE}{'"'} {split}");
+            
+            return all.Remove(all.Length - 1, 1); //remove the last split character
         }
 
         #endregion
@@ -43,15 +45,22 @@ namespace Ganymed.Console.Attributes
         #region --- [CONSTRUCTOR] ---
 
         /// <summary>
-        /// Create a new instance of the Suggestion attribute.
         /// Suggestions are used by the console to make custom autocompletion suggestions during runtime.
         /// </summary>
+        /// <param name="suggestion"></param>
         /// <param name="suggestions"></param>
-        public SuggestionAttribute(params string[] suggestions)
+        public SuggestionAttribute(string suggestion, params string[] suggestions)
         {
-            Suggestions = suggestions;
-            if(Suggestions.Length <= 0) Suggestions = new string[1]{"N/A"};
+            Suggestions = new string[suggestions.Length + 1];
+            Suggestions[0] = suggestion;
+
+            for (var i = 0; i < suggestions.Length; i++)
+            {
+                Suggestions[i + 1] = suggestions[i];
+            }
         }
+        
+        private SuggestionAttribute() { }
 
         #endregion
     }

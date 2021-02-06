@@ -14,14 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isEnabled: 1
   isActive: 1
+  isVisible: 1
   useCustomStyle: 1
-  customStyle: {fileID: 11400000, guid: e6f4ee320597d064f94ee3e6d140c4a6, type: 2}
+  customStyleBase: {fileID: 11400000, guid: e6f4ee320597d064f94ee3e6d140c4a6, type: 2}
+  enableWarnings: 1
+  enableInitializeUpdateEventWarnings: 1
+  enableInitializeValueWarnings: 0
   previewValueAs: 0
+  resetValueOnQuit: 1
   prefixText: 
   suffixText: fps
   prefixBreak: 0
   suffixBreak: 0
-  description: 
+  description: Displays the recent average frames per second measured over a short
+    period of time.
   enableAutoInspection: 0
   secondsBetweenInspections: 1
   preDecimalPlaces: 3

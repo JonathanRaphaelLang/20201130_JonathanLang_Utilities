@@ -496,6 +496,7 @@ GameObject:
   - component: {fileID: 3765565696045478584}
   - component: {fileID: 3765565696045478535}
   - component: {fileID: 6833722303368168578}
+  - component: {fileID: 411868150040834582}
   m_Layer: 5
   m_Name: MonitorCanvas
   m_TagString: Untagged
@@ -595,7 +596,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e64f45fb6858014a88dc69b039737d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameObjectHideFlags: 0
+  showFields: 0
   upperLeft: {fileID: 3765565696128947750}
   upperRight: {fileID: 3765565695838608401}
   lowerLeft: {fileID: 3765565695748731223}
@@ -615,7 +616,6 @@ MonoBehaviour:
   lowerLeftBackground: {fileID: 3765565695748731208}
   lowerRightBackground: {fileID: 3765565695116917986}
   canvas: {fileID: 3765565696045478585}
-  autoRename: 1
   parentsToClear:
   - {fileID: 3765565696128947750}
   - {fileID: 3765565695748731223}
@@ -623,6 +623,24 @@ MonoBehaviour:
   - {fileID: 3765565695116917984}
   isEnabled: 1
   isActive: 1
+  isVisible: 0
+--- !u!114 &411868150040834582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3765565696045478534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b267fc0c0c4ca843ac8948ccf176ca2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  executeOn: 0
+  enableInEditMode: 0
+  enable: 1
+  parent: 2
+  customParentTransform: {fileID: 0}
 --- !u!1 &3765565696128947749
 GameObject:
   m_ObjectHideFlags: 0
