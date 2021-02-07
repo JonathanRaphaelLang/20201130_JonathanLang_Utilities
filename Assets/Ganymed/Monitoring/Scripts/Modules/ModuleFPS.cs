@@ -69,6 +69,7 @@ namespace Ganymed.Monitoring.Modules
         protected override void OnInitialize()
         { 
             InitializeUpdateEvent(ref OnValueChanged);
+            InitializeValue();
             MeasurePeriod = measurePeriod;
             ResetValues();
             CompileMarkup();

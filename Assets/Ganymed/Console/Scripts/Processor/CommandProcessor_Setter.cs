@@ -304,7 +304,7 @@ namespace Ganymed.Console.Processor
 
         private static void LogSetter(bool separateShortcuts = false)
         {
-            Transmission.Start(TransmissionOptions.Enumeration);
+            if(!Transmission.Start(TransmissionOptions.Enumeration)) return;
 
             Transmission.AddTitle($"{nameof(CommandProcessor)} Setter");
             Transmission.AddBreak();
@@ -623,6 +623,7 @@ namespace Ganymed.Console.Processor
             out InputValidation validation)
         {
             var rawInput = input;
+            
             description = rawInput;
             proposal = rawInput;
             validation = InputValidation.Optional;

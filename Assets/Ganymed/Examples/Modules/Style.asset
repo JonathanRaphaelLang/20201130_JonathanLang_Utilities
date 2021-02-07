@@ -10,27 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eed0026910520ba42997879e62fcfba3, type: 3}
-  m_Name: Module_Example_Style
+  m_Name: Style
   m_EditorClassIdentifier: 
-  fontSize: 11
-  individualFontSize: 0
-  prefixFontSize: 11
-  infixFontSize: 11
-  suffixFontSize: 11
+  fontSize: 8.8
+  individualFontSize: 1
+  prefixFontSize: 8
+  infixFontSize: 10
+  suffixFontSize: 8
   individualMargins: 0
-  marginsAll: 5
-  marginLeft: 5
-  marginTop: 5
-  marginRight: 5
-  marginBottom: 5
+  marginsAll: 2
+  marginLeft: 2
+  marginTop: 2
+  marginRight: 2
+  marginBottom: 2
   alignment: 257
   autoBrackets: 1
-  autoSpace: 1
+  autoSpace: 0
   useCustomRichText: 0
   prefixTextStyle: 
   infixTextStyle: 
   suffixTextStyle: 
   colorBackground: {r: 0.05, g: 0.05, b: 0.11, a: 1}
   prefixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}
-  infixColor: {r: 1, g: 1, b: 1, a: 1}
+  infixColor: {r: 0.5518868, g: 0.95774364, b: 1, a: 1}
   suffixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}

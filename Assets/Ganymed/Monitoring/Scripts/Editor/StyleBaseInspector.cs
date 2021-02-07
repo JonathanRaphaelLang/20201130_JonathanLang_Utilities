@@ -1,4 +1,5 @@
-﻿using Ganymed.Monitoring.Configuration;
+﻿using System;
+using Ganymed.Monitoring.Configuration;
 using Ganymed.Utils;
 using Ganymed.Utils.Editor;
 using Ganymed.Utils.ExtensionMethods;
@@ -14,18 +15,18 @@ namespace Ganymed.Monitoring.Editor
     {
         private StyleBase styleBase;
 
+        protected virtual void OnEnable()
+        {
+            styleBase = (StyleBase) target;
+        }
+
         public override void OnInspectorGUI()
         {
             DrawStyleInspector();
         }
 
-        protected void DrawStyleInspector(string title = "Config")
+        protected void DrawStyleInspector(string title = "Style")
         {
-            DrawPropertiesExcluding(serializedObject, "m_Script");
-            
-            styleBase = (StyleBase) target;
-            base.OnInspectorGUI();
-
             EditorGUILayout.Space();
     
             EditorGUILayout.LabelField(title, GUIHelper.H1);

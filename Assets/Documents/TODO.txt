@@ -1,6 +1,4 @@
-//TODO: Add params array support for console commands.
-//TODO: Fix string arguments for commands with multiple parameters.
 //TODO: Complete Documentation.
-//TODO: Add Example Modules [X]
 //TODO: Add Module Creation to documentation.
-//TODO: Add support for multiple module layouts
+//TODO: Update console configuration docs.
+//TODO: Fix string arguments with multiple parameters.

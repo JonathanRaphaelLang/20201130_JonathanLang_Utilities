@@ -40,6 +40,8 @@ MonoBehaviour:
   closeCanvasOnEdit: 0
   toggleKey: 284
   sortingOrder: 1000
+  hideCanvasGameObject: 1
+  enableLifePreview: 1
   logValidationEvents: 0
   canvasPadding: 0
   canvasMargin: 1

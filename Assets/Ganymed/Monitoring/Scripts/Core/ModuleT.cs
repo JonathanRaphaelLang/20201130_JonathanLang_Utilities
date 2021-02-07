@@ -65,7 +65,7 @@ namespace Ganymed.Monitoring.Core
         /// <summary>
         /// The last and/or cached newValue of T
         /// </summary>
-        protected T Value => value;
+        [SerializeField] [HideInInspector] protected T Value => value;
         
         /// <summary>
         /// The current newValue of T
@@ -111,7 +111,7 @@ namespace Ganymed.Monitoring.Core
         {
             do
             {
-                await Task.Delay(1);
+                await Task.CompletedTask.BreakContext();
             } while (Configuration == null);
             
             if (previousConfiguration != null)
@@ -121,11 +121,23 @@ namespace Ganymed.Monitoring.Core
             previousConfiguration = Configuration;
             
             Repaint(InvokeOrigin.GUI);
+
+            ValidateState();
             
-            SetEnabled();
-            SetActive();
-            SetVisible();
             InitializeAutoInspection();
+
+            if (OnlyInitializeWhenInScene && !HasSceneObject())
+            {
+                UnityEventCallbacks.RemoveEventListener(Tick, ApplicationState.PlayMode, UnityEventType.Update);
+            }
+            else if(IsActive)
+            {
+                UnityEventCallbacks.AddEventListener(
+                    listener: Tick,
+                    removePreviousListener: true,
+                    callbackDuring: ApplicationState.PlayMode,
+                    callbackTypes: UnityEventType.Update);
+            }
         }
        
         
@@ -135,28 +147,35 @@ namespace Ganymed.Monitoring.Core
         /// <returns></returns>
         private Task CompileContent()
         {
-            compiledPrefix =  
-                $"{Configuration.PrefixTextStyle}" +
-                $"{(Configuration.IndividualFontSize? Configuration.PrefixFontSize.ToFontSize() : Configuration.fontSize.ToFontSize())}" +
-                $"{Configuration.PrefixColor.AsRichText()}" +
-                $"{PrefixText}" +
-                $"{(Configuration.AutoSpace ? (PrefixText.Length > 0)? " " : string.Empty : string.Empty)}" +
-                $"{(PrefixBreak ? "\n" : string.Empty)}" +
-                $"{Configuration.InfixTextStyle}" +
-                $"{(Configuration.IndividualFontSize? Configuration.InfixFontSize.ToFontSize() : Configuration.fontSize.ToFontSize())}" +
-                $"{Configuration.InfixColor.AsRichText()}" +
-                $"{(Configuration.AutoBrackets? "[" : string.Empty)}";
+            try
+            {
+                compiledPrefix =
+                    $"{Configuration.PrefixTextStyle}" +
+                    $"{(Configuration.IndividualFontSize ? Configuration.PrefixFontSize.ToFontSize() : Configuration.fontSize.ToFontSize())}" +
+                    $"{Configuration.PrefixColor.AsRichText()}" +
+                    $"{PrefixText}" +
+                    $"{(Configuration.AutoSpace ? (PrefixText.Length > 0) ? " " : string.Empty : string.Empty)}" +
+                    $"{(PrefixBreak ? "\n" : string.Empty)}" +
+                    $"{Configuration.InfixTextStyle}" +
+                    $"{(Configuration.IndividualFontSize ? Configuration.InfixFontSize.ToFontSize() : Configuration.fontSize.ToFontSize())}" +
+                    $"{Configuration.InfixColor.AsRichText()}" +
+                    $"{(Configuration.AutoBrackets ? "[" : string.Empty)}";
 
-            compiledSuffix =  
-                $"{(SuffixBreak ? "\n" : string.Empty)}" +
-                $"{(Configuration.AutoBrackets?$"{Configuration.InfixColor.AsRichText()}]": string.Empty)}" +
-                $"{Configuration.SuffixTextStyle}" +
-                $"{(Configuration.IndividualFontSize? Configuration.SuffixFontSize.ToFontSize() : Configuration.fontSize.ToFontSize())}" +
-                $"{Configuration.SuffixColor.AsRichText()}" +
-                $"{(Configuration.AutoSpace? " " : string.Empty)}" +
-                $"{SuffixText}";
-            
-            return Task.CompletedTask;
+                compiledSuffix =
+                    $"{(SuffixBreak ? "\n" : string.Empty)}" +
+                    $"{(Configuration.AutoBrackets ? $"{Configuration.InfixColor.AsRichText()}]" : string.Empty)}" +
+                    $"{Configuration.SuffixTextStyle}" +
+                    $"{(Configuration.IndividualFontSize ? Configuration.SuffixFontSize.ToFontSize() : Configuration.fontSize.ToFontSize())}" +
+                    $"{Configuration.SuffixColor.AsRichText()}" +
+                    $"{(Configuration.AutoSpace ? " " : string.Empty)}" +
+                    $"{SuffixText}";
+
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
         }
 
         #endregion
@@ -251,7 +270,7 @@ namespace Ganymed.Monitoring.Core
         /// Add a listener to the moduleDictionary repaint event
         /// </summary>
         /// <param name="listener"></param>
-        public sealed override void AddOnRepaintChangedListener(Action<StyleBase, string, InvokeOrigin> listener)
+        public sealed override void AddOnRepaintListener(Action<StyleBase, string, InvokeOrigin> listener)
         {
             OnRepaint -= listener;
             OnRepaint += listener;
@@ -415,6 +434,7 @@ namespace Ganymed.Monitoring.Core
                 true,
                 ApplicationState.EditAndPlayMode,
                 UnityEventType.InspectorUpdate);
+
         }
 
         #endregion
@@ -423,17 +443,12 @@ namespace Ganymed.Monitoring.Core
         
         #region --- [INITIALIZATION] ---
         
-        protected sealed override async void StartInitialization(UnityEventType context)
+        private protected sealed override async void StartInitialization(UnityEventType context)
         {
             if(!IsEnabled) return;
+            if(OnlyInitializeWhenInScene && !HasSceneObject()) return;
             
             await ValidateAsync();
-            
-            if(IsActive) UnityEventCallbacks.AddEventListener(
-                listener: Tick,
-                removePreviousListener: true,
-                callbackDuring: ApplicationState.PlayMode,
-                callbackTypes: UnityEventType.Update);
 
             PrepareInitialization();
             OnInitialize();
@@ -524,9 +539,25 @@ namespace Ganymed.Monitoring.Core
         /// Override the default newValue of T 
         /// </summary>
         /// <param name="newValue">new default</param>
-        protected void InitializeValue(T newValue = default)
+        protected void InitializeValue(T newValue)
         {
             value = (T)(newValue as object ?? Default);
+            Default = (T)(Default as object ?? value);
+            
+            if (value == null) {
+                Debug.LogException(new Exception($"Warning. No Default Instance of {typeof(T)} could be instantiated!\n " +
+                                                 $"Only nullable types with an accessible default constructor are supported!"));
+            }
+            
+            valueInitialized = true;
+        }
+        
+        /// <summary>
+        /// Override the default newValue of T 
+        /// </summary>
+        protected void InitializeValue()
+        {
+            value = (T)(value as object ?? Default);
             Default = (T)(Default as object ?? value);
             
             if (value == null) {

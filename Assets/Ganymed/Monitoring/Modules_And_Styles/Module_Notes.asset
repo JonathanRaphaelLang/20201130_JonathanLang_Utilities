@@ -15,6 +15,7 @@ MonoBehaviour:
   isEnabled: 1
   isActive: 1
   isVisible: 1
+  onlyInitializeWhenInScene: 0
   useCustomStyle: 1
   customStyleBase: {fileID: 11400000, guid: 47ea04ea15eac2948bc64a908661520a, type: 2}
   enableWarnings: 0
@@ -22,7 +23,7 @@ MonoBehaviour:
   enableInitializeValueWarnings: 0
   previewValueAs: 0
   resetValueOnQuit: 0
-  prefixText: NOTES
+  prefixText: NOTES / TODOs
   suffixText: 
   prefixBreak: 0
   suffixBreak: 0

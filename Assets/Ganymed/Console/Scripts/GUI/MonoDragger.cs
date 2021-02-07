@@ -1,5 +1,6 @@
 ﻿using System;
-using Ganymed.Utils.ExtensionMethods; // Required On Build
+using Ganymed.Utils.ExtensionMethods;
+using TMPro; // Required On Build
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -9,7 +10,10 @@ namespace Ganymed.Console.GUI
     public class MonoDragger : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
     {
         #region --- [FIELDS] ---
-
+        
+        [SerializeField] private float tolerance = 10f;
+        [SerializeField] private TextMeshProUGUI ConsoleTextMesh = null;
+        
         private Vector2 lastMousePosition;
         private Vector2 mousePosition;
         private Vector2 mousePositionDifference;
@@ -22,9 +26,23 @@ namespace Ganymed.Console.GUI
 
         public static event Action OnPositionChanged;
 
-        [SerializeField] private float tolerance = 10f;
+        private bool disableOnDrag = true;
+        
         #endregion
 
+        //--------------------------------------------------------------------------------------------------------------
+        
+        #region --- [SUBSCRIPTIONS] ---
+
+        private void OnEnable() => Core.Console.OnConsoleRenderSettingsUpdate += UpdateRenderSettings;
+        private void OnDisable() => Core.Console.OnConsoleRenderSettingsUpdate -= UpdateRenderSettings;
+        private void OnDestroy() => Core.Console.OnConsoleRenderSettingsUpdate -= UpdateRenderSettings;
+
+        private void UpdateRenderSettings(bool renderContentOnDrag, bool renderContentOnScale)
+            => disableOnDrag = !renderContentOnDrag;
+
+        #endregion
+        
         //--------------------------------------------------------------------------------------------------------------
 
         private void Start()
@@ -42,12 +60,14 @@ namespace Ganymed.Console.GUI
         {
             if (!Cursor.visible) return;
             lastMousePosition = eventData.position;
+            if (disableOnDrag) ConsoleTextMesh.enabled = false;
         }
         
         
         public void OnEndDrag(PointerEventData eventData)
         {
             OnPositionChanged?.Invoke();
+            if (disableOnDrag) ConsoleTextMesh.enabled = true;
         }
        
         public void OnDrag(PointerEventData eventData)

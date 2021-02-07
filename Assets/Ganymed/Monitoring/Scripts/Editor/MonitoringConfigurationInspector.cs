@@ -1,5 +1,7 @@
 ﻿using Ganymed.Monitoring.Configuration;
+using Ganymed.Monitoring.Core;
 using Ganymed.Utils.Editor;
+using Ganymed.Utils.ExtensionMethods;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,60 +11,87 @@ namespace Ganymed.Monitoring.Editor
     [CanEditMultipleObjects]
     public class MonitoringConfigurationInspector : StyleBaseInspector
     {
+        private MonitoringConfiguration Target;
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            Target = (MonitoringConfiguration) target;
+        }
+
         public override void OnInspectorGUI()
         {
-            var ctx = (MonitoringConfiguration) target;
-            
-            EditorGUILayout.LabelField("Monitoring", GUIHelper.H0);
+            Target.active = EditorGUILayout.ToggleLeft("Monitoring", Target.active, GUIHelper.H1);
             GUIHelper.DrawLine(new Color(.8f, .8f, .9f, .8f));
             
-            ctx.automateCanvasState = EditorGUILayout.Toggle("Automate MonitoringCanvasBehaviour On Mode Change", ctx.automateCanvasState);
-            if (ctx.automateCanvasState)
+            Target.automateCanvasState = EditorGUILayout.Toggle("Activate OnPlay / OnEdit", Target.automateCanvasState);
+            if (Target.automateCanvasState)
             {
-                ctx.openCanvasOnEnterPlay = EditorGUILayout.Toggle("Open MonitoringCanvasBehaviour On Play", ctx.openCanvasOnEnterPlay);   
-                ctx.closeCanvasOnEdit = EditorGUILayout.Toggle("Close MonitoringCanvasBehaviour On Edit", ctx.closeCanvasOnEdit);    
+                Target.openCanvasOnEnterPlay = EditorGUILayout.Toggle(new GUIContent(nameof(Target.openCanvasOnEnterPlay).AsLabel(),
+                    Target.GetTooltip(nameof(Target.openCanvasOnEnterPlay))), Target.openCanvasOnEnterPlay);
+                
+                Target.closeCanvasOnEdit = EditorGUILayout.Toggle(new GUIContent(nameof(Target.closeCanvasOnEdit).AsLabel(),
+                    Target.GetTooltip(nameof(Target.closeCanvasOnEdit))), Target.closeCanvasOnEdit);
             }
-            
-            ctx.toggleKey = (KeyCode)EditorGUILayout.EnumPopup("Activate / Deactivate", ctx.toggleKey);
             EditorGUILayout.Space();
-            ctx.sortingOrder = EditorGUILayout.IntField("Canvas Sorting Layer", ctx.sortingOrder);
             
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Debug", GUIHelper.H3);
-            ctx.logValidationEvents = EditorGUILayout.Toggle("Log Validation", ctx.logValidationEvents);
+            Target.toggleKey = (KeyCode)EditorGUILayout.EnumPopup(new GUIContent(nameof(Target.toggleKey).AsLabel(),
+                Target.GetTooltip(nameof(Target.toggleKey))), Target.toggleKey);
+            
+            Target.sortingOrder = EditorGUILayout.IntField(new GUIContent(nameof(Target.sortingOrder).AsLabel(),
+                Target.GetTooltip(nameof(Target.sortingOrder))), Target.sortingOrder);
+            
+            Target.logValidationEvents = EditorGUILayout.Toggle(new GUIContent(nameof(Target.logValidationEvents).AsLabel(),
+                Target.GetTooltip(nameof(Target.logValidationEvents))), Target.logValidationEvents);
             
             EditorGUILayout.Space(10);
-            ctx.active = EditorGUILayout.ToggleLeft("Monitoring Canvas", ctx.active, GUIHelper.H1);
-            GUIHelper.DrawLine(new Color(.8f, .8f, .9f, .8f));
+            
+            
+            Target.hideCanvasGameObject = EditorGUILayout.ToggleLeft(new GUIContent(nameof(Target.hideCanvasGameObject).AsLabel(),
+                Target.GetTooltip(nameof(Target.hideCanvasGameObject))), Target.hideCanvasGameObject);
+            
+            Target.enableLifePreview = EditorGUILayout.ToggleLeft(new GUIContent(nameof(Target.enableLifePreview).AsLabel(),
+                Target.GetTooltip(nameof(Target.enableLifePreview))), Target.enableLifePreview);
+            
+            EditorGUILayout.Space();
 
-            ctx.canvasPadding = EditorGUILayout.FloatField("Padding", ctx.canvasPadding);
-            ctx.canvasMargin = EditorGUILayout.FloatField("Margin", ctx.canvasMargin);
-            ctx.elementSpacing = EditorGUILayout.FloatField("Element Spacing", ctx.elementSpacing);
-            ctx.areaSpacing = EditorGUILayout.FloatField("Area Spacing", ctx.areaSpacing);
+            Target.canvasPadding = EditorGUILayout.FloatField("Padding", Target.canvasPadding);
+            Target.canvasMargin = EditorGUILayout.FloatField("Margin", Target.canvasMargin);
+            Target.elementSpacing = EditorGUILayout.FloatField("Element Spacing", Target.elementSpacing);
+            Target.areaSpacing = EditorGUILayout.FloatField("Area Spacing", Target.areaSpacing);
             
             EditorGUILayout.Space();
             
             //Background
-            ctx.showBackground = EditorGUILayout.Toggle("Show Canvas Background", ctx.showBackground);
-            if (ctx.showBackground)
+            Target.showBackground = EditorGUILayout.Toggle("Enable Canvas Background", Target.showBackground);
+            if (Target.showBackground)
             {
-                ctx.colorCanvasBackground = EditorGUILayout.ColorField("Canvas Background", ctx.colorCanvasBackground);
+                Target.colorCanvasBackground = EditorGUILayout.ColorField("Enable Background", Target.colorCanvasBackground);
+                EditorGUILayout.Space();
             }
-            EditorGUILayout.Space();
-            
+
             //Background Areas 
-            ctx.showAreaBackground = EditorGUILayout.Toggle("Show Area Background", ctx.showAreaBackground);
-            if (ctx.showAreaBackground)
+            Target.showAreaBackground = EditorGUILayout.Toggle("Enable Area Background", Target.showAreaBackground);
+            if (Target.showAreaBackground)
             {
-                ctx.colorTopLeft = EditorGUILayout.ColorField("Canvas Background", ctx.colorTopLeft);
-                ctx.colorTopRight = EditorGUILayout.ColorField("Canvas Background", ctx.colorTopRight);
-                ctx.colorBottomLeft = EditorGUILayout.ColorField("Canvas Background", ctx.colorBottomLeft);
-                ctx.colorBottomRight = EditorGUILayout.ColorField("Canvas Background", ctx.colorBottomRight);
+                Target.colorTopLeft = EditorGUILayout.ColorField(new GUIContent(nameof(Target.colorTopLeft).AsLabel(),
+                    Target.GetTooltip(nameof(Target.colorTopLeft))), Target.colorTopLeft);
+                
+                Target.colorTopRight = EditorGUILayout.ColorField(new GUIContent(nameof(Target.colorTopRight).AsLabel(),
+                    Target.GetTooltip(nameof(Target.colorTopRight))), Target.colorTopRight);
+                
+                Target.colorBottomLeft = EditorGUILayout.ColorField(new GUIContent(nameof(Target.colorBottomLeft).AsLabel(),
+                    Target.GetTooltip(nameof(Target.colorBottomLeft))), Target.colorBottomLeft);
+                
+                Target.colorBottomRight = EditorGUILayout.ColorField(new GUIContent(nameof(Target.colorBottomRight).AsLabel(),
+                    Target.GetTooltip(nameof(Target.colorBottomRight))), Target.colorBottomRight);
+                
             }
             EditorGUILayout.Space();
             if(GUI.changed)
-                ctx.OnValidate();
+                Target.OnValidate();
             
+            MonitoringCanvasBehaviour.SetHideFlags(Target.hideCanvasGameObject? HideFlags.HideInHierarchy : HideFlags.None);
             DrawStyleInspector("Default Module Style");
         }
     }

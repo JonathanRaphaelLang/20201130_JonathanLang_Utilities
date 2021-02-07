@@ -66,7 +66,7 @@ namespace Ganymed.Console.Processor
         [ConsoleCommand(CommandsKey, Priority = 1000, Description = "Log available commands and their descriptions")]
         private static void LogCommands()
         {
-            Transmission.Start(TransmissionOptions.Enumeration);
+            if(!Transmission.Start(TransmissionOptions.Enumeration)) return;
             Transmission.AddBreak();
 
             var commands = MethodCommands.Select(cmd => cmd.Value).ToList();

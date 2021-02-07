@@ -105,7 +105,7 @@ namespace Ganymed.Monitoring.Modules
 
             foreach (var todo in split)
             {
-                returnValue.Add(new Note(todo.Replace("[X]", ""), todo.EndsWith("[X]")));
+                returnValue.Add(new Note(todo.Replace("[X]", "").Cut().TryRemoveFromEnd('.'), todo.EndsWith("[X]")));
             }
             
             return returnValue;
@@ -115,8 +115,9 @@ namespace Ganymed.Monitoring.Modules
         {
 #if UNITY_EDITOR
             var text = todos.Aggregate(string.Empty, (current, entry) 
-                    => $"{current}//TODO: {entry.todo.Cut()}{(entry.done? " [X]" : "")}\n");
+                    => $"{current}//TODO: {entry.todo.Cut()}{(entry.done? " [X]" : "")}{(entry.todo.Cut().EndsWith(".")? "": ".")}\n");
 
+            
             File.WriteAllText(UnityEditor.AssetDatabase.GetAssetPath(file), text);
             UnityEditor.EditorUtility.SetDirty(file);
 #endif

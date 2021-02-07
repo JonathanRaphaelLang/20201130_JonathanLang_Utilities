@@ -83,10 +83,13 @@ namespace Ganymed.Console.Processor
         private static void FindConsoleCommandsInAssembly()
         {
             time = Time.realtimeSinceStartup;
+
+            if (Transmission.Start(TransmissionOptions.None, "Commands"))
+            {
+                Transmission.AddLine("Searching for console commands in Assembly...");
+                Transmission.Release();    
+            };
             
-            Transmission.Start(TransmissionOptions.None, "Commands");
-            Transmission.AddLine("Searching for console commands in Assembly...");
-            Transmission.Release();
             
             Task.Run(delegate
             {
@@ -118,7 +121,7 @@ namespace Ganymed.Console.Processor
 
                 const MessageOptions options = MessageOptions.Brackets | MessageOptions.Bold;
 
-                Transmission.Start(TransmissionOptions.None, "Commands");
+                if(!Transmission.Start(TransmissionOptions.None, "Commands")) return;
 
                 var count = 0;
                 foreach (var cmd in MethodCommands)
@@ -200,7 +203,7 @@ namespace Ganymed.Console.Processor
 
             if (!MethodCommands.TryGetValue(key, out var command)) return;
 
-            Transmission.Start();
+            if(!Transmission.Start()) return;
 
             var index = 0;
             foreach (var signature in command.Signatures)

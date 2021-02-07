@@ -40,6 +40,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/70/a4981b02/Int16.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Enumerations/InputValidation.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Enumerations/ModuleDisplayModes.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/819DE1AA-368E-45FA-A4F7-8E26C97C62B0/5b/64f4e262/GUIUtility.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/03/314c34a6/PropertyInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/f7/dfb933b7/_Attribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/EE47BE73-F7EF-409C-A5E5-CE4B121745B7/1b/c6f8a23c/Vector4.cs" root0="SKIP_HIGHLIGHTING" />
@@ -154,6 +155,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/34/e5ecebd2/Single.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/26/3aaf84c3/MethodInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Transmissions/Transmission.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/ConsoleLogCounter.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/af/cb452223/CustomAttributeExtensions.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Enumerations/Sender.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://C:/Program Files/Unity/Hub/Editor/2019.4.10f1/Editor/Data/Resources/PackageManager/BuiltInPackages/com.unity.ugui/Runtime/EventSystem/UIBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
@@ -168,6 +170,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8004FCC2-21B5-4F98-BA54-7350EA71D812/e2/84057ffb/DidReloadScripts.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Templates/SDS_TEMPLATE.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/CallbackHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/19/7f23a89a/Action.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2DB13BA0-D523-4322-8AA9-892C408FB49A/1a/c746a8e8/Input.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/1b/b866d590/ICustomAttributeProvider.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/62FFEEB7-EC02-4BEA-B61E-5FBF8D44AC5B/10/b6a421f4/ComDefaultInterfaceAttribute.cs" root0="SKIP_HIGHLIGHTING" />
@@ -181,57 +184,57 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Examples/ModuleTODO.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Examples/Modules/ModuleTODO.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Examples/Modules/ModuleNotePad.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Editor/SelectionHelper.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Examples/Modules/ModuleNotes.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Attributes/ConsoleCommandAttribute.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Attributes/RequiresAdditionalAttributesAttribute.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Helper/DontDestroyOnLoadHandler.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Examples/CommandExamples.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Optimization/TransformOptimizationComponent.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Optimization/OptimizationManager.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Optimization/UnfoldObjectOnLoad.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Optimization/SetRootOnLoad.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Optimization/DestroyOnLoad.cs" />
-        <option value="$PROJECT_DIR$/Assets/EmptyModule.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Editor/CustomStyleInspector.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Editor/OptimizationManagerInspector.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Interfaces/ActiveDelegate.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Interfaces/VisibilityDelegate.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Interfaces/ActiveAndVisibleDelegate.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Interfaces/IState.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Examples/Modules/ModuleCommands.cs" />
         <option value="$PROJECT_DIR$/Assets/ModuleExample.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Core/MonitoringCanvasBehaviour.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleVsync.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleTargetFrameRate.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleSystem.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleFPS.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleCursor.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Shared/ModuleNotes.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Editor/SDS_GANYMED_CONSOLE.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Editor/SDS_GANYMED_MONITORING.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Templates/SDS_TEMPLATE.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Examples/Modules/ModuleExampleMethods.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Core/Module.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Singleton/ScriptableSingleton.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleNotes.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Processor/CommandProcessor_ConnsoleCommandFunc.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Processor/CommandProcessor_Setter.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Structures/Vector4Int.cs" />
         <option value="$PROJECT_DIR$/Assets/TODO.txt" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Shared/ModuleCommands.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleRecentFPS.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Core/ModuleCanvasElement.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/TypeExtensions.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Core/ModuleT.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Examples/Modules/ModuleExample.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Transmissions/Transmission.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/SystemCommands.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Processor/CommandProcessor.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Processor/CommandProcessor_Getter.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Processor/CommandProcessor_ConnsoleCommandFunc.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/Callbacks/UnityEventCallbacks.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/TaskExtensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleRecentFPS.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleFPS.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Core/ModuleT.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Examples/Modules/ModuleExampleMethods.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Examples/Modules/ModuleExample_Methods.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Examples/Modules/ModuleExample.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Examples/Modules/ModuleExample_Timer.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Core/Module.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Core/ModuleCanvasElement.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Processor/CommandProcessor_Setter.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Configuration/MonitoringConfiguration.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Core/MonitorBehaviour.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Editor/MonitorBehaviourInspector.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Core/MonitoringCanvasBehaviour.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Editor/StyleBaseInspector.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Editor/MonitoringConfigurationInspector.cs" />
+        <option value="$PROJECT_DIR$/Assets/ConsoleLogCounter.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/GUI/MonoScaler.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/GUI/MonoDragger.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Utils/Scripts/ExtensionMethods/StringExtensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Modules/ModuleNotes.cs" />
+        <option value="$PROJECT_DIR$/Assets/Documents/Backlog.txt" />
+        <option value="$PROJECT_DIR$/Assets/Ganymed/Shared/ModuleCommands.cs" />
+        <option value="$PROJECT_DIR$/Assets/Documents/TODO.txt" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/ConsoleConfiguration.cs" />
         <option value="$PROJECT_DIR$/Assets/Ganymed/Console/Scripts/Core/Console.cs" />
-        <option value="$PROJECT_DIR$/Assets/Ganymed/Monitoring/Scripts/Core/MonitorBehaviour.cs" />
       </list>
     </option>
   </component>
@@ -373,6 +376,7 @@
       <workItem from="1612605160290" duration="7447000" />
       <workItem from="1612614261588" duration="23497000" />
       <workItem from="1612642187754" duration="8366000" />
+      <workItem from="1612692863989" duration="34888000" />
     </task>
     <servers />
   </component>
@@ -431,16 +435,16 @@
       <screen x="-1920" y="352" width="1920" height="1040" />
     </state>
     <state x="-1484" y="352" width="1135" height="1128" maximized="true" key="dock-window-3/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@0.0.2560.1400" timestamp="1612024089759" />
-    <state x="936" y="330" width="672" height="677" key="run.anything.popup" timestamp="1612624384621">
+    <state x="936" y="330" width="672" height="677" key="run.anything.popup" timestamp="1612693967883">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="936" y="330" width="672" height="677" key="run.anything.popup/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@0.0.2560.1400" timestamp="1612533227916" />
+    <state x="936" y="330" width="672" height="677" key="run.anything.popup/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@0.0.2560.1400" timestamp="1612693967883" />
     <state x="936" y="330" width="672" height="677" key="run.anything.popup/2560.0.2560.1413/-1920.352.1920.1040/0.0.2560.1400@0.0.2560.1400" timestamp="1612624384621" />
-    <state x="943" y="315" width="672" height="678" key="search.everywhere.popup" timestamp="1612648396956">
+    <state x="1271" y="347" width="672" height="678" key="search.everywhere.popup" timestamp="1612729337129">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="-967" y="610" width="672" height="504" key="search.everywhere.popup/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@-1920.352.1920.1040" timestamp="1608405610026" />
-    <state x="1271" y="347" width="672" height="678" key="search.everywhere.popup/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@0.0.2560.1400" timestamp="1612556740932" />
+    <state x="1271" y="347" width="672" height="678" key="search.everywhere.popup/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@0.0.2560.1400" timestamp="1612729337129" />
     <state x="3503" y="315" width="672" height="678" key="search.everywhere.popup/0.0.2560.1400/-1920.352.1920.1040/2560.0.2560.1400@2560.0.2560.1400" timestamp="1612551057914" />
     <state x="943" y="315" width="672" height="678" key="search.everywhere.popup/2560.0.2560.1413/-1920.352.1920.1040/0.0.2560.1400@0.0.2560.1400" timestamp="1612648396956" />
     <state x="3503" y="318" width="672" height="685" key="search.everywhere.popup/2560.0.2560.1413/-1920.352.1920.1040/0.0.2560.1400@2560.0.2560.1413" timestamp="1612609806599" />

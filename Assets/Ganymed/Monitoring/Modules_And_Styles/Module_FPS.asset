@@ -15,6 +15,7 @@ MonoBehaviour:
   isEnabled: 1
   isActive: 1
   isVisible: 1
+  onlyInitializeWhenInScene: 0
   useCustomStyle: 1
   customStyleBase: {fileID: 11400000, guid: e6f4ee320597d064f94ee3e6d140c4a6, type: 2}
   enableWarnings: 1

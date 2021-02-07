@@ -1,4 +1,5 @@
 ﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -13,6 +14,8 @@ namespace Ganymed.Console.GUI
         [SerializeField] [Range(50,200)] private float minSizeX = 100f;
         [SerializeField] [Range(50,200)] private float minSizeY = 100f;
         [SerializeField] private float tolerance = 5f;
+        [Space]
+        [SerializeField] private TextMeshProUGUI ConsoleTextMesh = null;
 
         #endregion
 
@@ -22,12 +25,27 @@ namespace Ganymed.Console.GUI
         private Canvas canvas;
         private Vector2 posX;
         private Vector2 posY;
+        
+        private bool disableOnScale = true;
 
         #endregion
 
         #region --- [EVENTS] ---
 
         public static event Action OnScaleChanged;
+
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+
+        #region --- [SUBSCRIPTIONS] ---
+
+        private void OnEnable() => Core.Console.OnConsoleRenderSettingsUpdate += UpdateRenderSettings;
+        private void OnDisable() => Core.Console.OnConsoleRenderSettingsUpdate -= UpdateRenderSettings;
+        private void OnDestroy() => Core.Console.OnConsoleRenderSettingsUpdate -= UpdateRenderSettings;
+
+        private void UpdateRenderSettings(bool renderContentOnDrag, bool renderContentOnScale)
+            => disableOnScale = !renderContentOnScale;
 
         #endregion
         
@@ -43,6 +61,7 @@ namespace Ganymed.Console.GUI
         public void OnBeginDrag(PointerEventData eventData)
         {
             lastMousePosition = eventData.position;
+            if (disableOnScale) ConsoleTextMesh.enabled = false;
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -73,6 +92,7 @@ namespace Ganymed.Console.GUI
         public void OnEndDrag(PointerEventData eventData)
         {
             OnScaleChanged?.Invoke();
+            if (disableOnScale) ConsoleTextMesh.enabled = true;
         }
    
 

@@ -119,10 +119,11 @@ namespace Ganymed.Monitoring.Core
                 try
                 {
                     gameObject.SetActive(value);
-                }
-                finally
-                {
                     canvas.enabled = value;    
+                }
+                catch
+                {
+                    // ignored
                 }
             }
         }

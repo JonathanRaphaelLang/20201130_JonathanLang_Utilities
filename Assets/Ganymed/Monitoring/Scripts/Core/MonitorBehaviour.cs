@@ -32,14 +32,8 @@ namespace Ganymed.Monitoring.Core
         [HideInInspector][SerializeField] public GameObject GUIObjectPrefab;
         [HideInInspector][SerializeField] public SetRootOnLoad SetRootObject;
         
-        [Tooltip("When enabled, Modules will be instantiated and updated in Edit-Mode.")]
-        [HideInInspector] [SerializeField] public bool enableLifePreview = false;
-        
         [Tooltip("Expose references.")]
         [HideInInspector] [SerializeField] public bool showReferences = false;
-        
-        [Tooltip("Show/Hide the gameObject containing the canvas elements.")]
-        [HideInInspector] [SerializeField] public bool hideCanvas = false;
         
         [Tooltip("Show/Hide the SetRootOnLoad component of this gameObject.")]
         [HideInInspector] [SerializeField] public bool showRootComponent = true;
@@ -48,7 +42,7 @@ namespace Ganymed.Monitoring.Core
 
         #region --- [PROPERTIES] ---
        
-        public MonitoringConfiguration MonitoringConfiguration => (config != null)? config : MonitoringConfiguration.Instance;
+        public MonitoringConfiguration Configuration => (config != null)? config : MonitoringConfiguration.Instance;
 
         public MonitoringCanvasBehaviour CanvasBehaviour { get; private set; }
         
@@ -82,13 +76,13 @@ namespace Ganymed.Monitoring.Core
         private MonitorBehaviour()
         {
             UnityEventCallbacks.AddEventListener(
-                () => MonitoringCanvasBehaviour.SetHideFlags(hideCanvas ? HideFlags.HideInHierarchy : HideFlags.None), 
+                () => MonitoringCanvasBehaviour.SetHideFlags(Configuration.hideCanvasGameObject ? HideFlags.HideInHierarchy : HideFlags.None), 
                 UnityEventType.Recompile,
                 UnityEventType.TransitionEditPlayMode);
         }
 
         private void OnEnable() =>
-            MonitoringCanvasBehaviour.SetHideFlags(hideCanvas ? HideFlags.HideInHierarchy : HideFlags.None);
+            MonitoringCanvasBehaviour.SetHideFlags(Configuration.hideCanvasGameObject ? HideFlags.HideInHierarchy : HideFlags.None);
 
         static MonitorBehaviour()
         {
@@ -188,25 +182,21 @@ namespace Ganymed.Monitoring.Core
             {
                 if (module == null) continue;
                 ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, CanvasBehaviour.UpperLeft), module);
-                
             }
             foreach (var module in modulesUpperRight)
             {
                 if (module == null) continue;
                 ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, CanvasBehaviour.UpperRight), module);
-                
             }
             foreach (var module in modulesLowerLeft)
             {
                 if (module == null) continue;
                 ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, CanvasBehaviour.LowerLeft), module);
-                
             }
             foreach (var module in modulesLowerRight)
             {
                 if (module == null) continue;
                 ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, CanvasBehaviour.LowerRight), module);
-                
             }
         }
 

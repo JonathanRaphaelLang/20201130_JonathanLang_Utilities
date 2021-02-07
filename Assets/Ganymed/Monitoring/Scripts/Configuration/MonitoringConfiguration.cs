@@ -24,6 +24,15 @@ namespace Ganymed.Monitoring.Configuration
         [HideInInspector] [SerializeField] public KeyCode toggleKey = KeyCode.F3;
         [HideInInspector] [SerializeField] public int sortingOrder = 10000;
         
+        
+         
+        [Tooltip("Show/Hide the gameObject containing the canvas elements.")]
+        [HideInInspector] [SerializeField] public bool hideCanvasGameObject = false;
+        
+        [Tooltip("When enabled, Modules will be instantiated and updated in Edit-Mode.")]
+        [HideInInspector] [SerializeField] public bool enableLifePreview = false;
+        
+        
         //--- DEBUG ---
         [HideInInspector] [SerializeField] public bool logValidationEvents = false; 
 
@@ -102,7 +111,7 @@ namespace Ganymed.Monitoring.Configuration
 
             try
             {
-                if(MonitorBehaviour.Instance.MonitoringConfiguration == null || MonitorBehaviour.Instance.MonitoringConfiguration != this) return;
+                if(MonitorBehaviour.Instance.Configuration == null || MonitorBehaviour.Instance.Configuration != this) return;
             }
             catch
             {

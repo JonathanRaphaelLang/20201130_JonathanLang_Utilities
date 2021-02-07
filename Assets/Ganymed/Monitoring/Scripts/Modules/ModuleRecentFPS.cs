@@ -56,7 +56,7 @@ namespace Ganymed.Monitoring.Modules
 
         protected override void OnInitialize()
         {
-            InitializeValue(Default);
+            InitializeValue();
             InitializeUpdateEvent(ref OnValueChanged);
             
             ModuleFPS.OnValueChanged -= CalculateRecentBorderValues;

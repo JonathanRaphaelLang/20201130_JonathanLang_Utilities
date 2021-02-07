@@ -66,7 +66,7 @@ namespace Ganymed.Console.Processor
 
         private static void LogGetter(bool separateShortcuts = false)
         {
-            Transmission.Start(TransmissionOptions.Enumeration);
+            if(!Transmission.Start(TransmissionOptions.Enumeration)) return;
 
             Transmission.AddTitle($"{nameof(CommandProcessor)} Getter");
             Transmission.AddBreak();

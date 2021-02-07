@@ -61,8 +61,9 @@ namespace Ganymed.Console.Transmissions
         /// </summary>
         /// <param name="options"></param>
         /// <param name="sender"></param>
-        public static void Start(TransmissionOptions options = TransmissionOptions.None, object sender = null)
+        public static bool Start(TransmissionOptions options = TransmissionOptions.None, object sender = null)
         {
+            if (!Core.Console.IsInitialized) return false;
             isTransmitting = true;
             
             transmissionPrefix.Clear();
@@ -78,6 +79,7 @@ namespace Ganymed.Console.Transmissions
             Sender = sender;
             
             isEnumeration = options.HasFlag(TransmissionOptions.Enumeration);
+            return true;
         }
         
 

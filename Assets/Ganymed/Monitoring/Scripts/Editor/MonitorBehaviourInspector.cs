@@ -53,12 +53,6 @@ namespace Ganymed.Monitoring.Editor
             
             EditorGUILayout.Space();
             
-            Target.enableLifePreview = EditorGUILayout.ToggleLeft(new GUIContent("Enable Life Preview",
-                    Target.GetTooltip(nameof(Target.enableLifePreview))), Target.enableLifePreview);
-            
-            Target.hideCanvas = EditorGUILayout.ToggleLeft(new GUIContent("Hide Canvas GameObject",
-                Target.GetTooltip(nameof(Target.hideCanvas))), Target.hideCanvas);
-            
             Target.showReferences = EditorGUILayout.ToggleLeft(new GUIContent("Misc".Cut(),
                 Target.GetTooltip(nameof(Target.showReferences))), Target.showReferences);
             
@@ -67,9 +61,6 @@ namespace Ganymed.Monitoring.Editor
             
             if(Target.SetRootObject != null)
                 Target.SetRootObject.hideFlags = Target.showRootComponent ? HideFlags.None : HideFlags.HideInInspector;
-            
-            
-            MonitoringCanvasBehaviour.SetHideFlags(Target.hideCanvas? HideFlags.HideInHierarchy : HideFlags.None);
             
             EditorGUILayout.Space();
 
@@ -82,7 +73,8 @@ namespace Ganymed.Monitoring.Editor
             serializedObject.ApplyModifiedProperties();
             EditorUtility.SetDirty(target);
             
-            if (GUI.changed && Target.enableLifePreview)
+            // Repaint if GUI has changed and LifePreview is enabled
+            if (GUI.changed && Target.Configuration.enableLifePreview)
             {
                 Target.Repaint(); 
             }
@@ -139,7 +131,7 @@ namespace Ganymed.Monitoring.Editor
             {
                 moduleList = new List<Module>(moduleList) {null};
             }
-            if (GUILayout.Button("Clear Empty Fields"))
+            if (GUILayout.Button("Clear BreakContext Fields"))
             {
                 moduleList = moduleList.Where(element => element != null).ToList();
             }

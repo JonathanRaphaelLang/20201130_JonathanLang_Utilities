@@ -168,7 +168,7 @@ namespace Ganymed.Console.Core
             
             await Task.Run(delegate
             {
-                Transmission.Start();
+                if(!Transmission.Start()) return;
                 Transmission.AddLine(new MessageFormat("Root GameObject", Console.ColorTitleMain, MessageOptions.Brackets));
                 Transmission.AddLine(new MessageFormat("GameObject", RichText._cyan, MessageOptions.Brackets));
                 

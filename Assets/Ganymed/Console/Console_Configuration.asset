@@ -12,9 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9fcd8557096ed84294735612c166c25, type: 3}
   m_Name: Console_Configuration
   m_EditorClassIdentifier: 
-  enabled: 1
   active: 1
-  visible: 1
   commandPrefix: /
   infoOperator: '?'
   allowCommandPreProcessing: 1
@@ -25,13 +23,17 @@ MonoBehaviour:
   logConfigurationOnStart: 0
   logTimeOnInput: 1
   inputCacheSize: 10
+  clearConsoleAutomatically: 1
+  maxLogs: 50
   bindConsoles: 1
-  allowedUnityMessages: 23
+  allowedUnityMessages: 31
   logStackTraceOn: 21
   allowShaderAndAnimations: 1
   allowShader: 1
   allowAnimations: 1
   showRichText: 1
+  renderContentOnDrag: 0
+  renderContentOnScale: 0
   inputFontSize: 6
   fontSize: 6
   breakLineHeight: 150

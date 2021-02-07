@@ -55,7 +55,13 @@ namespace Ganymed.Console.Core
         
         [Tooltip("how many previous inputs are cached")]
         [SerializeField] [Range(0,100)] internal byte inputCacheSize = 20;
-
+        
+        [Tooltip("Limit the amount of logs displayed in the console")]
+        [SerializeField] internal bool clearConsoleAutomatically = true;
+        
+        [Tooltip("how many logs are allowed")]
+        [SerializeField] [Range(10,1000)] internal int maxLogs = 20;
+        
         
         
         [Header("Unity Console Integration")]
@@ -68,7 +74,7 @@ namespace Ganymed.Console.Core
         [Tooltip("which types messages are allowed to show their stacktrace (Log, Warning, Error, Exception, Assert)")]
         [SerializeField] internal LogTypeFlags logStackTraceOn = LogTypeFlags.None;
         
-        [Header("Eye Candy")]
+        [Header("Eye Candy & Performance Optimization")]
         [Tooltip("NA")]
         [SerializeField] internal bool allowShaderAndAnimations = true;
         
@@ -80,6 +86,12 @@ namespace Ganymed.Console.Core
 
         [Tooltip("Debug option to show RichText")]
         [SerializeField] internal bool showRichText = false;
+
+        [Tooltip("When disabled the content of the console will be disabled when the console is dragged to reduce rendering cost")]
+        [SerializeField] internal bool renderContentOnDrag = false;
+        
+        [Tooltip("When disabled the content of the console will be disabled when the console is scaled to reduce rendering cost")]
+        [SerializeField] internal bool renderContentOnScale = false;
         
         
                 
@@ -223,9 +235,10 @@ namespace Ganymed.Console.Core
 
         public void LogConfiguration(bool includeColorScheme)
         {
+            if(!Transmission.Start(TransmissionOptions.Enumeration)) return;
+            
             const MessageOptions options = MessageOptions.Brackets;
 
-            Transmission.Start(TransmissionOptions.Enumeration);
             Transmission.AddBreak();
             Transmission.AddTitle("Console Configuration");
             Transmission.AddBreak();
@@ -251,7 +264,7 @@ namespace Ganymed.Console.Core
             
             
             
-            Transmission.AddTitle("Eye Candy", TitlePreset.Sub);
+            Transmission.AddTitle("Eye Candy & Performance Optimization", TitlePreset.Sub);
             
             Transmission.AddLine("Allow Shader and Animations",
                 new MessageFormat(allowShaderAndAnimations, options),
@@ -264,6 +277,14 @@ namespace Ganymed.Console.Core
             Transmission.AddLine("Animations",
                 new MessageFormat(allowAnimations, options),
                 new MessageFormat($"// {GetTooltip(nameof(allowAnimations))}", options));
+            
+            Transmission.AddLine(nameof(renderContentOnDrag).AsLabel(),
+                new MessageFormat(renderContentOnDrag, options),
+                new MessageFormat($"// {GetTooltip(nameof(renderContentOnDrag))}", options));
+            
+            Transmission.AddLine(nameof(renderContentOnScale).AsLabel(),
+                new MessageFormat(renderContentOnScale, options),
+                new MessageFormat($"// {GetTooltip(nameof(renderContentOnScale))}", options));
             
             Transmission.AddBreak();
             
@@ -286,6 +307,16 @@ namespace Ganymed.Console.Core
             Transmission.AddLine("Log Config OnStart:",
                 new MessageFormat(logConfigurationOnStart, options),
                 new MessageFormat($"// {GetTooltip(nameof(logConfigurationOnStart))}", options));
+            
+            Transmission.AddLine(nameof(clearConsoleAutomatically).AsLabel(),
+                new MessageFormat(clearConsoleAutomatically, options),
+                new MessageFormat($"// {GetTooltip(nameof(clearConsoleAutomatically))}", options));
+            
+            Transmission.AddLine(nameof(maxLogs).AsLabel(),
+                new MessageFormat(maxLogs, options),
+                new MessageFormat($"// {GetTooltip(nameof(maxLogs))}", options));
+            
+            
             
             Transmission.AddBreak();
             Transmission.AddLine("Unity Console Integration:",

@@ -25,22 +25,30 @@ namespace Ganymed.Monitoring.Core
         [SerializeField] private bool isVisible = true;
         
         
+        [Space]
+        [Tooltip("When enabled the module will only be initialized if it is part of an active scene.")]
+        [SerializeField] private bool onlyInitializeWhenInScene = true;
+
         
+
+
         [Header("Settings")]
         [Tooltip("Set a custom style for the module. False will use the default style instead")]
         [SerializeField] private bool useCustomStyle = default;
         
-        [Tooltip("If visible, use this style. Null will use the default style instead")]
+        [Tooltip("If enabled, use this style. Null will use the default style instead")]
         [SerializeField] private StyleBase customStyleBase = null;
 
+     
+
         [Header("Warnings")]
-        [Tooltip("If visible, custom warnings will (can) be logged")]
+        [Tooltip("If enabled, custom warnings will (can) be logged")]
         [SerializeField] private bool enableWarnings = true;
-        
-        [Tooltip("If visible, custom warnings will (can) be logged")]
+
+        [Tooltip("If enabled, custom warnings will (can) be logged")]
         [SerializeField] private bool enableInitializeUpdateEventWarnings = true;
         
-        [Tooltip("If visible, custom warnings will (can) be logged")]
+        [Tooltip("If enabled, custom warnings will (can) be logged")]
         [SerializeField] private bool enableInitializeValueWarnings = true;
        
         
@@ -51,7 +59,7 @@ namespace Ganymed.Monitoring.Core
 
         [Tooltip("Reset the displayed value after exiting playmode.")]
         [SerializeField] private bool resetValueOnQuit = false;
-        
+
         
         
         [Space]
@@ -76,7 +84,7 @@ namespace Ganymed.Monitoring.Core
         
         
         [Space]
-        [Tooltip("If visible OnInspection will be called periodically. Use to validate the values integrity")]
+        [Tooltip("If enabled OnInspection will be called periodically. Use to validate the values integrity")]
         [SerializeField] private bool enableAutoInspection = default;
         
         [Tooltip("How much time should pass between inspections")]
@@ -91,10 +99,13 @@ namespace Ganymed.Monitoring.Core
         protected bool UseCustomStyle => useCustomStyle;
 
         protected StyleBase CustomStyleBase => customStyleBase;
+
+
+        protected bool OnlyInitializeWhenInScene => onlyInitializeWhenInScene;
         
-        protected bool EnableWarnings => enableWarnings;
-        protected bool EnableInitializeValueWarnings => enableInitializeValueWarnings;
-        protected bool EnableInitializeUpdateEventWarnings => enableInitializeUpdateEventWarnings;
+        private protected bool EnableWarnings => enableWarnings;
+        private protected bool EnableInitializeValueWarnings => enableInitializeValueWarnings;
+        private protected bool EnableInitializeUpdateEventWarnings => enableInitializeUpdateEventWarnings;
 
         
         
@@ -102,10 +113,10 @@ namespace Ganymed.Monitoring.Core
 
         protected bool ResetValueOnQuit => resetValueOnQuit;
         
-        protected string PrefixText => prefixText;
-        protected string SuffixText => suffixText;
-        protected bool PrefixBreak => prefixBreak;
-        protected bool SuffixBreak => suffixBreak;
+        private protected string PrefixText => prefixText;
+        private protected string SuffixText => suffixText;
+        private protected bool PrefixBreak => prefixBreak;
+        private protected bool SuffixBreak => suffixBreak;
         
         
         #endregion
@@ -114,13 +125,17 @@ namespace Ganymed.Monitoring.Core
         
         #region --- [FIELDS] ---
 
-        protected StyleBase previousConfiguration = null;
-        protected volatile string compiledPrefix = string.Empty;         
-        protected volatile string compiledSuffix = string.Empty;
-        private readonly int id = default;
-        private bool wasEnabled = true;
-        private bool wasVisible = true;
-        private bool wasActive = true;
+        private readonly int id = default;                           // modules internal id
+        
+        private protected StyleBase previousConfiguration = null;            // The last configuration file.
+        private protected volatile string compiledPrefix = string.Empty;     // suffix cache         
+        private protected volatile string compiledSuffix = string.Empty;     // prefix cache
+        
+        private bool wasEnabled = true;     // The last enabled state of the module
+        private bool wasActive = true;      // The last active state of the module
+        private bool wasVisible = true;     // The last visible state of the module
+        
+        private bool runInspection;         // Private value that determines if an inspection task will continue.
 
         #endregion
         
@@ -128,6 +143,10 @@ namespace Ganymed.Monitoring.Core
         
         #region --- [DELEGATES] ---
 
+        /// <summary>
+        /// Delegate type for module activation events.
+        /// </summary>
+        /// <param name="state"></param>
         public delegate void ModuleActivationDelegate(bool state);
 
         #endregion
@@ -160,8 +179,8 @@ namespace Ganymed.Monitoring.Core
             {
                 try
                 {
-                    if (!useCustomStyle) return MonitorBehaviour.Instance.MonitoringConfiguration;
-                    return customStyleBase ? customStyleBase : MonitorBehaviour.Instance.MonitoringConfiguration;
+                    if (!useCustomStyle) return MonitorBehaviour.Instance.Configuration;
+                    return customStyleBase ? customStyleBase : MonitorBehaviour.Instance.Configuration;
                 }
                 catch
                 {
@@ -169,6 +188,19 @@ namespace Ganymed.Monitoring.Core
                 }
             }
         }
+        
+        /// <summary>
+        /// The Modules UI element GameObject. (can be null)
+        /// </summary>
+        public GameObject SceneObject { get; set; }
+        
+        /// <summary>
+        /// Returns true if the Module has a scene present (canvas element).
+        /// </summary>
+        /// <returns></returns>
+        protected bool HasSceneObject() => SceneObject != null;
+
+        
 
         #endregion
         
@@ -225,7 +257,10 @@ namespace Ganymed.Monitoring.Core
         public static Module GetModule(int? id)
             => ModuleDictionary.TryGetValue(id ?? 0, out var value) ? value : null;
         
-        
+        /// <summary>
+        /// Enable every module.
+        /// </summary>
+        /// <param name="enabled"></param>
         public static void EnableAll(bool enabled)
         {
             foreach (var module in ModuleDictionary)
@@ -234,6 +269,10 @@ namespace Ganymed.Monitoring.Core
             }
         }
 
+        /// <summary>
+        /// Activate every module.
+        /// </summary>
+        /// <param name="active"></param>
         public static void ActivateAll(bool active)
         {
             foreach (var module in ModuleDictionary)
@@ -242,6 +281,10 @@ namespace Ganymed.Monitoring.Core
             }
         }
 
+        /// <summary>
+        /// Set every module to visible. (only modules with scene object will become visible)
+        /// </summary>
+        /// <param name="visible"></param>
         public static void ShowAll(bool visible)
         {
             foreach (var module in ModuleDictionary)
@@ -253,12 +296,12 @@ namespace Ganymed.Monitoring.Core
         /// <summary>
         /// Enable & Activate / Disable & Deactivate every module
         /// </summary>
-        /// <param name="activeAndEnable"></param>
-        public static void InitializeAll(bool activeAndEnable)
+        /// <param name="state"></param>
+        public static void EnableActivateAndShowAllModules(bool state)
         {
             foreach (var module in ModuleDictionary)
             {
-                module.Value.SetStates(activeAndEnable);
+                module.Value.SetStates(state);
             }
         }
 
@@ -281,14 +324,14 @@ namespace Ganymed.Monitoring.Core
         /// Enable / Disable automatic inspection. This will invoke a asymmetric loop calling OnInspection repeatedly.
         /// </summary>
         /// <param name="value"></param>
-        protected internal void InitializeAutoInspection(bool? value = null)
+        private protected void InitializeAutoInspection(bool? value = null)
         {
             CancelInspection();
+            if(onlyInitializeWhenInScene && !HasSceneObject()) return;
             runInspection = value ?? enableAutoInspection;
             if(Application.isPlaying && runInspection) StartInspection();
         }
 
-        private bool runInspection;
         
         /// <summary>
         /// Cancel Inspection Task and create a new CancellationTokenSource
@@ -326,27 +369,47 @@ namespace Ganymed.Monitoring.Core
         
         #region --- [STATE] ---
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public event ActiveAndVisibleDelegate OnAnyStateChanged;
-        protected void InvokeOnAnyStateChanged() => OnAnyStateChanged?.Invoke(isEnabled, isActive, isVisible);    
+        
+        private protected void InvokeOnAnyStateChanged() => OnAnyStateChanged?.Invoke(isEnabled, isActive, isVisible);    
         
         /// <summary>
-        /// 
+        /// Event is invoked when any of the modules state is altered either when it is constructed, initialized or set via inspector.
+        /// </summary>
+        public event ActiveAndVisibleDelegate OnAnyStateChanged;
+        
+        /// <summary>
+        /// Event is invoked when the modules gets enabled / disabled either when it is constructed, initialized or set via inspector.
+        /// Not the same as OnEnable!
         /// </summary>
         public event EnabledDelegate OnEnabledStateChanged;
 
         /// <summary>
-        /// 
+        /// Event is invoked when the modules gets activated / deactivated either when it is constructed, initialized or set via inspector.
         /// </summary>
         public event ActiveDelegate OnActiveStateChanged;
         
         /// <summary>
-        /// 
+        /// Event is invoked when the modules gets set to visible / invisible either when it is constructed, initialized or set via inspector.
         /// </summary>
         public event VisibilityDelegate OnVisibilityStateChanged;
 
+
+        /// <summary>
+        /// This method validates the current module states and will set properties depending on its private backfield values. 
+        /// </summary>
+        private protected void ValidateState()
+        {
+            if(isVisible != wasVisible)
+                SetVisible();
+            
+            if(isActive != wasActive)
+                SetActive();
+            
+            if(isEnabled != wasEnabled)
+                SetEnabled();
+        }
+        
+        
         public bool IsEnabled
         {
             get => isEnabled;
@@ -356,7 +419,7 @@ namespace Ganymed.Monitoring.Core
                 else
                 {
                     if (wasEnabled) return;
-                    
+
                     StartInitialization(UnityEventType.InspectorUpdate);
                     ModuleEnabled();
                         
@@ -397,8 +460,7 @@ namespace Ganymed.Monitoring.Core
                     // We subscribe Tick to Update if we enable it
                     if (!wasActive) {
                         UnityEventCallbacks.AddEventListener(
-                            listener: Tick, 
-                            removePreviousListener: true,
+                            Tick, 
                             ApplicationState.PlayMode,
                             UnityEventType.Update);
                         InitializeAutoInspection();
@@ -435,8 +497,10 @@ namespace Ganymed.Monitoring.Core
                 }
                 else
                 {
-                    if(!isEnabled) return;
-                    if(!isActive) return;
+                    if (!isEnabled) IsEnabled = true;
+                    if (!isActive)  IsActive = true;
+                    
+                    if (!isEnabled || !isActive) return;
                 
                     if (!wasVisible)
                         ModuleVisible();
@@ -451,10 +515,10 @@ namespace Ganymed.Monitoring.Core
         }
         
         public void SetVisible(bool visible)
-            => IsVisible = isActive && visible;
+            => IsVisible = visible;
 
         public void SetVisible(bool? visible = null)
-            => IsVisible = isActive && (visible ?? isVisible);
+            => IsVisible = visible ?? isVisible;
         
 
         public bool IsEnabledActiveAndVisible
@@ -516,14 +580,14 @@ namespace Ganymed.Monitoring.Core
         #region --- [VIRTUAL] ---
 
         /// <summary>
-        /// Tick is called every Unity-Update if the module is visible.
+        /// Tick is called every (MonoBehaviour) Update call if the module is active.
         /// </summary>
         protected virtual void Tick()
         {
         }
         
         /// <summary>
-        /// Method is called repeatedly if auto inspection and the module are visible.
+        /// Method is called repeatedly if auto inspection is enabled and the module is active.
         /// Delay between calls can be set in the inspector
         /// </summary>
         protected virtual void OnInspection()
@@ -559,14 +623,14 @@ namespace Ganymed.Monitoring.Core
         }
         
         /// <summary>
-        /// ModuleActivated is called when the module is set visible
+        /// ModuleVisible is called when the module is set visible
         /// </summary>
         protected virtual void ModuleVisible()
         {
         }
 
         /// <summary>
-        /// ModuleDeactivated is called when the module is set invisible
+        /// ModuleInvisible is called when the module is set invisible
         /// </summary>
         protected virtual void ModuleInvisible()
         {
@@ -589,6 +653,7 @@ namespace Ganymed.Monitoring.Core
         {
             id = idCounter++;
             UniqueName = $"{GetType().Name.Replace("Module", string.Empty)}";
+            SceneObject = null;
            
             Modules.Add(this);
             ModuleDictionary.Add(id, this);
@@ -610,12 +675,15 @@ namespace Ganymed.Monitoring.Core
                 }
             } while (doAgain);
 
-            AfterConstruction();
+            ConstructionFinished();
         }
 
-        private async void AfterConstruction()
+        private async void ConstructionFinished()
         {
-            await Task.Delay(1);
+            await Task.CompletedTask.BreakContext();
+            
+            if(OnlyInitializeWhenInScene && !HasSceneObject()) return;
+            
             if(IsEnabled) ModuleEnabled();
             if(IsActive) ModuleActivated();
             if(IsVisible) ModuleVisible();
@@ -629,6 +697,12 @@ namespace Ganymed.Monitoring.Core
         
         // The abstract member in this region are overriden by the generic inheritor class. 
 
+        /// <summary>
+        /// Method can be used to set the value of a module dirty.
+        /// Note that it is not guaranteed that the value can be converted.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <typeparam name="U"></typeparam>
         public abstract void SetValueDirty<U>(U value);
         
         /// <summary>
@@ -675,7 +749,7 @@ namespace Ganymed.Monitoring.Core
         /// Add a listener to the modules Repaint event
         /// </summary>
         /// <param name="listener"></param>
-        public abstract void AddOnRepaintChangedListener(Action<Configuration.StyleBase, string, InvokeOrigin> listener);
+        public abstract void AddOnRepaintListener(Action<Configuration.StyleBase, string, InvokeOrigin> listener);
        
         /// <summary>
         /// Remove a listener form the modules Repaint event
@@ -724,7 +798,11 @@ namespace Ganymed.Monitoring.Core
         public abstract void InitializeEnableEvent(ref ModuleActivationDelegate invoker, bool invert = false);
 
 
-        protected abstract void StartInitialization(UnityEventType context);
+        /// <summary>
+        /// StartInitialization will begin the initialization of the module.
+        /// </summary>
+        /// <param name="context"></param>
+        private protected abstract void StartInitialization(UnityEventType context);
 
         #endregion
     }

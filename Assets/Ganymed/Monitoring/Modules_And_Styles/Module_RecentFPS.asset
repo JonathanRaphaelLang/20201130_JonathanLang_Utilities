@@ -14,18 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isEnabled: 1
   isActive: 1
+  isVisible: 1
+  onlyInitializeWhenInScene: 0
   useCustomStyle: 1
   customStyleBase: {fileID: 11400000, guid: 2523c059b1b1268498f1424081fa59bb, type: 2}
   enableWarnings: 1
-  enableSetUpdateEventWarnings: 1
-  enableSetValueWarnings: 0
+  enableInitializeUpdateEventWarnings: 1
+  enableInitializeValueWarnings: 1
   previewValueAs: 0
   resetValueOnQuit: 0
   prefixText: 'Rescent fps: '
   suffixText: 
   prefixBreak: 0
   suffixBreak: 0
-  description: Displays the recent average maximum and minimum frames per second.
+  description: Monitoring recent average fps measured over a short period of time.
   enableAutoInspection: 0
   secondsBetweenInspections: 1
   showRecentValues: 1

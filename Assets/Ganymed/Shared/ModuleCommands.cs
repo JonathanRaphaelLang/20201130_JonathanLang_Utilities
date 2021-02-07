@@ -33,7 +33,7 @@ namespace Ganymed.Shared
         private static void GetModules()
         {
             const MessageOptions options = MessageOptions.Brackets;
-            Transmission.Start(TransmissionOptions.Enumeration);
+            if(!Transmission.Start(TransmissionOptions.Enumeration)) return;
         
             Transmission.AddLine(
                 new MessageFormat($"Module", Console.Core.Console.ColorTitleSub, options),
@@ -120,7 +120,7 @@ namespace Ganymed.Shared
                     Module.ShowAll(value);
                     break;
                 case ModuleActions.EnabledActiveAndVisible:
-                    Module.InitializeAll(value);
+                    Module.EnableActivateAndShowAllModules(value);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action), action, null);
@@ -139,49 +139,62 @@ namespace Ganymed.Shared
         private const int CommandPriority = 100;
         private const CmdBuildSettings EditorOnly = CmdBuildSettings.ExcludeFromBuild;
         
-        [ConsoleCommand("AddNote", Priority = CommandPriority, BuildSettings = EditorOnly)]
-        private static void AddNote(string add)
+        
+        
+        private const string AddNoteDescription= "Add a note to the list and synchronize it with the TextAsset";
+        
+        [ConsoleCommand("AddNote", Description = AddNoteDescription, Priority = CommandPriority, BuildSettings = EditorOnly)]
+        public static void AddNote([Hint("The content you want to add")]string add)
         {
+            if (add.IsNullOrWhiteSpace())
+            {
+                Console.Core.Console.Log($"Cannot add a note without content", LogOptions.Tab);
+                return;
+            }
             ModuleNotes.Instance.AddNoteAndCompile(add);
             Console.Core.Console.Log($"Added Note: {add}", LogOptions.Tab);
         }
-
-        [ConsoleCommand("CheckNote", DisableNBP = true, Priority = CommandPriority, BuildSettings = EditorOnly)]
-        public static void CheckNote(int index, bool @checked = true)
+        
+        
+        
+        private const string CheckNoteDescription= "Label a note as completed without removing it";
+        
+        [ConsoleCommand("CheckNote", Description = CheckNoteDescription, DisableNBP = true, Priority = CommandPriority, BuildSettings = EditorOnly)]
+        public static void CheckNote([Hint("The index of the note")]int index, [Hint("Label as completed or not")]bool @checked = true)
         {
-            Console.Core.Console.Log($"{(@checked? "Checked" : "Unchecked")} TODO: {index}", LogOptions.Tab);
+            Console.Core.Console.Log($"{(@checked? "Checked" : "Unchecked")} Note: {index}", LogOptions.Tab);
             ModuleNotes.Instance.SetNote(index, @checked);
         }
 
-
-        [ConsoleCommand("RemoveNote", Priority = CommandPriority, BuildSettings = EditorOnly)]
-        public static void RemoveNote(int index)
+        
+        
+        private const string RemoveNoteDescription= "Remove the specified note from the list";
+        
+        [ConsoleCommand("RemoveNote", Description = RemoveNoteDescription, Priority = CommandPriority, BuildSettings = EditorOnly)]
+        public static void RemoveNote([Hint("The index of the note")]int index)
         {
-            Console.Core.Console.Log($"Removed TODO: {index}", LogOptions.Tab);
+            Console.Core.Console.Log($"Removed Note: {index}", LogOptions.Tab);
             ModuleNotes.Instance.RemoveNoteAndCompile(index);
         }
 
-        [ConsoleCommand("ClearNote", Priority = CommandPriority, BuildSettings = EditorOnly)]
-        public static void ClearNote(NoteClearOptions options)
+        
+        
+        private const string ClearNotesDescription= "Remove either checked (default) or all notes form the list.";
+        
+        [ConsoleCommand("ClearNotes", Description = ClearNotesDescription, Priority = CommandPriority, BuildSettings = EditorOnly)]
+        public static void ClearNote(NoteClearOptions options = NoteClearOptions.ClearCompleted)
         {
             switch (options)
             {
                 case NoteClearOptions.ClearAll:
                     ModuleNotes.Instance.RemoveAllDataAndCompile();
-                    Console.Core.Console.Log($"Cleared all Notes", LogOptions.Tab);
+                    Console.Core.Console.Log($"Cleared all Notes:", LogOptions.Tab);
                     return;
                 case NoteClearOptions.ClearCompleted:
                     ModuleNotes.Instance.RemoveCompletedDataAndCompile();
-                    Console.Core.Console.Log($"Cleared completed Notes", LogOptions.Tab);
+                    Console.Core.Console.Log($"Cleared completed Notes:", LogOptions.Tab);
                     return;
             }
-        }
-        
-        [ConsoleCommand("AlterNote", Priority = CommandPriority, BuildSettings = EditorOnly)]
-        public static void AlterNote(int index, bool test, string content)
-        {
-            RemoveNote(index);
-            AddNote(content);
         }
 
         public enum NoteClearOptions

@@ -25,5 +25,15 @@ namespace Ganymed.Utils.ExtensionMethods
         {
             return task.ContinueWith<T>(func, TaskScheduler.FromCurrentSynchronizationContext());
         }
+      
+        /// <summary>
+        /// Method can be used to break the current context. 
+        /// </summary>
+        /// <param name="task"></param>
+        /// <returns></returns>
+        public static Task BreakContext(this Task task)
+        {
+            return Task.Run(() => {});;
+        }
     }
 }

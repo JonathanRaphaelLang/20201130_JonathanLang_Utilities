@@ -9,23 +9,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f499a7cfa9080f2458b83b37c7545d82, type: 3}
-  m_Name: Module_TargetFrameRate
+  m_Script: {fileID: 11500000, guid: cb6b17a74f6683944bd786ab52ff366b, type: 3}
+  m_Name: Module_VSync
   m_EditorClassIdentifier: 
   isEnabled: 1
   isActive: 1
+  isVisible: 1
+  onlyInitializeWhenInScene: 0
   useCustomStyle: 1
   customStyleBase: {fileID: 11400000, guid: 6f7bd260af438e54c89def90f5f66ddf, type: 2}
   enableWarnings: 1
-  enableSetUpdateEventWarnings: 1
-  enableSetValueWarnings: 0
+  enableInitializeUpdateEventWarnings: 1
+  enableInitializeValueWarnings: 1
   previewValueAs: 0
-  prefixText: 'Limit:'
+  resetValueOnQuit: 0
+  prefixText: 'VSync:'
   suffixText: 
   prefixBreak: 0
   suffixBreak: 0
-  description: Monitoring target framerate.
+  description: Monitoring vertical synchronization count.
   enableAutoInspection: 1
   secondsBetweenInspections: 1
-  controlTargetFrameRate: 0
-  fpsLimitations: 2147483647
+  setVsync: 0
+  VSync: 0

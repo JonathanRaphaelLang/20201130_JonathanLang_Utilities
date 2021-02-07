@@ -5,6 +5,7 @@ using Ganymed.Utils.Attributes;
 using Ganymed.Utils.ExtensionMethods;
 using Ganymed.Utils.Singleton;
 using UnityEngine;
+// ReSharper disable DelegateSubtraction
 
 namespace Ganymed.Utils.Callbacks
 {
@@ -193,9 +194,19 @@ namespace Ganymed.Utils.Callbacks
         public static void RemoveEventListener(Action<UnityEventType> listener, ApplicationState applicationState,
             params UnityEventType[] callbackTypes)
         {
-            foreach (var type in callbackTypes) {
-                // ReSharper disable once DelegateSubtraction
-                callbacks[applicationState][type] -= listener;
+            if (callbackTypes.Length > 0)
+            {
+                foreach (var type in callbackTypes)
+                {
+                    callbacks[applicationState][type] -= listener;
+                }
+            }
+            else
+            {
+                foreach (UnityEventType type in Enum.GetValues(typeof(UnityEventType)))
+                {
+                    callbacks[applicationState][type] -= listener;
+                }
             }
         }       
         
@@ -207,9 +218,23 @@ namespace Ganymed.Utils.Callbacks
         /// <param name="callbackTypes">the callback event types you would like to remove the listener from</param>
         public static void RemoveEventListener(Action<UnityEventType> listener, params UnityEventType[] callbackTypes)
         {
-            foreach (var type in callbackTypes) {
-                // ReSharper disable once DelegateSubtraction
-                callbacks[ApplicationState.EditAndPlayMode][type] -= listener;
+            if (callbackTypes.Length > 0)
+            {
+                foreach (var type in callbackTypes)
+                {
+                    callbacks[ApplicationState.EditAndPlayMode][type] -= listener;
+                    callbacks[ApplicationState.EditMode][type] -= listener;
+                    callbacks[ApplicationState.PlayMode][type] -= listener;
+                }
+            }
+            else
+            {
+                foreach (UnityEventType type in Enum.GetValues(typeof(UnityEventType)))
+                {
+                    callbacks[ApplicationState.EditAndPlayMode][type] -= listener;
+                    callbacks[ApplicationState.EditMode][type] -= listener;
+                    callbacks[ApplicationState.PlayMode][type] -= listener;
+                }
             }
         } 
 
@@ -295,9 +320,19 @@ namespace Ganymed.Utils.Callbacks
         public static void RemoveEventListener(Action listener, ApplicationState applicationState,
             params UnityEventType[] callbackTypes)
         {
-            foreach (var type in callbackTypes) {
-                // ReSharper disable once DelegateSubtraction
-                actions[applicationState][type] -= listener;
+            if (callbackTypes.Length > 0)
+            {
+                foreach (var type in callbackTypes)
+                {
+                    actions[applicationState][type] -= listener;
+                }
+            }
+            else
+            {
+                foreach (UnityEventType type in Enum.GetValues(typeof(UnityEventType)))
+                {
+                    actions[applicationState][type] -= listener;
+                }
             }
         }       
         
@@ -309,9 +344,23 @@ namespace Ganymed.Utils.Callbacks
         /// <param name="callbackTypes">the callback event types you would like to remove the listener from</param>
         public static void RemoveEventListener(Action listener, params UnityEventType[] callbackTypes)
         {
-            foreach (var type in callbackTypes) {
-                // ReSharper disable once DelegateSubtraction
-                actions[ApplicationState.EditAndPlayMode][type] -= listener;
+            if (callbackTypes.Length > 0)
+            {
+                foreach (var type in callbackTypes)
+                {
+                    actions[ApplicationState.EditAndPlayMode][type] -= listener;
+                    actions[ApplicationState.EditMode][type] -= listener;
+                    actions[ApplicationState.PlayMode][type] -= listener;
+                }
+            }
+            else
+            {
+                foreach (UnityEventType type in Enum.GetValues(typeof(UnityEventType)))
+                {
+                    actions[ApplicationState.EditAndPlayMode][type] -= listener;
+                    actions[ApplicationState.EditMode][type] -= listener;
+                    actions[ApplicationState.PlayMode][type] -= listener;
+                }
             }
         } 
 

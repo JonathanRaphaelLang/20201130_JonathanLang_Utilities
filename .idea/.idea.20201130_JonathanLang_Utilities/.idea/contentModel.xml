@@ -14,7 +14,11 @@
       <e p="Assembly-Ganymed-Utils-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-Ganymed-Utils.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
+        <e p="ConsoleLogCounter.cs" t="Include" />
         <e p="Documents" t="Include">
+          <e p="Backlog" t="Include">
+            <e p="Backlog.txt" t="Include" />
+          </e>
           <e p="TODO.txt" t="Include" />
         </e>
         <e p="Ganymed" t="Include">
@@ -40,6 +44,7 @@
               <e p="Core" t="Include">
                 <e p="Console.cs" t="Include" />
                 <e p="ConsoleConfiguration.cs" t="Include" />
+                <e p="InputCache.cs" t="Include" />
                 <e p="SystemCommands.cs" t="Include" />
               </e>
               <e p="Editor" t="Include">
@@ -102,8 +107,8 @@
             <e p="CommandExamples.cs" t="Include" />
             <e p="GetSetExamples.cs" t="Include" />
             <e p="Modules" t="Include">
-              <e p="ModuleExample.cs" t="Include" />
-              <e p="ModuleExampleMethods.cs" t="Include" />
+              <e p="ModuleExample_Methods.cs" t="Include" />
+              <e p="ModuleExample_Timer.cs" t="Include" />
             </e>
             <e p="TransmissionExample.cs" t="Include" />
             <e p="WarningExamples.cs" t="Include" />

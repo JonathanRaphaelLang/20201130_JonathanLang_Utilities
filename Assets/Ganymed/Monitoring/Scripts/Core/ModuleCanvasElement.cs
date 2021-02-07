@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Ganymed.Monitoring.Configuration;
 using Ganymed.Utils;
+using Ganymed.Utils.ExtensionMethods;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -119,11 +120,13 @@ namespace Ganymed.Monitoring.Core
             target.SetText(module.GetState(ValueInterpretationOption.Default), InvokeOrigin.Constructor);
             target.module = module;
             target.element = where;
+
+            module.SceneObject = where;
             
             module.AddOnValueChangedListener(OnValueChangedContext.Initialization, target.ModuleEventInitialization);
             module.AddOnValueChangedListener(OnValueChangedContext.Update, target.ModuleEventUpdate);
             
-            module.AddOnRepaintChangedListener(target.ModuleGUIEvent);
+            module.AddOnRepaintListener(target.ModuleGUIEvent);
             module.OnAnyStateChanged += target.ModuleActiveAndEnabledStateChanged;
             
             module.Repaint(InvokeOrigin.Constructor);
@@ -182,18 +185,6 @@ namespace Ganymed.Monitoring.Core
             moduleText.fontSize = ctx.individualFontSize? ctx.infixFontSize : ctx.fontSize;
         }
 
-        private void Show(IModuleData data)
-        {
-            if(moduleText != null)
-                moduleText.enabled = true;
-        }
-
-        private void Hide(IModuleData data)
-        {
-            if(moduleText != null)
-                moduleText.enabled = false;
-        }
-
         private void ModuleEventUpdate(IModuleData data)
         {
             SetText(data.State, InvokeOrigin.Constructor);
@@ -224,7 +215,7 @@ namespace Ganymed.Monitoring.Core
                 moduleText.fontSize = Mathf.Clamp(size, Configuration.StyleBase.MINFONTSIZE, Configuration.StyleBase.MAXFONTSIZE);
         }
 
-        private void SetMargins(Vector4 margin, InvokeOrigin source)
+        private async void SetMargins(Vector4 margin, InvokeOrigin source)
         {
             if(moduleText == null)
                 return;
@@ -239,8 +230,8 @@ namespace Ganymed.Monitoring.Core
             moduleText.fontSize--;
             
             // Only force update canvas if application is not in playmode to prevent it being send by message (Awake/Start)
-            if(source != InvokeOrigin.UnityMessage)
-                Canvas.ForceUpdateCanvases();
+            await Task.CompletedTask.BreakContext();
+            Canvas.ForceUpdateCanvases();
         }
 
         private void SetAlignment(TextAlignmentOptions alignment)
