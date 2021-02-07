@@ -20,15 +20,7 @@ namespace Ganymed.Console.Core
         #region --- [INSPECTOR] ---
         
         [Tooltip("NA")]
-        [SerializeField] internal bool enabled = true;
-        
-        [Tooltip("NA")]
         [SerializeField] internal bool active = true;
-        
-        [Tooltip("NA")]
-        [SerializeField] internal bool visible = true;
-        
-        
         
         [Header("Commands")]
         [Tooltip("use this as a prefix")]

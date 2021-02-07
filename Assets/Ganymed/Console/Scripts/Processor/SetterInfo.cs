@@ -8,7 +8,7 @@ namespace Ganymed.Console.Processor
     internal sealed class SetterInfo : GetterSetterInfo
     {
         [CanBeNull] private readonly object DefaultValue = null;
-        internal object GetDefaultValue() => DefaultValue ?? ValueType.GetDefault();
+        internal object GetDefaultValue() => DefaultValue ?? ValueType.TryGetDefaultInstance();
         
         /// <summary>
         /// Set the value of the property/field

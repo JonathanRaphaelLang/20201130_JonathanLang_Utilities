@@ -47,6 +47,7 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: e43a94a3b4be36a4cb4dbadf6587c108, type: 2}
   modulesUpperLeft:
   - {fileID: 11400000, guid: b641334507dabb147801144033263e18, type: 2}
+  - {fileID: 11400000, guid: 4b87b541cdfaa304d91721c1c85dd150, type: 2}
   modulesUpperRight:
   - {fileID: 11400000, guid: ed0be4637454d98468c7f1f050b10645, type: 2}
   - {fileID: 11400000, guid: 1dde403291c082f449fe7cf8a61830d6, type: 2}

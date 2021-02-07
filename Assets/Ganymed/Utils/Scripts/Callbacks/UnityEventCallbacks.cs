@@ -43,8 +43,6 @@ namespace Ganymed.Utils.Callbacks
         
         public static void CreateGameObjectInstance()
         {
-            Debug.Log("Creating Instance");
-            
             try
             {
                 var guids = UnityEditor.AssetDatabase.FindAssets("t:prefab", new[] { "Assets" });

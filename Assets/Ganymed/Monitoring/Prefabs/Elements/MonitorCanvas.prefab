@@ -623,7 +623,7 @@ MonoBehaviour:
   - {fileID: 3765565695116917984}
   isEnabled: 1
   isActive: 1
-  isVisible: 0
+  isVisible: 1
 --- !u!114 &411868150040834582
 MonoBehaviour:
   m_ObjectHideFlags: 0

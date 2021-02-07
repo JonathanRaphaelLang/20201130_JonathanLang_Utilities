@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Reflection;
 using UnityEngine;
 
@@ -18,10 +19,10 @@ namespace Ganymed.Utils.ExtensionMethods
         /// <param name="type"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static object GetDefault(this Type type)
+        public static object TryGetDefaultInstance(this Type type)
         {
             // If no Type was supplied, if the Type was a reference type, or if the Type was a System.Void, return null
-            if (type == null || !type.IsValueType || type == typeof(void))
+            if (type == null || type == typeof(void))
                 return null;
             
             if (type.IsEnum)
@@ -31,6 +32,11 @@ namespace Ganymed.Utils.ExtensionMethods
                 }
             }
 
+            if (type == typeof(string))
+            {
+                return string.Empty;
+            }
+            
             // If the supplied Type has generic parameters, its default value cannot be determined
             if (type.ContainsGenericParameters)
                 throw new ArgumentException(
@@ -38,9 +44,40 @@ namespace Ganymed.Utils.ExtensionMethods
                     "> contains generic parameters, so the default value cannot be retrieved");
 
             // If the type is of type string return an empty string 
-            if (type == typeof(string))
+            
+            if (type.IsClass)
             {
-                return string.Empty;
+                try
+                {
+                    return type.IsAssignableFrom(typeof(MonoBehaviour)) || type.IsSubclassOf(typeof(MonoBehaviour)) ? null : Activator.CreateInstance(type);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            
+            if (type.IsArray)
+            {
+                return type.GetArrayRank() > 1 ? Array.CreateInstance(type.GetElementType() ?? throw new Exception(), new int[type.GetArrayRank()]) : Array.CreateInstance(type.GetElementType()?? throw new Exception(), 0);
+            }
+            
+            if (typeof(IEnumerable).IsAssignableFrom(type))
+            {
+                // check if an empty array is an instance of T
+                if (type.IsAssignableFrom(typeof(object[])))
+                {
+                    return new object[0];
+                }
+
+                if (type.IsGenericType && type.GetGenericArguments().Length == 1)
+                {
+                    var elementType = type.GetGenericArguments()[0];
+                    if (type.IsAssignableFrom(elementType.MakeArrayType()))
+                    {
+                        return Array.CreateInstance(elementType, 0);
+                    }
+                }
             }
 
             // If the Type is a primitive type, or if it is another publicly-visible value type (i.e. struct/enum), return a 

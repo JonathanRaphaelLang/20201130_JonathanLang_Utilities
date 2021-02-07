@@ -12,7 +12,7 @@ namespace Ganymed.Monitoring.Core
 {
     [ExecuteAlways]
     [AddComponentMenu("Monitoring/Monitor")]
-    public class MonitorBehaviour : MonoSingleton<MonitorBehaviour>
+    public sealed class MonitorBehaviour : MonoSingleton<MonitorBehaviour>
     {
         #region --- [CONFIG] ---
 #pragma warning disable 649
@@ -79,6 +79,17 @@ namespace Ganymed.Monitoring.Core
         #region --- [CONSTRUCTOR] ---
 #if UNITY_EDITOR
 
+        private MonitorBehaviour()
+        {
+            UnityEventCallbacks.AddEventListener(
+                () => MonitoringCanvasBehaviour.SetHideFlags(hideCanvas ? HideFlags.HideInHierarchy : HideFlags.None), 
+                UnityEventType.Recompile,
+                UnityEventType.TransitionEditPlayMode);
+        }
+
+        private void OnEnable() =>
+            MonitoringCanvasBehaviour.SetHideFlags(hideCanvas ? HideFlags.HideInHierarchy : HideFlags.None);
+
         static MonitorBehaviour()
         {
             UnityEventCallbacks.AddEventListener(OnScriptsReloaded, true, UnityEventType.Recompile);
@@ -111,8 +122,24 @@ namespace Ganymed.Monitoring.Core
                 Debug.Log("Validating Canvas.");
             ValidateCanvasInstance(origin);
         }
-        
-                
+
+        private void OnDestroy()
+        {
+            try
+            {
+                if(Application.isPlaying)
+                    Destroy(CanvasBehaviour.gameObject);
+                else
+                {
+                    DestroyImmediate(CanvasBehaviour.gameObject);
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
         /// <summary>
         /// Force every canvas elements to reload.
         /// </summary>

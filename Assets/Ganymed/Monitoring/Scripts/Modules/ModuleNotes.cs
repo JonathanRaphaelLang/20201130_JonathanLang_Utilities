@@ -25,8 +25,12 @@ namespace Ganymed.Monitoring.Modules
         private List<Note> Notes = new List<Note>();
         
         private string EditorContentCache = string.Empty;
-
+        
         #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+
+        #region --- [STRUCT] ---
 
         private readonly struct Note
         {
@@ -39,6 +43,8 @@ namespace Ganymed.Monitoring.Modules
                 this.done = done;
             }
         }
+
+        #endregion
         
         //--------------------------------------------------------------------------------------------------------------
 

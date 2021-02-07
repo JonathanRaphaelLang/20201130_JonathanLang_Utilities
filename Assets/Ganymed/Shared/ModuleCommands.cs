@@ -4,6 +4,8 @@ using Ganymed.Console.Attributes;
 using Ganymed.Console.Transmissions;
 using Ganymed.Monitoring.Core;
 using Ganymed.Monitoring.Modules;
+using Ganymed.Utils.ExtensionMethods;
+using UnityEngine;
 
 namespace Ganymed.Shared
 {
@@ -48,9 +50,9 @@ namespace Ganymed.Shared
                 Transmission.AddLine(
                     module.Value.UniqueName,
                     module.Value.UniqueId,
-                    module.Value.IsEnabled,
-                    module.Value.IsActive,
-                    module.Value.IsVisible,
+                    new MessageFormat(module.Value.IsEnabled, module.Value.IsEnabled? RichText._green : RichText._red),
+                    new MessageFormat(module.Value.IsActive, module.Value.IsActive? RichText._green : RichText._red),
+                    new MessageFormat(module.Value.IsVisible, module.Value.IsVisible? RichText._green : RichText._red),
                     module.Value.GetTypeOfTAsString(),
                     module.Value.Description ?? "n/a");
             }

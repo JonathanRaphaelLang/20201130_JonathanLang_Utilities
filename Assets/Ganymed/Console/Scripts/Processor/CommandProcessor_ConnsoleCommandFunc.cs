@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Ganymed.Console.Attributes;
 using Ganymed.Console.Transmissions;
-using Ganymed.Utils;
 using Ganymed.Utils.ExtensionMethods;
 using Ganymed.Utils.Structures;
 using UnityEngine;
@@ -832,7 +831,7 @@ namespace Ganymed.Console.Processor
                                                 }
                                                 else
                                                 {
-                                                    proposal = parameterInformation[i].ParameterType.GetDefault().ToString();
+                                                    proposal = parameterInformation[i].ParameterType.TryGetDefaultInstance().ToString();
                                                 }
 
                                             proposal = proposal.Replace("RGBA", string.Empty);

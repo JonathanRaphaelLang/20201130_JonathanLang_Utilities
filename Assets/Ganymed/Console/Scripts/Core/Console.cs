@@ -19,7 +19,7 @@ namespace Ganymed.Console.Core
 
 #endif
     
-    public sealed class Console : MonoSingleton<Console>, IState, IConsoleInterface
+    public sealed class Console : MonoSingleton<Console>, IActive, IConsoleInterface
     {
         #region --- [INSPECOTR] ---
 #pragma warning disable 649
@@ -63,9 +63,30 @@ namespace Ganymed.Console.Core
         
         private static TextMeshProUGUI Output
         {
-            get => output != null ? output : Instance.outputField;
-            set => output = value;
+            get
+            {
+                try
+                {
+                    return output != null ? output : Instance.outputField;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                try
+                {
+                    output = value;
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
         }
+
         private static TextMeshProUGUI output = null;
 
         
@@ -300,15 +321,9 @@ namespace Ganymed.Console.Core
 
             #endregion
             
-            if (config.enabled != isEnabled)
-                SetEnabled(config.enabled);
-            
             if (config.active != isActive)
                 SetActive(config.active);
             
-            if (config.visible != isVisible)
-                SetVisible(config.visible);
-
             if(frostedGlass != null)
                 frostedGlass.enabled = config.allowShader;
             
@@ -376,7 +391,7 @@ namespace Ganymed.Console.Core
         /// <summary>
         /// Use this method to toggle the console On/Off
         /// </summary>
-        public void Toggle() => SetVisible(!isVisible);         
+        public void Toggle() => SetActive(!isActive);         
         
         /// <summary>
         /// Use the current proposed input.
@@ -401,99 +416,35 @@ namespace Ganymed.Console.Core
         //--------------------------------------------------------------------------------------------------------------
         
         #region --- [STATE] ---
+
         
-        public event EnabledDelegate OnEnabledStateChanged;
-        public event ActiveAndVisibleDelegate OnAnyStateChanged;
-        public event VisibilityDelegate OnVisibilityStateChanged;
         public event ActiveDelegate OnActiveStateChanged;
-
-
-        public bool IsEnabled
-        {
-            get => isEnabled;
-            private set
-            {
-                isEnabled = value;
-                Configuration.enabled = value;
-
-                OnAnyStateChanged?.Invoke(IsEnabled, IsActive, IsVisible);
-                OnEnabledStateChanged?.Invoke(value);
-                
-                if (isVisible && value) ActivateConsole();
-                if (!value) IsVisible = false;
-                if (!value) IsActive = false;
-            }
-        }
-        public void SetEnabled(bool enable)
-            => IsEnabled = enable;
-        [SerializeField] [HideInInspector] private bool isEnabled = true;
-        
-        
 
         public bool IsActive
         {
             get => isActive;
             private set
             {
-                isActive = value;
-                Configuration.active = value;
-
-                OnAnyStateChanged?.Invoke(IsEnabled, IsActive, IsVisible);
-                OnActiveStateChanged?.Invoke(value);
+                try
+                {
+                    isActive = value;
+                    Configuration.active = value;
+                    
+                    OnActiveStateChanged?.Invoke(value);
                 
-                if (isVisible && value) ActivateConsole();
-                if (!value) IsVisible = false;
-                else DeactivateConsole();
+                    if (value) ActivateConsole();
+                    else DeactivateConsole();
+                }
+                catch
+                {
+                    //ignored
+                }
             }
         }
         [SerializeField] [HideInInspector] private bool isActive = true;
         public void SetActive(bool active)
             => IsActive = active;
 
-
-        public bool IsVisible
-        {
-            get => isVisible;
-            private set
-            {
-                isVisible = value;
-                if (Configuration != null) Configuration.visible = value;
-
-                OnAnyStateChanged?.Invoke(IsEnabled, IsActive, IsVisible);
-                OnVisibilityStateChanged?.Invoke(value);
-                
-                if (isActive && value) ActivateConsole();
-                else DeactivateConsole();
-            }
-        }
-        
-        [SerializeField] [HideInInspector] private bool isVisible;
-        public void SetVisible(bool visible)
-            => IsVisible = isActive? visible : isVisible;
-        
-
-        
-        public bool IsEnabledActiveAndVisible
-        {
-            get => IsEnabled && IsActive && IsVisible;
-            private set
-            {
-                isEnabled = value;
-                isActive = value;
-                isVisible = value;
-                
-                OnAnyStateChanged?.Invoke(IsEnabled, IsActive, IsVisible);
-                OnEnabledStateChanged?.Invoke(value);
-                OnActiveStateChanged?.Invoke(value);
-                OnVisibilityStateChanged?.Invoke(value);
-
-                if (value) ActivateConsole();
-                else DeactivateConsole();
-            }
-        }
-
-        public void SetStates(bool value)
-            => IsEnabledActiveAndVisible = value;
         
         #endregion
         
@@ -506,20 +457,24 @@ namespace Ganymed.Console.Core
         private async void ActivateConsole()
         {
             await Task.Delay(1);
-            if(gameObject == null) return;
-            if(consoleFrame != null)
-                consoleFrame.SetActive(true);
-            gameObject.SetActive(true);
-            inputField.ActivateInputField();
-            if (enableCursorOnActivation)
+            try
             {
-                cachedCursorVisibility = Cursor.visible;
-                cachedCursorState = Cursor.lockState;
+                consoleFrame.SetActive(true);
+                inputField.ActivateInputField();
+                if (enableCursorOnActivation)
+                {
+                    cachedCursorVisibility = Cursor.visible;
+                    cachedCursorState = Cursor.lockState;
                         
-                Cursor.visible = true;
-                Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+                    Cursor.lockState = CursorLockMode.None;
+                }
+                OnToggle?.Invoke(true);
             }
-            OnToggle?.Invoke(true);
+            catch
+            {
+                return;
+            }
         }
 
 
@@ -831,8 +786,6 @@ namespace Ganymed.Console.Core
                 return;
             }
             
-            Debug.Log("Creating Instance");
-            
             try
             {
                 var guids = UnityEditor.AssetDatabase.FindAssets("t:prefab", new[] { "Assets" });
@@ -881,16 +834,21 @@ namespace Ganymed.Console.Core
             if(config.logConfigurationOnStart)
                 config.LogConfiguration(false);
             
-            SetVisible(config.activateConsoleOnStart);
+            if(config.activateConsoleOnStart && !isActive)
+                SetActive(true);
+        }
+
+        private void OnEnable()
+        {
+            UnityEventCallbacks.ValidateUnityEventCallbacks();
         }
 
 
         private void Initialize()
         {
             UnityEventCallbacks.ValidateUnityEventCallbacks();
-            
             if(isInitialized || this == null) return;
-            SetVisible(config.visible);
+            SetActive(config.active);
             isInitialized = true;
             
             outputField.text = string.Empty;

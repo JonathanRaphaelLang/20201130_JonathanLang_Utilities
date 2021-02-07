@@ -12,7 +12,7 @@ namespace Ganymed.Examples.Modules
         
         protected override void OnInitialize()
         {
-            InitializeValue(myValue);
+            InitializeValue();
             InitializeUpdateEvent(ref OnValueChanged);
         }
         

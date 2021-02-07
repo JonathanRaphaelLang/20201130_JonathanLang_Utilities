@@ -56,11 +56,11 @@ namespace Ganymed.Monitoring.Core
 
         public sealed override object GetValue() => value;
 
-        
+
         /// <summary>
         /// The default value of the modules type
         /// </summary>
-        public static readonly T Default = default;
+        public static T Default { get; private set; }
 
         /// <summary>
         /// The last and/or cached newValue of T
@@ -177,9 +177,13 @@ namespace Ganymed.Monitoring.Core
         /// </summary>
         /// <param name="currentValue"></param>
         /// <returns></returns>
-        protected virtual string ParseToString(T currentValue) => currentValue.ToString();
+        protected virtual string ParseToString(T currentValue)
+        {
+            if (currentValue != null) return currentValue.ToString();
+            else return string.Empty;
+        }
 
-        
+
         /// <summary>
         /// OnBeforeUpdate is invoked at the beginning of a module update and before the value is processed.
         /// </summary>
@@ -369,41 +373,7 @@ namespace Ganymed.Monitoring.Core
         
         static Module()
         {
-            if (typeof(T).IsArray)
-            {
-                if (typeof(T).GetArrayRank() > 1)
-                    Default = (T)(object)Array.CreateInstance(typeof(T).GetElementType() ?? throw new Exception(), new int[typeof(T).GetArrayRank()]);
-                else
-                    Default = (T)(object)Array.CreateInstance(typeof(T).GetElementType()?? throw new Exception(), 0);
-                return;
-            }
-            
-            if (typeof(T) == typeof(string))
-            {
-                // string is IEnumerable<char>, but don't want to treat it like a collection
-                Default = (T)(object)string.Empty;
-                return;
-            }
-            
-            if (typeof(IEnumerable).IsAssignableFrom(typeof(T)))
-            {
-                // check if an empty array is an instance of T
-                if (typeof(T).IsAssignableFrom(typeof(object[])))
-                {
-                    Default = (T)(object)new object[0];
-                    return;
-                }
-
-                if (typeof(T).IsGenericType && typeof(T).GetGenericArguments().Length == 1)
-                {
-                    Type elementType = typeof(T).GetGenericArguments()[0];
-                    if (typeof(T).IsAssignableFrom(elementType.MakeArrayType()))
-                    {
-                        Default = (T)(object)Array.CreateInstance(elementType, 0);
-                        return;
-                    }
-                }
-            }
+            Default = (T) typeof(T).TryGetDefaultInstance();
         }
         
         
@@ -470,6 +440,14 @@ namespace Ganymed.Monitoring.Core
             ValidateInitialization();
             
             Repaint(InvokeOrigin.Initialization);
+            
+            moduleData = new ModuleData<T>(
+                value: value,
+                state: GetState(PreviewValueAs),
+                stateRaw: GetStateRaw(),
+                eventType: OnValueChangedContext.Editor,
+                sender: this);
+            
             Finalize(OnValueChangedContext.Initialization);
         }
 
@@ -531,18 +509,14 @@ namespace Ganymed.Monitoring.Core
         protected void InitializeValue(ref T newValue)
         {
             value = newValue;
-            valueInitialized = true;
-        }
-
-        /// <summary>
-        /// Override the default newValue of T (ref) 
-        /// </summary>
-        /// <param name="newValue">new default (you can pass as ref)</param>
-        /// <param name="old">old default</param>
-        protected void InitializeValue(ref T newValue, out T old)
-        {
-            old = value;
-            value = newValue;
+            Default = (T)(Default as object ?? value);
+            
+            if (value == null)
+            {
+                Debug.LogException(new Exception($"Warning. No Default Instance of {typeof(T)} could be instantiated!\n " +
+                                                 $"Only nullable types with an accessible default constructor are supported!"));
+            }
+            
             valueInitialized = true;
         }
                 
@@ -550,26 +524,19 @@ namespace Ganymed.Monitoring.Core
         /// Override the default newValue of T 
         /// </summary>
         /// <param name="newValue">new default</param>
-        protected void InitializeValue(T newValue)
+        protected void InitializeValue(T newValue = default)
         {
-            value = newValue;
+            value = (T)(newValue as object ?? Default);
+            Default = (T)(Default as object ?? value);
+            
+            if (value == null) {
+                Debug.LogException(new Exception($"Warning. No Default Instance of {typeof(T)} could be instantiated!\n " +
+                                                 $"Only nullable types with an accessible default constructor are supported!"));
+            }
+            
             valueInitialized = true;
         }
-
-        /// <summary>
-        /// Override the default newValue of T 
-        /// </summary>
-        /// <param name="newValue">new default (you can pass as ref)</param>
-        /// <param name="old">old default</param>
-        protected void InitializeValue(T newValue, out T old)
-        {
-            old = value;
-            value = newValue;
-            valueInitialized = true;
-        }
-        
-        
-        
+      
         // --- ACTIVATION ---
         
         /// <summary>
@@ -692,12 +659,9 @@ namespace Ganymed.Monitoring.Core
         public override async void Repaint(InvokeOrigin origin) 
         {
             await CompileContent();
-            
-            if (Default == null) 
-                return;
 
             moduleData = new ModuleData<T>(
-                value: Default,
+                value: value,
                 state: GetState(PreviewValueAs),
                 stateRaw: GetStateRaw(),
                 eventType: OnValueChangedContext.Editor,

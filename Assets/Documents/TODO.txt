@@ -1,5 +1,5 @@
 //TODO: Add params array support for console commands.
-//TODO: Fix string arguments for command with multiple parameter.
+//TODO: Fix string arguments for commands with multiple parameters.
 //TODO: Complete Documentation.
 //TODO: Add Example Modules [X]
 //TODO: Add Module Creation to documentation.
