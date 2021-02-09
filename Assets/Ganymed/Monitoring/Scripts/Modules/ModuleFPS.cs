@@ -12,7 +12,7 @@ namespace Ganymed.Monitoring.Modules
         #region --- [INSPECTOR] ---
 #pragma warning disable 649
         
-        [Header("Configuration")]
+        [Header("Settings")]
         [SerializeField] [Range(1,4)] private int preDecimalPlaces = 2;
         [SerializeField] [Range(0,10)] private int postDecimalPlaces = 2;
         [SerializeField] [Range(.1f,1)] private float measurePeriod = 0.5f;

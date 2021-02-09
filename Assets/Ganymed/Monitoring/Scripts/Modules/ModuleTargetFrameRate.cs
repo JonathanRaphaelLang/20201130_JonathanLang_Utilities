@@ -10,7 +10,7 @@ namespace Ganymed.Monitoring.Modules
     {
         #region --- [INSPECTOR] ---
 
-        [Header("TFR Configuration")]
+        [Header("TFR Settings")]
         [SerializeField] private bool controlTargetFrameRate = false;
         [SerializeField] private FPSLimitations fpsLimitations = FPSLimitations.DontLimit;
 

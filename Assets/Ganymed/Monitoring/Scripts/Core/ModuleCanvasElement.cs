@@ -160,14 +160,14 @@ namespace Ganymed.Monitoring.Core
 
         #region --- MODULE GUI EVENT ----
 
-        private void ModuleGUIEvent(StyleBase style, string state, InvokeOrigin invokeOrigin)
+        private void ModuleGUIEvent(Style style, string state, InvokeOrigin invokeOrigin)
         {
             if(style == null) return;
             
             SetText(state,invokeOrigin);
-            SetMargins(style.Margins, invokeOrigin);
-            SetColor(style.ColorBackground, invokeOrigin);
-            SetFontSize(style.FontSize, invokeOrigin);
+            SetMargins(style.margins, invokeOrigin);
+            SetColor(style.colorBackground, invokeOrigin);
+            SetFontSize(style.fontSize, invokeOrigin);
             SetAlignment(style.alignment);
         }
 
@@ -181,7 +181,7 @@ namespace Ganymed.Monitoring.Core
         private void ModuleEventInitialization (IModuleData data)
         {
             SetText(data.State, InvokeOrigin.Initialization);
-            var ctx = data.Sender.Configuration;
+            var ctx = data.Sender.Style;
             moduleText.fontSize = ctx.individualFontSize? ctx.infixFontSize : ctx.fontSize;
         }
 
@@ -212,7 +212,7 @@ namespace Ganymed.Monitoring.Core
         private void SetFontSize(float size, InvokeOrigin source)
         {
             if(moduleText != null)
-                moduleText.fontSize = Mathf.Clamp(size, Configuration.StyleBase.MINFONTSIZE, Configuration.StyleBase.MAXFONTSIZE);
+                moduleText.fontSize = Mathf.Clamp(size, Style.MinFontSize, Style.MaxFontSize);
         }
 
         private async void SetMargins(Vector4 margin, InvokeOrigin source)

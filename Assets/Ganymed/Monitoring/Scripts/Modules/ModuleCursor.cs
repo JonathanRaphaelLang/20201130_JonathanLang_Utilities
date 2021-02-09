@@ -93,18 +93,18 @@ namespace Ganymed.Monitoring.Modules
             {
                 case CursorLockMode.None:
                     return $"[{(Cursor.visible ? $"{visibleColorMarkup}Visible" : $"{invisibleColorMarkup}Hidden")}" +
-                           $"{Configuration.infixColor.AsRichText()}] " +
-                           $"[{unlockedColorMarkup}Free{Configuration.infixColor.AsRichText()}]";
+                           $"{Style.infixColor.AsRichText()}] " +
+                           $"[{unlockedColorMarkup}Free{Style.infixColor.AsRichText()}]";
                 
                 case CursorLockMode.Locked:
                     return $"[{(Cursor.visible ? $"{visibleColorMarkup}Visible" : $"{invisibleColorMarkup}Hidden")}" +
-                           $"{Configuration.infixColor.AsRichText()}] " +
-                           $"[{lockedColorMarkup}Locked{Configuration.infixColor.AsRichText()}]";
+                           $"{Style.infixColor.AsRichText()}] " +
+                           $"[{lockedColorMarkup}Locked{Style.infixColor.AsRichText()}]";
                 
                 case CursorLockMode.Confined:
                     return $"[{(Cursor.visible ? $"{visibleColorMarkup}Visible" : $"{invisibleColorMarkup}Hidden")}" +
-                           $"{Configuration.infixColor.AsRichText()}] " +
-                           $"[{confinedColorMarkup}Confined{Configuration.infixColor.AsRichText()}]";
+                           $"{Style.infixColor.AsRichText()}] " +
+                           $"[{confinedColorMarkup}Confined{Style.infixColor.AsRichText()}]";
                 
                 default:
                     throw new ArgumentOutOfRangeException();

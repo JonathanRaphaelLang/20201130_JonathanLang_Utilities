@@ -12,7 +12,7 @@ namespace Ganymed.Utils.Singleton
         #region --- [FIELDS] ---
 
         private static T _instance;
-
+        
         public static void SetHideFlags(HideFlags flags)
         {
             if (TryGetInstance(out var i))

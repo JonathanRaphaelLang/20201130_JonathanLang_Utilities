@@ -19,28 +19,28 @@ namespace Ganymed.Utils.Optimization
             
             if (!enable)
             {
-                if(OptimizationManager.EnableWarnings) Debug.LogWarning(
+                if(OptimizationSettings.Instance.EnableComponentWarnings) Debug.LogWarning(
                     $"Warning: Component must be enabled if you want to destroy the GameObject! [{gameObject.name}]");
                 return;
             }
             
-            if (!OptimizationManager.EnableDestroyOnLoad)
+            if (!OptimizationSettings.Instance.EnableDestroyOnLoad)
             {
-                if(OptimizationManager.EnableWarnings) Debug.LogWarning(
+                if(OptimizationSettings.Instance.EnableComponentWarnings) Debug.LogWarning(
                     $"Warning: DestroyOnLoad must be enabled in the Hierarchy-Optimization-Configuration if you want to destroy the GameObject! [{gameObject.name}]");
                 return;
             }
             
             if (!Application.isPlaying && !enableInEditMode)
             {
-                if(OptimizationManager.EnableWarnings) Debug.LogWarning(
+                if(OptimizationSettings.Instance.EnableComponentWarnings) Debug.LogWarning(
                     $"Warning: Application must be running if you want to automatically destroy the GameObject! [{gameObject.name}]");
                 return;
             }
 
             if (transform.childCount > 0 && !deleteObjectsWithChildren)
             {
-                if(OptimizationManager.EnableWarnings) Debug.LogWarning(
+                if(OptimizationSettings.Instance.EnableComponentWarnings) Debug.LogWarning(
                     $"Warning: Cannot destroy GameObject with children! [{gameObject.name}]");
                 return;
             }
@@ -48,7 +48,7 @@ namespace Ganymed.Utils.Optimization
             
             if (transform.GetComponents<Component>().Length > 2 && !deleteObjectsWithComponents)
             {
-                if(OptimizationManager.EnableWarnings) Debug.LogWarning(
+                if(OptimizationSettings.Instance.EnableComponentWarnings) Debug.LogWarning(
                     $"Warning: Cannot destroy GameObject with components! [{gameObject.name}]");
                 return;
             }
@@ -88,12 +88,18 @@ namespace Ganymed.Utils.Optimization
 
         public override void OnInspectorGUI()
         {
-            if (!OptimizationManager.EnableDestroyOnLoad)
+            if (!OptimizationSettings.Instance.EnableDestroyOnLoad)
             {
                 UnityEditor.EditorGUILayout.Space();
+                UnityEditor.EditorGUILayout.BeginHorizontal();
                 UnityEditor.EditorGUILayout.HelpBox(
-                    "Automatic DestroyOnLoad is disabled. It can be enabled in the Hierarchy-Optimization-Configuration.",
+                    $"Automatic DestroyOnLoad is disabled. It can be enabled in the {nameof(OptimizationSettings)}.",
                     UnityEditor.MessageType.Info);
+                if(GUILayout.Button("Edit Settings", GUILayout.Width(100), GUILayout.Height(40)))
+                {
+                    OptimizationSettings.EditSettings();
+                }
+                UnityEditor.EditorGUILayout.EndHorizontal();
                 UnityEditor.EditorGUILayout.Space();
             }
             

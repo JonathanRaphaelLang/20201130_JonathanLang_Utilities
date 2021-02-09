@@ -57,7 +57,7 @@ namespace Ganymed.Examples
         // => Description (string): Custom description for the command.
         // => Priority (int): Higher priorities will be prefered by autocompletion and are shown higher up in listings.
         // => DisableNBP (bool): Determines if numeric input for boolean parameter for this command is disabled.
-        //    Note that nbp (numeric boolean processing) can also be controlled via global configuration.
+        //    Note that nbp (numeric boolean processing) can also be controlled via global settings.
         //    Use this property to disable nbp for specific commands. 
         // => BuildSettings (Enum): Bitmask containing instructions for alternative handling of commands in builds.
         //    If you dont want alt command behaviour in your build leave this property as it is.
@@ -116,7 +116,7 @@ namespace Ganymed.Examples
 
         
         // Booleans can be passed as "true" / "false" or additionally "1" / "0" if NBP (numeric bool processing) is
-        // enabled in the console configuration as well as the attribute. By default NBP is enabled.
+        // enabled in the console settings as well as the attribute. By default NBP is enabled.
         [ConsoleCommand("BoolExampleA", DisableNBP = false)]
         private static void BoolCommandA(bool param)
         {

@@ -26,11 +26,11 @@ namespace Ganymed.Utils.Optimization
         internal override void Initialize(InitializationEvents? @event)
         {
             if(@event!= null && @event != executeOn)return;
-            if(!enable || !OptimizationManager.EnableSetRootOnLoad) return;
+            if(!enable || !OptimizationSettings.Instance.EnableSetRootOnLoad) return;
             
             if (!Application.isPlaying && !enableInEditMode)
             {
-                if(OptimizationManager.EnableWarnings) Debug.LogWarning(
+                if(OptimizationSettings.Instance.EnableComponentWarnings) Debug.LogWarning(
                     "Application must be running if you want to automatically set the root of the GameObject");
                 return;
             }
@@ -74,12 +74,18 @@ namespace Ganymed.Utils.Optimization
 
         public override void OnInspectorGUI()
         {
-            if (!OptimizationManager.EnableSetRootOnLoad)
+            if (!OptimizationSettings.Instance.EnableSetRootOnLoad)
             {
                 UnityEditor.EditorGUILayout.Space();
+                UnityEditor.EditorGUILayout.BeginHorizontal();
                 UnityEditor.EditorGUILayout.HelpBox(
-                    "Automatic transform rooting of GameObjects is disabled. It can be enabled in the Hierarchy-Optimization-Configuration.",
+                    $"Automatic transform rooting of GameObjects is disabled. It can be enabled in the {nameof(OptimizationSettings)}.",
                     UnityEditor.MessageType.Info);
+                if(GUILayout.Button("Edit Settings", GUILayout.Width(100), GUILayout.Height(40)))
+                {
+                    OptimizationSettings.EditSettings();
+                }
+                UnityEditor.EditorGUILayout.EndHorizontal();
                 UnityEditor.EditorGUILayout.Space();
             }
             

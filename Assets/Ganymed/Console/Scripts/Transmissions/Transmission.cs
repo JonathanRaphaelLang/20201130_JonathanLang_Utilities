@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Ganymed.Console.Core;
 using Ganymed.Utils;
 using Ganymed.Utils.Callbacks;
 using Ganymed.Utils.ExtensionMethods;
@@ -33,7 +34,7 @@ namespace Ganymed.Console.Transmissions
 
         private static object Sender = null;
 
-        private static int BreakLineHeight => (int) (breakLineHeight ?? (breakLineHeight = Core.Console.Configuration.breakLineHeight));
+        private static int BreakLineHeight => (int) (breakLineHeight ?? (breakLineHeight = Core.ConsoleSettings.Instance.breakLineHeight));
         private static int? breakLineHeight = null;
         
         private static volatile CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -117,7 +118,7 @@ namespace Ganymed.Console.Transmissions
             }
             
             if(Sender != null)
-                Core.Console.Log(Sender, Core.Console.ColorEmphasize, LogOptions.IsInput | LogOptions.EndLine);
+                Core.Console.Log(Sender, ConsoleSettings.ColorEmphasize, LogOptions.IsInput | LogOptions.EndLine);
 
             isReleasing = true;
 
@@ -153,7 +154,7 @@ namespace Ganymed.Console.Transmissions
             }
             
             if(Sender != null)
-                Core.Console.Log(Sender, Core.Console.ColorEmphasize, LogOptions.IsInput | LogOptions.EndLine);
+                Core.Console.Log(Sender, ConsoleSettings.ColorEmphasize, LogOptions.IsInput | LogOptions.EndLine);
 
             isReleasing = true;
             CompileTransmissionMessage();
@@ -416,10 +417,10 @@ namespace Ganymed.Console.Transmissions
             switch (preset)
             {
                 case TitlePreset.Main:
-                    AddTitle(title, 150, Core.Console.ColorTitleMain, MessageOptions.Bold | MessageOptions.Brackets);
+                    AddTitle(title, 150, ConsoleSettings.ColorTitleMain, MessageOptions.Bold | MessageOptions.Brackets);
                     break;
                 case TitlePreset.Sub:
-                    AddTitle(title, 130, Core.Console.ColorTitleSub,  MessageOptions.Brackets);
+                    AddTitle(title, 130, ConsoleSettings.ColorTitleSub,  MessageOptions.Brackets);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(preset), preset, null);

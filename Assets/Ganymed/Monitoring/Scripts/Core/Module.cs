@@ -37,7 +37,7 @@ namespace Ganymed.Monitoring.Core
         [SerializeField] private bool useCustomStyle = default;
         
         [Tooltip("If enabled, use this style. Null will use the default style instead")]
-        [SerializeField] private StyleBase customStyleBase = null;
+        [SerializeField] private Style customStyle = null;
 
      
 
@@ -95,11 +95,12 @@ namespace Ganymed.Monitoring.Core
         //--------------------------------------------------------------------------------------------------------------
         
         #region --- [PROTECTED PROPERTIES] ---
-        
+
+        private bool UseAndHasCustomStyle => useCustomStyle && customStyle != null;
         protected bool UseCustomStyle => useCustomStyle;
 
-        protected StyleBase CustomStyleBase => customStyleBase;
-
+        protected Style CustomStyle => customStyle;
+        
 
         protected bool OnlyInitializeWhenInScene => onlyInitializeWhenInScene;
         
@@ -127,7 +128,7 @@ namespace Ganymed.Monitoring.Core
 
         private readonly int id = default;                           // modules internal id
         
-        private protected StyleBase previousConfiguration = null;            // The last configuration file.
+        private protected Style previousConfiguration = null;            // The last configuration file.
         private protected volatile string compiledPrefix = string.Empty;     // suffix cache         
         private protected volatile string compiledSuffix = string.Empty;     // prefix cache
         
@@ -173,14 +174,14 @@ namespace Ganymed.Monitoring.Core
         /// <summary>
         /// Modules configuration. Determines objects visual style 
         /// </summary>
-        public StyleBase Configuration
+        public Style Style
         {
             get
             {
                 try
                 {
-                    if (!useCustomStyle) return MonitorBehaviour.Instance.Configuration;
-                    return customStyleBase ? customStyleBase : MonitorBehaviour.Instance.Configuration;
+                    if (!useCustomStyle) return MonitoringSettings.Instance.Style;
+                    return customStyle ? customStyle : MonitoringSettings.Instance.Style;
                 }
                 catch
                 {
@@ -302,6 +303,15 @@ namespace Ganymed.Monitoring.Core
             foreach (var module in ModuleDictionary)
             {
                 module.Value.SetStates(state);
+            }
+        }
+
+        public static void RepaintAll(bool excludeCustomStyles = false)
+        {
+            foreach (var module in ModuleDictionary)
+            {
+                if(excludeCustomStyles && module.Value.UseAndHasCustomStyle) continue;
+                module.Value.Repaint(InvokeOrigin.GUI);
             }
         }
 
@@ -579,6 +589,7 @@ namespace Ganymed.Monitoring.Core
         
         #region --- [VIRTUAL] ---
 
+
         /// <summary>
         /// Tick is called every (MonoBehaviour) Update call if the module is active.
         /// </summary>
@@ -749,13 +760,13 @@ namespace Ganymed.Monitoring.Core
         /// Add a listener to the modules Repaint event
         /// </summary>
         /// <param name="listener"></param>
-        public abstract void AddOnRepaintListener(Action<Configuration.StyleBase, string, InvokeOrigin> listener);
+        public abstract void AddOnRepaintListener(Action<Style, string, InvokeOrigin> listener);
        
         /// <summary>
         /// Remove a listener form the modules Repaint event
         /// </summary>
         /// <param name="listener"></param>
-        public abstract void RemoveOnRepaintChangedListener(Action<Configuration.StyleBase, string, InvokeOrigin> listener);
+        public abstract void RemoveOnRepaintChangedListener(Action<Style, string, InvokeOrigin> listener);
         
         
         

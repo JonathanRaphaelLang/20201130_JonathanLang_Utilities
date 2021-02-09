@@ -14,7 +14,7 @@ namespace Ganymed.Monitoring.Modules
     {
         #region --- [FIELDS] ---
         
-        [Header("Module TODO Configuration")]
+        [Header("Module TODO Settings")]
         [SerializeField] private TextAsset TextAsset = null;
         [SerializeField] private Color pendingColor = new Color(1f, 0.23f, 0f);
         [SerializeField] private Color checkedColor = new Color(0.6f, 1f, 1f);

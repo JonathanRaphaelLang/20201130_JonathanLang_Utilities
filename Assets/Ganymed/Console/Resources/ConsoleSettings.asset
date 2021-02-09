@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9fcd8557096ed84294735612c166c25, type: 3}
+  m_Name: ConsoleSettings
+  m_EditorClassIdentifier: 
+  active: 1
+  commandPrefix: /
+  infoOperator: '?'
+  allowCommandPreProcessing: 1
+  logCommandsLoadedOnStart: 1
+  allowNumericBoolProcessing: 1
+  activateConsoleOnStart: 1
+  enableCursorOnActivation: 1
+  logConfigurationOnStart: 0
+  logTimeOnInput: 1
+  inputCacheSize: 20
+  clearConsoleAutomatically: 1
+  maxLogs: 20
+  bindConsoles: 1
+  allowedUnityMessages: -1
+  logStackTraceOn: 17
+  allowShaderAndAnimations: 1
+  allowShader: 1
+  allowAnimations: 1
+  showRichText: 1
+  renderContentOnDrag: 0
+  renderContentOnScale: 0
+  inputFontSize: 6
+  fontSize: 6
+  breakLineHeight: 130
+  defaultLineHeight: 100
+  colorConsoleBackground: {r: 0.052660257, g: 0.052643273, b: 0.066037714, a: 0.92156863}
+  colorScrollbar: {r: 0.08206077, g: 0.07742968, b: 0.18867922, a: 1}
+  colorScrollbarHandle: {r: 0.13794944, g: 0.1653671, b: 0.18867922, a: 1}
+  colorDefault: {r: 0.8396226, g: 0.8396226, b: 0.8396226, a: 1}
+  colorTitles: {r: 0.2980392, g: 0.41275796, b: 1, a: 1}
+  colorSubHeading: {r: 0.45882356, g: 0.8583952, b: 1, a: 1}
+  colorEmphasize: {r: 1, g: 0.51204026, b: 0, a: 1}
+  colorInputLines: {r: 0.482353, g: 0.99215686, b: 0.8955642, a: 1}
+  colorVariables: {r: 1, g: 0, b: 0.46472216, a: 1}
+  colorValidInput: {r: 0.4481132, g: 1, b: 0.52168643, a: 1}
+  colorOptionalParamsLeft: {r: 0.5896226, g: 1, b: 0.9669037, a: 1}
+  colorIncompleteInput: {r: 0.8773585, g: 0.8061608, b: 0.45109472, a: 1}
+  colorIncorrectInput: {r: 0.7830189, g: 0.09064705, b: 0, a: 1}
+  colorInformation: {r: 0.54936665, g: 0.3726415, b: 1, a: 1}
+  colorAutocompletion: {r: 0.33254716, g: 0.38628447, b: 0.4433962, a: 1}
+  colorUnityLog: {r: 0.9666558, g: 1, b: 0.8066038, a: 1}
+  colorUnityWarning: {r: 1, g: 0.9676375, b: 0, a: 1}
+  colorUnityError: {r: 1, g: 0.026891619, b: 0, a: 1}
+  colorStackTrace: {r: 0.53333336, g: 0.5505634, b: 0.65882355, a: 1}
+  customColor1: {r: 1, g: 0, b: 1, a: 1}
+  customColor2: {r: 1, g: 0, b: 1, a: 1}
+  customColor3: {r: 1, g: 0, b: 1, a: 1}

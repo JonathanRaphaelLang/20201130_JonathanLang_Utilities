@@ -169,14 +169,14 @@ namespace Ganymed.Console.Core
             await Task.Run(delegate
             {
                 if(!Transmission.Start()) return;
-                Transmission.AddLine(new MessageFormat("Root GameObject", Console.ColorTitleMain, MessageOptions.Brackets));
+                Transmission.AddLine(new MessageFormat("Root GameObject", ConsoleSettings.ColorTitleMain, MessageOptions.Brackets));
                 Transmission.AddLine(new MessageFormat("GameObject", RichText._cyan, MessageOptions.Brackets));
                 
 #if UNITY_EDITOR
                 Transmission.AddLine(new MessageFormat("[Static GameObject]", RichText._violet));
 #endif
                 Transmission.AddLine(new MessageFormat("\n---[ACTIVE SCENE]---",
-                    Console.ColorTitleMain, MessageOptions.Bold));
+                    ConsoleSettings.ColorTitleMain, MessageOptions.Bold));
                 Transmission.AddBreak();
             });
             
@@ -189,7 +189,7 @@ namespace Ganymed.Console.Core
             if (includeDontDestroyOnLoad)
             {
                 Transmission.AddLine(new MessageFormat("\n---[DONT DESTROY ON LOAD]---",
-                    Console.ColorTitleMain, MessageOptions.Bold));
+                    ConsoleSettings.ColorTitleMain, MessageOptions.Bold));
                 Transmission.AddBreak();
                 
                 foreach (var child in DontDestroyOnLoadHandler.DontDestroyOnLoadObjects) {

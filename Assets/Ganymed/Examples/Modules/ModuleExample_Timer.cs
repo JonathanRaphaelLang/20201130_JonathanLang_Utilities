@@ -6,7 +6,7 @@ namespace Ganymed.Examples.Modules
     /// <summary>
     /// Example module that will show the time since startup in seconds. Use only for demonstration.
     /// </summary>
-    [CreateAssetMenu(fileName = "Module_ModuleExample", menuName = "Example/Modules/ModuleExample")]
+    [CreateAssetMenu(fileName = "Module_ModuleExample", menuName = "Monitoring/Modules/ModuleExample",  order = 100)]
     public class ModuleExample_Timer : Module<float>
     {
         // This is a simple module to demonstrate how to set up a new module.

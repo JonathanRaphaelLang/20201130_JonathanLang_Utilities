@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92372981f059f684bb2a77b3cceabf3c, type: 3}
+  m_Name: MonitoringSettings
+  m_EditorClassIdentifier: 
+  modulesUpperLeft:
+  - {fileID: 11400000, guid: b641334507dabb147801144033263e18, type: 2}
+  - {fileID: 11400000, guid: 4b87b541cdfaa304d91721c1c85dd150, type: 2}
+  modulesUpperRight:
+  - {fileID: 11400000, guid: ed0be4637454d98468c7f1f050b10645, type: 2}
+  - {fileID: 11400000, guid: 1dde403291c082f449fe7cf8a61830d6, type: 2}
+  - {fileID: 11400000, guid: 16070b598a6ebaa4f8d41ee31bcaae4f, type: 2}
+  - {fileID: 11400000, guid: 57e613cc271059b48b7c0d53e9c00fcc, type: 2}
+  modulesLowerLeft: []
+  modulesLowerRight:
+  - {fileID: 11400000, guid: 478811b8f61f75146a43b1c20cc49db0, type: 2}
+  - {fileID: 11400000, guid: 966511edd97915a47a4128e40df8199a, type: 2}
+  GUIElementPrefab: {fileID: 3876159015935912231, guid: ead3b594570348d4cbfe485c4b9bde12,
+    type: 3}
+  GUIObjectPrefab: {fileID: 3765565696045478534, guid: 9c8c71a648e504d41988f0f39db4bc98,
+    type: 3}
+  showReferences: 0
+  style: {fileID: 11400000, guid: 9ee5c61691a7b044d9f075e22b625409, type: 2}
+  active: 1
+  automateCanvasState: 1
+  openCanvasOnEnterPlay: 1
+  closeCanvasOnEdit: 0
+  toggleKey: 284
+  sortingOrder: 1000
+  hideCanvasGameObject: 1
+  enableLifePreview: 1
+  enableWarnings: 0
+  canvasPadding: 0
+  canvasMargin: 2
+  elementSpacing: 1
+  areaSpacing: 0
+  showBackground: 0
+  colorCanvasBackground: {r: 0.71, g: 1, b: 0.68, a: 1}
+  showAreaBackground: 0
+  colorTopLeft: {r: 0.43, g: 0.99, b: 1, a: 1}
+  colorTopRight: {r: 1, g: 0.57, b: 0.87, a: 1}
+  colorBottomLeft: {r: 0.54, g: 0.39, b: 1, a: 1}
+  colorBottomRight: {r: 0.69, g: 0.64, b: 1, a: 1}

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c150eba2b4df96447bd66874373553fb, type: 3}
+  m_Name: Module_FPS_Style
+  m_EditorClassIdentifier: 
+  fontSize: 8
+  individualFontSize: 1
+  prefixFontSize: 11
+  infixFontSize: 20
+  suffixFontSize: 11
+  individualMargins: 1
+  marginsAll: 2
+  marginLeft: 0
+  marginTop: 3
+  marginRight: 2
+  marginBottom: 2
+  alignment: 257
+  autoBrackets: 1
+  autoSpace: 1
+  useCustomRichText: 0
+  prefixTextStyle: 
+  infixTextStyle: 
+  suffixTextStyle: 
+  colorBackground: {r: 0, g: 0, b: 0, a: 0.9411765}
+  prefixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}
+  infixColor: {r: 1, g: 1, b: 1, a: 1}
+  suffixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}

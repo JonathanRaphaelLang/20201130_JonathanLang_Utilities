@@ -14,12 +14,11 @@
       <e p="Assembly-Ganymed-Utils-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-Ganymed-Utils.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
-        <e p="ConsoleLogCounter.cs" t="Include" />
         <e p="Documents" t="Include">
-          <e p="Backlog" t="Include">
+          <e p="TODOs" t="Include">
             <e p="Backlog.txt" t="Include" />
+            <e p="TODO.txt" t="Include" />
           </e>
-          <e p="TODO.txt" t="Include" />
         </e>
         <e p="Ganymed" t="Include">
           <e p="Console" t="Include">
@@ -43,14 +42,15 @@
               </e>
               <e p="Core" t="Include">
                 <e p="Console.cs" t="Include" />
-                <e p="ConsoleConfiguration.cs" t="Include" />
+                <e p="ConsoleSettings.cs" t="Include" />
                 <e p="InputCache.cs" t="Include" />
                 <e p="SystemCommands.cs" t="Include" />
               </e>
               <e p="Editor" t="Include">
                 <e p="Assembly-Ganymed-Console-Editor.asmdef" t="Include" />
-                <e p="ConsoleConfigurationInspector.cs" t="Include" />
                 <e p="ConsoleInspector.cs" t="Include" />
+                <e p="ConsoleSettingInspector.cs" t="Include" />
+                <e p="CreateConsoleInstance.cs" t="Include" />
                 <e p="SDS_GANYMED_CONSOLE.cs" t="Include" />
               </e>
               <e p="Enumerations" t="Include">
@@ -62,8 +62,9 @@
                 <e p="Sender.cs" t="Include" />
                 <e p="TransmissionOptions.cs" t="Include" />
               </e>
-              <e p="GUI" t="Include">
+              <e p="GUIElements" t="Include">
                 <e p="ButtonScaler.cs" t="Include" />
+                <e p="ConsoleLogCounter.cs" t="Include" />
                 <e p="EventDragger.cs" t="Include" />
                 <e p="MonoDragger.cs" t="Include" />
                 <e p="MonoScaler.cs" t="Include" />
@@ -117,9 +118,8 @@
             <e p="Scripts" t="Include">
               <e p="Assembly-Ganymed-Monitoring.asmdef" t="Include" />
               <e p="Configuration" t="Include">
-                <e p="CustomStyle.cs" t="Include" />
-                <e p="MonitoringConfiguration.cs" t="Include" />
-                <e p="StyleBase.cs" t="Include" />
+                <e p="MonitoringSettings.cs" t="Include" />
+                <e p="Style.cs" t="Include" />
               </e>
               <e p="Core" t="Include">
                 <e p="Module.cs" t="Include" />
@@ -130,11 +130,11 @@
               </e>
               <e p="Editor" t="Include">
                 <e p="Assembly-Ganymed-Monitoring-Editor.asmdef" t="Include" />
-                <e p="CustomStyleInspector.cs" t="Include" />
+                <e p="CreateMonitorInstance.cs" t="Include" />
                 <e p="MonitorBehaviourInspector.cs" t="Include" />
-                <e p="MonitoringConfigurationInspector.cs" t="Include" />
+                <e p="MonitoringSettingsInspector.cs" t="Include" />
                 <e p="SDS_GANYMED_MONITORING.cs" t="Include" />
-                <e p="StyleBaseInspector.cs" t="Include" />
+                <e p="StyleInspector.cs" t="Include" />
               </e>
               <e p="Enumerations" t="Include">
                 <e p="ModuleDisplayModes.cs" t="Include" />
@@ -176,9 +176,10 @@
                 <e p="AttributeReflection_ValidBindingFlags.cs" t="Include" />
                 <e p="Context.cs" t="Include" />
               </e>
+              <e p="CleanEditor.cs" t="Include" />
               <e p="GUIHelper.cs" t="Include" />
               <e p="HideFlagsUtility.cs" t="Include" />
-              <e p="OptimizationManagerInspector.cs" t="Include" />
+              <e p="OptimizationSettingsInspector.cs" t="Include" />
               <e p="ScriptOrderManager.cs" t="Include" />
               <e p="SelectionHelper.cs" t="Include" />
             </e>
@@ -240,7 +241,7 @@
               <e p="Optimization" t="Include">
                 <e p="DestroyOnLoad.cs" t="Include" />
                 <e p="InitializationEvents.cs" t="Include" />
-                <e p="OptimizationManager.cs" t="Include" />
+                <e p="OptimizationSettings.cs" t="Include" />
                 <e p="Parent.cs" t="Include" />
                 <e p="SetRootOnLoad.cs" t="Include" />
                 <e p="TransformOptimizationComponent.cs" t="Include" />
@@ -248,7 +249,9 @@
               </e>
               <e p="Singleton" t="Include">
                 <e p="MonoSingleton.cs" t="Include" />
+                <e p="ScriptableSettings.cs" t="Include" />
                 <e p="ScriptableSingleton.cs" t="Include" />
+                <e p="Settings.cs" t="Include" />
               </e>
               <e p="Structures" t="Include">
                 <e p="Vector4Int.cs" t="Include" />

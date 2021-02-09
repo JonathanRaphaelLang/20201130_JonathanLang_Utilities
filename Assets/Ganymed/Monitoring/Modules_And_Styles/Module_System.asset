@@ -15,16 +15,17 @@ MonoBehaviour:
   isEnabled: 1
   isActive: 1
   isVisible: 1
+  onlyInitializeWhenInScene: 1
   useCustomStyle: 1
-  customStyleBase: {fileID: 11400000, guid: aba09950eddcdaf4a83cf49d79fcf857, type: 2}
+  customStyle: {fileID: 11400000, guid: e8764513b25fc134b98f1c7e8957c138, type: 2}
   enableWarnings: 1
   enableInitializeUpdateEventWarnings: 1
   enableInitializeValueWarnings: 0
   previewValueAs: 0
   resetValueOnQuit: 0
-  prefixText: 'System     : Information'
+  prefixText: 
   suffixText: 
-  prefixBreak: 1
+  prefixBreak: 0
   suffixBreak: 0
   description: Displays mostly static information about the current environment /
     system.

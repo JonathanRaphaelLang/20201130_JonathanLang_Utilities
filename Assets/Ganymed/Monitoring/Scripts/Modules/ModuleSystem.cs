@@ -1,5 +1,6 @@
-﻿using System;
-using Ganymed.Monitoring.Core;
+﻿using Ganymed.Monitoring.Core;
+using Ganymed.Utils.ExtensionMethods;
+using TMPro;
 using UnityEngine;
 
 namespace Ganymed.Monitoring.Modules
@@ -27,7 +28,6 @@ namespace Ganymed.Monitoring.Modules
         [SerializeField] private bool deviceType = true;
         [Space]
         [SerializeField] private bool deviceUniqueIdentifier = false;
-        
 
         #endregion
 
@@ -92,12 +92,17 @@ namespace Ganymed.Monitoring.Modules
             cachedAll = selectAll;
             #endregion
             
-            OnValueChanged?.Invoke(GenerateText());
+            OnValueChanged?.Invoke(Default);
+        }
+
+        protected override string ParseToString(string currentValue)
+        {
+            return base.ParseToString(GenerateText(Style.alignment));
         }
 
         protected override void OnInitialize()
         {
-            InitializeValue(GenerateText());
+            InitializeValue(GenerateText(Style.alignment));
             InitializeUpdateEvent(ref OnValueChanged);
             
             InitializeActivationEvent(ref OnToggle);
@@ -107,23 +112,50 @@ namespace Ganymed.Monitoring.Modules
 
         #region --- [TEXT GENERATION] ---
 
-        private string GenerateText()
+        private string GenerateText(TextAlignmentOptions alignmentOptions)
         {
-            return
-                $"{(operatingSystem ?        $"OS         : {SystemInfo.operatingSystem}\n" : string.Empty)}" +
-                $"{(processorType ?          $"CPU-TYPE   : {SystemInfo.processorType}\n" : string.Empty)}" +
-                $"{(processorCount ?         $"CPU-CORES  : {SystemInfo.processorCount}\n" : string.Empty)}" +
-                $"{(systemMemorySize ?       $"MEMORY     : {SystemInfo.systemMemorySize}\n" : string.Empty)}" +
-                $"{(graphicsDeviceName ?     $"GPU        : {SystemInfo.graphicsDeviceName}\n" : string.Empty)}" +
-                $"{(graphicsMemorySize ?     $"GPU-MEMORY : {SystemInfo.graphicsMemorySize}\n" : string.Empty)}" +
-                $"{(graphicsDeviceType ?     $"GPU-TYPE   : {SystemInfo.graphicsDeviceType}\n" : string.Empty)}" +
-                $"{(graphicsMultiThreaded ?  $"GPU-THREAD : {SystemInfo.graphicsMultiThreaded}\n" : string.Empty)}" +
-                $"{(renderingThreadingMode ? $"GPU-TYPE   : {SystemInfo.renderingThreadingMode}\n" : string.Empty)}" +
-                $"{(batteryLevel ?           $"Battery    : {SystemInfo.batteryLevel}\n" : string.Empty)}" +
-                $"{(batteryStatus ?          $"Battery    : {SystemInfo.batteryStatus}\n" : string.Empty)}" +
-                $"{(deviceModel ?            $"Model      : {SystemInfo.deviceModel}\n" : string.Empty)}" +
-                $"{(deviceType ?             $"Type       : {SystemInfo.deviceType}\n" : string.Empty)}" +
-                $"{(deviceUniqueIdentifier ? $"GUID       : {SystemInfo.deviceUniqueIdentifier}\n" : string.Empty)}";
+            switch (alignmentOptions)
+            {
+                case TextAlignmentOptions.TopRight:
+                case TextAlignmentOptions.Right:
+                case TextAlignmentOptions.BottomRight:
+                case TextAlignmentOptions.BaselineRight:
+                case TextAlignmentOptions.MidlineRight:
+                case TextAlignmentOptions.CaplineRight:
+                    return
+                        $"{Style.prefixColor.AsRichText()}Stat       System</color>\n" +
+                        $"{(operatingSystem ?        $"{SystemInfo.operatingSystem}           OS\n" : string.Empty)}" +
+                        $"{(processorType ?          $"{SystemInfo.processorType}     CPU-TYPE\n" : string.Empty)}" +
+                        $"{(processorCount ?         $"{SystemInfo.processorCount}    CPU-CORES\n" : string.Empty)}" +
+                        $"{(systemMemorySize ?       $"{SystemInfo.systemMemorySize}       MEMORY\n" : string.Empty)}" +
+                        $"{(graphicsDeviceName ?     $"{SystemInfo.graphicsDeviceName}          GPU\n" : string.Empty)}" +
+                        $"{(graphicsMemorySize ?     $"{SystemInfo.graphicsMemorySize}   GPU-MEMORY\n" : string.Empty)}" +
+                        $"{(graphicsDeviceType ?     $"{SystemInfo.graphicsDeviceType}     GPU-TYPE\n" : string.Empty)}" +
+                        $"{(graphicsMultiThreaded ?  $"{SystemInfo.graphicsMultiThreaded}   GPU-THREAD\n" : string.Empty)}" +
+                        $"{(renderingThreadingMode ? $"{SystemInfo.renderingThreadingMode}     GPU-TYPE\n" : string.Empty)}" +
+                        $"{(batteryLevel ?           $"{SystemInfo.batteryLevel}      Battery\n" : string.Empty)}" +
+                        $"{(batteryStatus ?          $"{SystemInfo.batteryStatus}      Battery\n" : string.Empty)}" +
+                        $"{(deviceModel ?            $"{SystemInfo.deviceModel}        Model\n" : string.Empty)}" +
+                        $"{(deviceType ?             $"{SystemInfo.deviceType}         Type\n" : string.Empty)}" +
+                        $"{(deviceUniqueIdentifier ? $"{SystemInfo.deviceUniqueIdentifier}       : GUID\n" : string.Empty)}";
+            }
+            
+            return 
+                $"{Style.prefixColor.AsRichText()}System     : Stat</color>\n" +
+                   $"{(operatingSystem ?        $"OS         : {SystemInfo.operatingSystem}\n" : string.Empty)}" +
+                   $"{(processorType ?          $"CPU-TYPE   : {SystemInfo.processorType}\n" : string.Empty)}" +
+                   $"{(processorCount ?         $"CPU-CORES  : {SystemInfo.processorCount}\n" : string.Empty)}" +
+                   $"{(systemMemorySize ?       $"MEMORY     : {SystemInfo.systemMemorySize}\n" : string.Empty)}" +
+                   $"{(graphicsDeviceName ?     $"GPU        : {SystemInfo.graphicsDeviceName}\n" : string.Empty)}" +
+                   $"{(graphicsMemorySize ?     $"GPU-MEMORY : {SystemInfo.graphicsMemorySize}\n" : string.Empty)}" +
+                   $"{(graphicsDeviceType ?     $"GPU-TYPE   : {SystemInfo.graphicsDeviceType}\n" : string.Empty)}" +
+                   $"{(graphicsMultiThreaded ?  $"GPU-THREAD : {SystemInfo.graphicsMultiThreaded}\n" : string.Empty)}" +
+                   $"{(renderingThreadingMode ? $"GPU-TYPE   : {SystemInfo.renderingThreadingMode}\n" : string.Empty)}" +
+                   $"{(batteryLevel ?           $"Battery    : {SystemInfo.batteryLevel}\n" : string.Empty)}" +
+                   $"{(batteryStatus ?          $"Battery    : {SystemInfo.batteryStatus}\n" : string.Empty)}" +
+                   $"{(deviceModel ?            $"Model      : {SystemInfo.deviceModel}\n" : string.Empty)}" +
+                   $"{(deviceType ?             $"Type       : {SystemInfo.deviceType}\n" : string.Empty)}" +
+                   $"{(deviceUniqueIdentifier ? $"GUID       : {SystemInfo.deviceUniqueIdentifier}\n" : string.Empty)}";
         }
 
         #endregion

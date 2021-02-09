@@ -1,6 +1,7 @@
 ﻿using System;
 using Ganymed.Console;
 using Ganymed.Console.Attributes;
+using Ganymed.Console.Core;
 using Ganymed.Console.Transmissions;
 using Ganymed.Monitoring.Core;
 using Ganymed.Monitoring.Modules;
@@ -36,13 +37,13 @@ namespace Ganymed.Shared
             if(!Transmission.Start(TransmissionOptions.Enumeration)) return;
         
             Transmission.AddLine(
-                new MessageFormat($"Module", Console.Core.Console.ColorTitleSub, options),
-                new MessageFormat($"Id", Console.Core.Console.ColorTitleSub, options),
-                new MessageFormat($"Enabled", Console.Core.Console.ColorTitleSub , options),
-                new MessageFormat($"Active", Console.Core.Console.ColorTitleSub , options),
-                new MessageFormat($"Visible", Console.Core.Console.ColorTitleSub , options),
-                new MessageFormat($"Type", Console.Core.Console.ColorTitleSub , options),
-                new MessageFormat($"Description", Console.Core.Console.ColorTitleSub, options));
+                new MessageFormat($"Module", ConsoleSettings.ColorTitleSub, options),
+                new MessageFormat($"Id", ConsoleSettings.ColorTitleSub, options),
+                new MessageFormat($"Enabled", ConsoleSettings.ColorTitleSub , options),
+                new MessageFormat($"Active", ConsoleSettings.ColorTitleSub , options),
+                new MessageFormat($"Visible", ConsoleSettings.ColorTitleSub , options),
+                new MessageFormat($"Type", ConsoleSettings.ColorTitleSub , options),
+                new MessageFormat($"Description", ConsoleSettings.ColorTitleSub, options));
             Transmission.AddBreak();
         
             foreach (var module in Module.ModuleDictionary)

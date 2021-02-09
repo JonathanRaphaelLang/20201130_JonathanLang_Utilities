@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Ganymed.Monitoring.Configuration;
 using Ganymed.Utils;
 using Ganymed.Utils.Attributes;
+using Ganymed.Utils.ExtensionMethods;
 using Ganymed.Utils.Singleton;
 using UnityEngine;
 using UnityEngine.UI;
@@ -167,22 +169,22 @@ namespace Ganymed.Monitoring.Core
         
         private MonitoringCanvasBehaviour()
         {
-            MonitoringConfiguration.OnActiveConfigurationChanged += RepaintCanvas;
-            MonitoringConfiguration.OnActiveStateChanged += SetVisible;
+            MonitoringSettings.OnSettingsUpdated += RepaintCanvas;
+            MonitoringSettings.OnActiveStateChanged += SetVisible;
         }
         
         
         ~MonitoringCanvasBehaviour()
         {
-            MonitoringConfiguration.OnActiveConfigurationChanged -= RepaintCanvas;
-            MonitoringConfiguration.OnActiveStateChanged -= SetVisible;
+            MonitoringSettings.OnSettingsUpdated -= RepaintCanvas;
+            MonitoringSettings.OnActiveStateChanged -= SetVisible;
         }
 
         
         private void OnDestroy()
         {
-            MonitoringConfiguration.OnActiveConfigurationChanged -= RepaintCanvas;
-            MonitoringConfiguration.OnActiveStateChanged -= SetVisible;
+            MonitoringSettings.OnSettingsUpdated -= RepaintCanvas;
+            MonitoringSettings.OnActiveStateChanged -= SetVisible;
         }
         
         
@@ -227,10 +229,9 @@ namespace Ganymed.Monitoring.Core
        /// <summary>
        /// Set new values for canvas elements based on the global config
        /// </summary>
-       /// <param name="ctx"></param>
-        private void RepaintCanvas(MonitoringConfiguration ctx)
+        private async void RepaintCanvas(MonitoringSettings settings)
         {
-            if(frame == null || rightGroup == null || leftGroup == null) return;
+            if(frame == null || rightGroup == null || leftGroup == null || !MonitoringSettings.Instance) return;
 
             #region [EDITOR]
 
@@ -241,12 +242,12 @@ namespace Ganymed.Monitoring.Core
 
             #endregion
 
-            canvas.sortingOrder = ctx.sortingOrder;
+            canvas.sortingOrder = settings.sortingOrder;
+            
+            frame.offsetMin = Vector2.one * settings.canvasPadding; 
+            frame.offsetMax = -Vector2.one * settings.canvasPadding;
 
-            frame.offsetMin = Vector2.one * ctx.canvasPadding; 
-            frame.offsetMax = -Vector2.one * ctx.canvasPadding;
-
-            var margin = (int)ctx.canvasMargin;
+            var margin = (int)settings.canvasMargin;
 
             rightGroup.padding = new RectOffset(
                 left: 0,
@@ -262,13 +263,13 @@ namespace Ganymed.Monitoring.Core
 
             //set spacing for every vertical layout group
             foreach (var verticalLayoutGroup in areaGroups) {
-                verticalLayoutGroup.spacing = ctx.elementSpacing;
+                verticalLayoutGroup.spacing = settings.elementSpacing;
             }
 
-            if (ctx.showBackground)
+            if (settings.showBackground)
             {
                 canvasBackground.enabled = true;
-                canvasBackground.color = ctx.colorCanvasBackground;
+                canvasBackground.color = settings.colorCanvasBackground;
             }
             else
             {
@@ -276,17 +277,17 @@ namespace Ganymed.Monitoring.Core
             }
 
 
-            if (ctx.showAreaBackground)
+            if (settings.showAreaBackground)
             {
                 upperLeftBackground.enabled = true;
                 upperRightBackground.enabled = true;
                 lowerLeftBackground.enabled = true;
                 lowerRightBackground.enabled = true;
                 
-                upperLeftBackground.color = ctx.colorTopLeft;
-                upperRightBackground.color = ctx.colorTopRight;
-                lowerLeftBackground.color = ctx.colorBottomLeft;
-                lowerRightBackground.color = ctx.colorBottomRight;
+                upperLeftBackground.color = settings.colorTopLeft;
+                upperRightBackground.color = settings.colorTopRight;
+                lowerLeftBackground.color = settings.colorBottomLeft;
+                lowerRightBackground.color = settings.colorBottomRight;
             }
             else
             {
@@ -296,10 +297,11 @@ namespace Ganymed.Monitoring.Core
                 lowerRightBackground.enabled = false;
             }
 
-            mainGroup.spacing = ctx.areaSpacing;
-            leftGroup.spacing = ctx.areaSpacing;
-            rightGroup.spacing = ctx.areaSpacing;
-            
+            mainGroup.spacing = settings.areaSpacing;
+            leftGroup.spacing = settings.areaSpacing;
+            rightGroup.spacing = settings.areaSpacing;
+
+            await Task.CompletedTask.BreakContext();
             Canvas.ForceUpdateCanvases();
         }
         #endregion

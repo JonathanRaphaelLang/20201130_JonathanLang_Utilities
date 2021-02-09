@@ -39,7 +39,7 @@ namespace Ganymed.Console.Attributes
         
         /// <summary>
         /// Determines if numeric input for boolean parameter for this command is disabled.
-        /// Note that nbp (numeric boolean processing) can also be controlled via global configuration.
+        /// Note that nbp (numeric boolean processing) can also be controlled via global settings.
         /// Use this property to disable nbp for specific commands. 
         /// </summary>
         public bool DisableNBP { get; set; } = default;

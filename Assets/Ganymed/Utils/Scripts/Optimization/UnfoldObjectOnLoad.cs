@@ -38,11 +38,11 @@ namespace Ganymed.Utils.Optimization
         internal override void Initialize(InitializationEvents? @event)
         {
             if(@event!= null && @event != executeOn)return;
-            if(!enable || !OptimizationManager.EnableUnfoldingOnLoad) return;
+            if(!enable || !OptimizationSettings.Instance.EnableUnfoldingOnLoad) return;
             
             if (!Application.isPlaying && !enableInEditMode)
             {
-                if(OptimizationManager.EnableWarnings)
+                if(OptimizationSettings.Instance.EnableComponentWarnings)
                     Debug.LogWarning("Application must be running to unfold objects");
                 return;
             }
@@ -77,11 +77,11 @@ namespace Ganymed.Utils.Optimization
             {
                 if (!deleteUnfoldObjectsWithComponents)
                 {
-                    if(OptimizationManager.EnableWarnings) Debug.LogWarning(
+                    if(OptimizationSettings.Instance.EnableComponentWarnings) Debug.LogWarning(
                         $"Warning! GameObject flagged for deletion contained {num} Component/s and was NOT destroyed!");
                     return;
                 }
-                if(OptimizationManager.EnableWarnings) Debug.LogWarning(
+                if(OptimizationSettings.Instance.EnableComponentWarnings) Debug.LogWarning(
                     $"Warning! GameObject flagged for deletion contained {num} Component/s and WAS destroyed!");
                 
                 DestroySafe(gameObject);
@@ -116,12 +116,18 @@ namespace Ganymed.Utils.Optimization
 
         public override void OnInspectorGUI()
         {
-            if (!OptimizationManager.EnableUnfoldingOnLoad)
+            if (!OptimizationSettings.Instance.EnableUnfoldingOnLoad)
             {
                 UnityEditor.EditorGUILayout.Space();
+                UnityEditor.EditorGUILayout.BeginHorizontal();
                 UnityEditor.EditorGUILayout.HelpBox(
-                    "Automatic GameObject unfolding is disabled. It can be enabled in the Hierarchy-Optimization-Configuration.",
+                    $"Automatic GameObject unfolding is disabled. It can be enabled in the {nameof(OptimizationSettings)}.",
                     UnityEditor.MessageType.Info);
+                if(GUILayout.Button("Edit Settings", GUILayout.Width(100), GUILayout.Height(40)))
+                {
+                    OptimizationSettings.EditSettings();
+                }
+                UnityEditor.EditorGUILayout.EndHorizontal();
                 UnityEditor.EditorGUILayout.Space();
             }
             

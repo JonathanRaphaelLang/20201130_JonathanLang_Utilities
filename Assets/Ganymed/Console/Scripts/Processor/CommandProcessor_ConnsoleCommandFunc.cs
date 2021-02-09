@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Ganymed.Console.Attributes;
+using Ganymed.Console.Core;
 using Ganymed.Console.Transmissions;
 using Ganymed.Utils.ExtensionMethods;
 using Ganymed.Utils.Structures;
@@ -87,10 +88,10 @@ namespace Ganymed.Console.Processor
             {
                 Transmission.AddTitle("Native Commands");
                 Transmission.AddLine(
-                    new MessageFormat("Key", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new MessageFormat("Priority", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new MessageFormat("Signature", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                    new MessageFormat("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
+                    new MessageFormat("Key", ConsoleSettings.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Priority", ConsoleSettings.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Signature", ConsoleSettings.ColorTitleSub, MessageOptions.Brackets),
+                    new MessageFormat("Description", ConsoleSettings.ColorTitleSub, MessageOptions.Brackets));
                 Transmission.AddBreak();
             }
             
@@ -114,7 +115,7 @@ namespace Ganymed.Console.Processor
                     
                     else if (commands[j].hasNativeAttribute)
                         Transmission.AddLine(
-                            new MessageFormat($"{commands[j].Key}", Core.Console.ColorEmphasize,
+                            new MessageFormat($"{commands[j].Key}", ConsoleSettings.ColorEmphasize,
                                 MessageOptions.Brackets),
                             new MessageFormat($"{commands[j].Signatures[i].priority}",
                                 MessageOptions.Brackets),
@@ -139,10 +140,10 @@ namespace Ganymed.Console.Processor
                     Transmission.AddBreak();
                     Transmission.AddTitle("Commands");
                     Transmission.AddLine(
-                        new MessageFormat("Key", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                        new MessageFormat("Priority", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                        new MessageFormat("Signature", Core.Console.ColorTitleSub, MessageOptions.Brackets),
-                        new MessageFormat("Description", Core.Console.ColorTitleSub, MessageOptions.Brackets));
+                        new MessageFormat("Key", ConsoleSettings.ColorTitleSub, MessageOptions.Brackets),
+                        new MessageFormat("Priority", ConsoleSettings.ColorTitleSub, MessageOptions.Brackets),
+                        new MessageFormat("Signature", ConsoleSettings.ColorTitleSub, MessageOptions.Brackets),
+                        new MessageFormat("Description", ConsoleSettings.ColorTitleSub, MessageOptions.Brackets));
                     Transmission.AddBreak();
                 }
             }

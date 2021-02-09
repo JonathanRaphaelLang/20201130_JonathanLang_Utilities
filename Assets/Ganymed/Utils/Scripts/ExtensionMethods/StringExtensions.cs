@@ -7,6 +7,31 @@ namespace Ganymed.Utils.ExtensionMethods
 {
     public static class StringExtensions
     {
+
+        public static string GetFolder(this string input)
+        {
+            var split = input.Split('/');
+            var ret = split[split.Length - 1];
+            
+            return ret;
+        }
+        
+        public static string GetFolderPath(this string input)
+        {
+            var split = input.Split('/');
+            split = split.Take(split.Length - 1).ToArray();
+            
+            
+            var empty = string.Empty;
+            for (var i = 0; i < split.Length; i++)
+            {
+                empty = $"{empty}{(i > 0? "/" : "")}{split[i]}";
+            }
+            return empty;
+        }
+        
+        
+        
         /// <summary>
         /// Use this to format the name of a variable to automatically add breaks before a upper case character. 
         /// </summary>

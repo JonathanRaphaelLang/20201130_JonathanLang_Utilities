@@ -132,10 +132,10 @@ namespace Ganymed.Console.Processor
                 }
                 
                 Transmission.AddLine(
-                    new MessageFormat($"{count}", Core.Console.ColorEmphasize, options),
+                    new MessageFormat($"{count}", ConsoleSettings.ColorEmphasize, options),
                     $"Commands are loaded | Time passed: " +
                     $"{Time.realtimeSinceStartup - time:00.00}s |",
-                    new MessageFormat($"{Prefix}{CommandsKey}", Core.Console.ColorEmphasize, options),
+                    new MessageFormat($"{Prefix}{CommandsKey}", ConsoleSettings.ColorEmphasize, options),
                     new MessageFormat("To receive a list of commands"));
                 Transmission.Release();
             });
@@ -258,11 +258,11 @@ namespace Ganymed.Console.Processor
                && cachedInputValidation != InputValidation.Incorrect;
 
 
-        public static void SetConfiguration(ConsoleConfiguration configuration)
+        public static void SetConfiguration(ConsoleSettings settings)
         {
-            logCommandsLoadedOnStart = configuration.logCommandsLoadedOnStart;
-            allowNumericBoolProcessing = configuration.allowNumericBoolProcessing;
-            InfoOperator = configuration.infoOperator;
+            logCommandsLoadedOnStart = settings.logCommandsLoadedOnStart;
+            allowNumericBoolProcessing = settings.allowNumericBoolProcessing;
+            InfoOperator = settings.infoOperator;
         }
 
         #endregion

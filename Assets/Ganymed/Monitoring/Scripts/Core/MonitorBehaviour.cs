@@ -14,54 +14,19 @@ namespace Ganymed.Monitoring.Core
     [AddComponentMenu("Monitoring/Monitor")]
     public sealed class MonitorBehaviour : MonoSingleton<MonitorBehaviour>
     {
-        #region --- [CONFIG] ---
-#pragma warning disable 649
-
-        [HideInInspector][SerializeField] public MonitoringConfiguration config = null;
-        [FormerlySerializedAs("ModulesUpperLeft")]
-        [Space]
-        [SerializeField] public List<Module> modulesUpperLeft = new List<Module>();
-        [SerializeField] public List<Module> modulesUpperRight = new List<Module>();
-        [SerializeField] public List<Module> modulesLowerLeft = new List<Module>();
-        [SerializeField] public List<Module> modulesLowerRight = new List<Module>();
-        
-        
-        
-        [Header("Prefabs")]
-        [HideInInspector][SerializeField] public GameObject GUIElementPrefab;
-        [HideInInspector][SerializeField] public GameObject GUIObjectPrefab;
-        [HideInInspector][SerializeField] public SetRootOnLoad SetRootObject;
-        
-        [Tooltip("Expose references.")]
-        [HideInInspector] [SerializeField] public bool showReferences = false;
-        
-        [Tooltip("Show/Hide the SetRootOnLoad component of this gameObject.")]
-        [HideInInspector] [SerializeField] public bool showRootComponent = true;
-        
-        #endregion
-
-        #region --- [PROPERTIES] ---
        
-        public MonitoringConfiguration Configuration => (config != null)? config : MonitoringConfiguration.Instance;
-
-        public MonitoringCanvasBehaviour CanvasBehaviour { get; private set; }
-        
+        #region --- [PROPERTIES] ---
+        private MonitoringCanvasBehaviour CanvasBehaviour { get; set; }
         #endregion
-
-        #region --- [FIELDS] ---
         
-        private StyleBase lastStyleBase;
-        private bool lastPlaceObjects;
-
-        #endregion
-
         //--------------------------------------------------------------------------------------------------------------
 
         #region --- [TOGGLE] ---
 
+        //TODO: outsource
         private void Update()
         {
-            if (!Input.GetKeyDown(config.toggleKey)) return;
+            if (!Input.GetKeyDown(MonitoringSettings.Instance.toggleKey)) return;
             
             CanvasBehaviour.SetVisible(!CanvasBehaviour.IsVisible);
         }
@@ -76,13 +41,13 @@ namespace Ganymed.Monitoring.Core
         private MonitorBehaviour()
         {
             UnityEventCallbacks.AddEventListener(
-                () => MonitoringCanvasBehaviour.SetHideFlags(Configuration.hideCanvasGameObject ? HideFlags.HideInHierarchy : HideFlags.None), 
+                () => MonitoringCanvasBehaviour.SetHideFlags(MonitoringSettings.Instance.hideCanvasGameObject ? HideFlags.HideInHierarchy : HideFlags.None), 
                 UnityEventType.Recompile,
                 UnityEventType.TransitionEditPlayMode);
         }
 
         private void OnEnable() =>
-            MonitoringCanvasBehaviour.SetHideFlags(Configuration.hideCanvasGameObject ? HideFlags.HideInHierarchy : HideFlags.None);
+            MonitoringCanvasBehaviour.SetHideFlags(MonitoringSettings.Instance.hideCanvasGameObject ? HideFlags.HideInHierarchy : HideFlags.None);
 
         static MonitorBehaviour()
         {
@@ -112,8 +77,6 @@ namespace Ganymed.Monitoring.Core
         /// <param name="origin"></param>
         public void ValidateCanvas(InvokeOrigin origin)
         {
-            if(config.logValidationEvents)
-                Debug.Log("Validating Canvas.");
             ValidateCanvasInstance(origin);
         }
 
@@ -145,7 +108,7 @@ namespace Ganymed.Monitoring.Core
             }
             catch (Exception exception)
             {
-                if(config.logValidationEvents)
+                if(MonitoringSettings.Instance.enableWarnings)
                     Debug.Log(exception);
             }
         }
@@ -158,17 +121,17 @@ namespace Ganymed.Monitoring.Core
             
             InstantiateModules(source);
 
-            if (!CanvasBehaviour || !config.automateCanvasState) return;
+            if (!CanvasBehaviour || !MonitoringSettings.Instance.automateCanvasState) return;
             
             
             if (Application.isPlaying)
             {
-                if(!CanvasBehaviour.IsVisible && config.openCanvasOnEnterPlay)
+                if(!CanvasBehaviour.IsVisible && MonitoringSettings.Instance.openCanvasOnEnterPlay)
                     CanvasBehaviour.SetVisible(true);
             }
             else if(Application.isEditor && CanvasBehaviour.IsVisible)
             {
-                CanvasBehaviour.SetVisible(!config.closeCanvasOnEdit);
+                CanvasBehaviour.SetVisible(!MonitoringSettings.Instance.closeCanvasOnEdit);
             }
         }
         
@@ -178,25 +141,25 @@ namespace Ganymed.Monitoring.Core
             if(CanvasBehaviour == null) return;
             CanvasBehaviour.ClearAllChildren(source);
             
-            foreach (var module in modulesUpperLeft)
+            foreach (var module in MonitoringSettings.Instance.modulesUpperLeft)
             {
                 if (module == null) continue;
-                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, CanvasBehaviour.UpperLeft), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.GUIElementPrefab, CanvasBehaviour.UpperLeft), module);
             }
-            foreach (var module in modulesUpperRight)
+            foreach (var module in MonitoringSettings.Instance.modulesUpperRight)
             {
                 if (module == null) continue;
-                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, CanvasBehaviour.UpperRight), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.GUIElementPrefab, CanvasBehaviour.UpperRight), module);
             }
-            foreach (var module in modulesLowerLeft)
+            foreach (var module in MonitoringSettings.Instance.modulesLowerLeft)
             {
                 if (module == null) continue;
-                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, CanvasBehaviour.LowerLeft), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.GUIElementPrefab, CanvasBehaviour.LowerLeft), module);
             }
-            foreach (var module in modulesLowerRight)
+            foreach (var module in MonitoringSettings.Instance.modulesLowerRight)
             {
                 if (module == null) continue;
-                ModuleCanvasElement.CreateComponent(Instantiate(GUIElementPrefab, CanvasBehaviour.LowerRight), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.GUIElementPrefab, CanvasBehaviour.LowerRight), module);
             }
         }
 
@@ -214,14 +177,14 @@ namespace Ganymed.Monitoring.Core
         {
             if (CanvasBehaviour == null && origin != InvokeOrigin.Recompile)
             {
-                if (MonitoringCanvasBehaviour.TryGetInstance(out var i))
+                if (MonitoringCanvasBehaviour.TryGetInstance(out var canvasInstance))
                 {
-                    CanvasBehaviour = i;
+                    CanvasBehaviour = canvasInstance;
 #if UNITY_EDITOR
-                    if (UnityEditor.PrefabUtility.IsAnyPrefabInstanceRoot(i.gameObject))
+                    if (UnityEditor.PrefabUtility.IsAnyPrefabInstanceRoot(canvasInstance.gameObject))
                     {
                         UnityEditor.PrefabUtility.UnpackPrefabInstance(
-                            i.gameObject,
+                            canvasInstance.gameObject,
                             UnityEditor.PrefabUnpackMode.Completely,
                             UnityEditor.InteractionMode.AutomatedAction);    
                     }
@@ -230,8 +193,8 @@ namespace Ganymed.Monitoring.Core
                 }
                 else
                 {
-                    Instantiate(GUIObjectPrefab);
-                    if(config.logValidationEvents)
+                    Instantiate(MonitoringSettings.Instance.GUIObjectPrefab);
+                    if(MonitoringSettings.Instance.enableWarnings)
                         Debug.Log("Canvas instance was not valid! New instance instantiated!" +
                                   "(You can toggle this message in the monitoring configuration)");
                     CanvasBehaviour = MonitoringCanvasBehaviour.Instance;
@@ -239,44 +202,11 @@ namespace Ganymed.Monitoring.Core
             }
             else
             {
-                if(config.logValidationEvents)
+                if(MonitoringSettings.Instance.enableWarnings)
                     Debug.Log("Canvas instance is valid! (You can toggle this message in the monitoring configuration)");
             }
         }
 
-        #endregion
-        
-        //--------------------------------------------------------------------------------------------------------------
-
-        #region --- [GAMEOBJECT] ---
-
-#if UNITY_EDITOR
-        [UnityEditor.MenuItem("GameObject/Ganymed/Monitoring",false, 11)]
-        private static void CreateGameObjectInstance()
-        {
-            try
-            {
-                var guids = UnityEditor.AssetDatabase.FindAssets("t:prefab", new[] { "Assets" });
-                
-                foreach (var guid in guids)
-                {
-                    var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
-                    var prefab = UnityEditor.AssetDatabase.LoadMainAssetAtPath(path);
-
-                    if (prefab.name != "MonitorBehaviour") continue;
-
-                    UnityEditor.PrefabUtility.InstantiatePrefab(prefab);
-                    Debug.Log("Instantiated Monitoring Prefab");
-                    break;
-                }
-            }
-            catch
-            {
-                Debug.LogWarning("Failed to instantiate Monitoring Prefab!Make sure that the corresponding prefab" +
-                                 "[MonitorBehaviour] can be found within the project.");
-            }
-        }
-#endif   
         #endregion
     }
 }

@@ -30,7 +30,7 @@ namespace Ganymed.Monitoring.Core
             = new Dictionary<OnValueChangedContext, Action<IModuleData<T>>>();
 
         // event listener will be invoked if the GUI element is repainted to this event
-        private event Action<StyleBase, string, InvokeOrigin> OnRepaint;
+        private event Action<Style, string, InvokeOrigin> OnRepaint;
         
         private bool updateEventInitialized = false;
         private bool valueInitialized = false;
@@ -112,13 +112,13 @@ namespace Ganymed.Monitoring.Core
             do
             {
                 await Task.CompletedTask.BreakContext();
-            } while (Configuration == null);
+            } while (Style == null);
             
             if (previousConfiguration != null)
                 previousConfiguration.OnValuesChanged -= Repaint;
 
-            Configuration.OnValuesChanged += Repaint;
-            previousConfiguration = Configuration;
+            Style.OnValuesChanged += Repaint;
+            previousConfiguration = Style;
             
             Repaint(InvokeOrigin.GUI);
 
@@ -150,24 +150,24 @@ namespace Ganymed.Monitoring.Core
             try
             {
                 compiledPrefix =
-                    $"{Configuration.PrefixTextStyle}" +
-                    $"{(Configuration.IndividualFontSize ? Configuration.PrefixFontSize.ToFontSize() : Configuration.fontSize.ToFontSize())}" +
-                    $"{Configuration.PrefixColor.AsRichText()}" +
+                    $"{Style.prefixTextStyle}" +
+                    $"{(Style.individualFontSize ? Style.prefixFontSize.ToFontSize() : Style.fontSize.ToFontSize())}" +
+                    $"{Style.prefixColor.AsRichText()}" +
                     $"{PrefixText}" +
-                    $"{(Configuration.AutoSpace ? (PrefixText.Length > 0) ? " " : string.Empty : string.Empty)}" +
+                    $"{(Style.autoSpace ? (PrefixText.Length > 0) ? " " : string.Empty : string.Empty)}" +
                     $"{(PrefixBreak ? "\n" : string.Empty)}" +
-                    $"{Configuration.InfixTextStyle}" +
-                    $"{(Configuration.IndividualFontSize ? Configuration.InfixFontSize.ToFontSize() : Configuration.fontSize.ToFontSize())}" +
-                    $"{Configuration.InfixColor.AsRichText()}" +
-                    $"{(Configuration.AutoBrackets ? "[" : string.Empty)}";
+                    $"{Style.infixTextStyle}" +
+                    $"{(Style.individualFontSize ? Style.infixFontSize.ToFontSize() : Style.fontSize.ToFontSize())}" +
+                    $"{Style.infixColor.AsRichText()}" +
+                    $"{(Style.autoBrackets ? "[" : string.Empty)}";
 
                 compiledSuffix =
                     $"{(SuffixBreak ? "\n" : string.Empty)}" +
-                    $"{(Configuration.AutoBrackets ? $"{Configuration.InfixColor.AsRichText()}]" : string.Empty)}" +
-                    $"{Configuration.SuffixTextStyle}" +
-                    $"{(Configuration.IndividualFontSize ? Configuration.SuffixFontSize.ToFontSize() : Configuration.fontSize.ToFontSize())}" +
-                    $"{Configuration.SuffixColor.AsRichText()}" +
-                    $"{(Configuration.AutoSpace ? " " : string.Empty)}" +
+                    $"{(Style.autoBrackets ? $"{Style.infixColor.AsRichText()}]" : string.Empty)}" +
+                    $"{Style.suffixTextStyle}" +
+                    $"{(Style.individualFontSize ? Style.suffixFontSize.ToFontSize() : Style.fontSize.ToFontSize())}" +
+                    $"{Style.suffixColor.AsRichText()}" +
+                    $"{(Style.autoSpace ? " " : string.Empty)}" +
                     $"{SuffixText}";
 
                 return Task.CompletedTask;
@@ -270,7 +270,7 @@ namespace Ganymed.Monitoring.Core
         /// Add a listener to the moduleDictionary repaint event
         /// </summary>
         /// <param name="listener"></param>
-        public sealed override void AddOnRepaintListener(Action<StyleBase, string, InvokeOrigin> listener)
+        public sealed override void AddOnRepaintListener(Action<Style, string, InvokeOrigin> listener)
         {
             OnRepaint -= listener;
             OnRepaint += listener;
@@ -281,7 +281,7 @@ namespace Ganymed.Monitoring.Core
         /// Remove a listener from the moduleDictionary repaint event
         /// </summary>
         /// <param name="listener"></param>
-        public sealed override void RemoveOnRepaintChangedListener(Action<StyleBase, string, InvokeOrigin> listener)
+        public sealed override void RemoveOnRepaintChangedListener(Action<Style, string, InvokeOrigin> listener)
         {
             OnRepaint -= listener;
         }
@@ -698,7 +698,7 @@ namespace Ganymed.Monitoring.Core
                 eventType: OnValueChangedContext.Editor,
                 sender: this);
                 
-            OnRepaint?.Invoke(Configuration, moduleData.State, origin);
+            OnRepaint?.Invoke(Style, moduleData.State, origin);
         }
         
         #endregion

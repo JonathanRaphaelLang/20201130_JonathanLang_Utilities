@@ -7,7 +7,7 @@ namespace Ganymed.Examples.Modules
     /// <summary>
     /// Example module that (if enabled) will will log the calls of its methods. 
     /// </summary>
-    [CreateAssetMenu(fileName = "Module_ModuleExampleMethods", menuName = "Example/Modules/ModuleExampleMethods")]
+    [CreateAssetMenu(fileName = "Module_ModuleExampleMethods", menuName = "Monitoring/Modules/ModuleExampleMethods", order = 100)]
     public class ModuleExample_Methods : Module<int>
     {
         [SerializeField] private bool LogExamples = true;

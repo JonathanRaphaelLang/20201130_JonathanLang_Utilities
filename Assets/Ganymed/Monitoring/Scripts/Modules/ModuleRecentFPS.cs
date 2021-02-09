@@ -48,10 +48,10 @@ namespace Ganymed.Monitoring.Modules
         protected override string ParseToString(Vector2 currentValue)
         {
             return
-                $"Max:{fontSize.ToFontSize()}[{(currentValue.y >= thresholdTwo ? colorMax.AsRichText() : currentValue.y >= thresholdOne ? colorMid.AsRichText() : colorMin.AsRichText())}{currentValue.y}{Configuration.infixColor.AsRichText()}]{Configuration.infixFontSize.ToFontSize()} | " +
-                $"Min:{fontSize.ToFontSize()}[{(currentValue.x >= thresholdTwo ? colorMax.AsRichText() : currentValue.x >= thresholdOne ? colorMid.AsRichText() : colorMin.AsRichText())}{currentValue.x}{Configuration.infixColor.AsRichText()}]{Configuration.infixFontSize.ToFontSize()}" +
-                $"{(showFPSMeasurePeriod? $" |{(abbreviations? " MP:" : " Measure Period:")} [{numColor.AsRichText()}{ModuleFPS.MeasurePeriod:0.0}{Configuration.infixColor.AsRichText()}]" : string.Empty )}" +
-                $"{(showCacheDuration? $" |{(abbreviations? " CD:" : " Cache Duration:")} [{numColor.AsRichText()}{cacheDuration}{Configuration.infixColor.AsRichText()}]" : string.Empty )}";
+                $"Max:{fontSize.ToFontSize()}[{(currentValue.y >= thresholdTwo ? colorMax.AsRichText() : currentValue.y >= thresholdOne ? colorMid.AsRichText() : colorMin.AsRichText())}{currentValue.y}{Style.infixColor.AsRichText()}]{Style.infixFontSize.ToFontSize()} | " +
+                $"Min:{fontSize.ToFontSize()}[{(currentValue.x >= thresholdTwo ? colorMax.AsRichText() : currentValue.x >= thresholdOne ? colorMid.AsRichText() : colorMin.AsRichText())}{currentValue.x}{Style.infixColor.AsRichText()}]{Style.infixFontSize.ToFontSize()}" +
+                $"{(showFPSMeasurePeriod? $" |{(abbreviations? " MP:" : " Measure Period:")} [{numColor.AsRichText()}{ModuleFPS.MeasurePeriod:0.0}{Style.infixColor.AsRichText()}]" : string.Empty )}" +
+                $"{(showCacheDuration? $" |{(abbreviations? " CD:" : " Cache Duration:")} [{numColor.AsRichText()}{cacheDuration}{Style.infixColor.AsRichText()}]" : string.Empty )}";
         }
 
         protected override void OnInitialize()

@@ -16,7 +16,7 @@ namespace Ganymed.Utils.Optimization
         
         #region --- [MISC] ---
         
-        protected TransformOptimizationComponent() => OptimizationManager.AddOptimizationComponent(this);
+        protected TransformOptimizationComponent() => OptimizationSettings.AddOptimizationComponent(this);
         
         #endregion
 

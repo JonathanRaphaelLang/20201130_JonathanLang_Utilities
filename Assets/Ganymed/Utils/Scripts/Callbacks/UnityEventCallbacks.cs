@@ -63,7 +63,7 @@ namespace Ganymed.Utils.Callbacks
             catch
             {
                 Debug.LogWarning("Failed to instantiate UnityEventCallbacks Prefab!Make sure that the corresponding prefab" +
-                                 "[UnityEventCallbacks] can be found within the project.");
+                                 "[UnityEventCallbacks] is present within the project.");
             }
         }
         #endif
@@ -74,10 +74,9 @@ namespace Ganymed.Utils.Callbacks
 #if UNITY_EDITOR
                 CreateGameObjectInstance();
 #else
-                Instantiate(new GameObject()).AddComponent<UnityEventCallbacks>();
+                Instantiate(new GameObject("UnityEventCallbacks")).AddComponent<UnityEventCallbacks>();
                 Debug.LogWarning("UnityEventCallbacks instance was not present!");
 #endif
-
             }
         }
         #endregion

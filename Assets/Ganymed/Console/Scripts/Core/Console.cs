@@ -22,31 +22,21 @@ namespace Ganymed.Console.Core
     public sealed class Console : MonoSingleton<Console>, IActive, IConsoleInterface
     {
         #region --- [INSPECOTR] ---
-#pragma warning disable 649
-#pragma warning disable 414
         
-        [Header("Configuration")] [Tooltip("The configuration file for the console")]
-        [HideInInspector] [SerializeField] public ConsoleConfiguration config;
-
         [HideInInspector] [SerializeField] public bool showReferences = false;
-        
-        [Space]
-        [SerializeField] private TMP_InputField inputField;
-        [SerializeField] private TextMeshProUGUI outputField;
-        [SerializeField] private TextMeshProUGUI inputPlaceHolder;
-        [SerializeField] private TextMeshProUGUI inputProposal;
-        [SerializeField] private TextMeshProUGUI inputText;
-        [Space]
-        [SerializeField] private Image frostedGlass; 
-        [SerializeField] private Image backgroundImage; 
-        [Space]
+
+        [SerializeField] private TMP_InputField inputField = null;
+        [SerializeField] private TextMeshProUGUI outputField = null;
+        [SerializeField] private TextMeshProUGUI inputPlaceHolder = null;
+        [SerializeField] private TextMeshProUGUI inputProposal = null;
+        [SerializeField] private TextMeshProUGUI inputText = null;
+        [SerializeField] private Image frostedGlass = null; 
+        [SerializeField] private Image backgroundImage = null;
         [SerializeField] private GameObject consoleFrame = null;
-        [Space]
         [SerializeField] private RectTransform inputRect = null;
         [SerializeField] private RectTransform outputRect = null;
-        [Space]
-        [SerializeField] private Image scrollbar;
-        [SerializeField] private Image scrollbarHandle;
+        [SerializeField] private Image scrollbar = null;
+        [SerializeField] private Image scrollbarHandle = null;
        
 
         #endregion
@@ -130,9 +120,9 @@ namespace Ganymed.Console.Core
             get => Output.fontSize;
             set
             {
-                Instance.config.fontSize
-                    = Mathf.Clamp(value, ConsoleConfiguration.MinFontSize, ConsoleConfiguration.MaxFontSize);
-                Instance.SetConfigurationChanges();
+                ConsoleSettings.Instance.fontSize
+                    = Mathf.Clamp(value, ConsoleSettings.MinFontSize, ConsoleSettings.MaxFontSize);
+                Instance.ApplySettings(ConsoleSettings.Instance);
             }
         }
 
@@ -141,55 +131,21 @@ namespace Ganymed.Console.Core
             get => Input.pointSize;
             set
             {
-                Instance.config.inputFontSize
-                    = Mathf.Clamp(value, ConsoleConfiguration.MinFontSize, ConsoleConfiguration.MaxFontSize);
-                Instance.SetConfigurationChanges();
+                ConsoleSettings.Instance.inputFontSize
+                    = Mathf.Clamp(value, ConsoleSettings.MinFontSize, ConsoleSettings.MaxFontSize);
+                Instance.ApplySettings(ConsoleSettings.Instance);
             }
         }
         
         public bool FrostedGlassShader
         {
-            get => Instance.config.allowShader;
+            get => ConsoleSettings.Instance.allowShader;
             set
             {
-                Instance.config.allowShader = value;
-                Instance.SetConfigurationChanges();
+                ConsoleSettings.Instance.allowShader = value;
+                Instance.ApplySettings(ConsoleSettings.Instance);
             }
         }
-
-        public static ConsoleConfiguration Configuration => TryGetInstance(out var instance) ? instance.config : null;
-
-        #endregion
-        
-        #region --- [COLOR] ---
-        
-        public static Color ColorDefault { get; private set; } = Color.magenta;
-
-        
-        public static Color ColorInputValid { get; private set; } = Color.magenta;
-        public static Color ColorInputOptional { get; private set; } = Color.magenta;
-        public static Color ColorInputIncomplete { get; private set; } = Color.magenta;
-        public static Color ColorInputIncorrect { get; private set; } = Color.magenta;
-        public static Color ColorOperator { get; private set; } = Color.magenta;
-        public static Color ColorAutocompletion { get; private set; } = Color.magenta;
-
-        
-        public static Color ColorTitleMain { get; private set; } = Color.magenta;
-        public static Color ColorTitleSub { get; private set; } = Color.magenta;
-        public static Color ColorEmphasize { get; private set; } = Color.magenta;
-        public static Color ColorInputLine { get; private set; } = Color.magenta;
-        public static Color ColorVariables { get; private set; } = Color.magenta;
-        
-        
-        public static Color ColorUnityLog { get; private set; } = Color.magenta;
-        public static Color ColorUnityWarning { get; private set; } = Color.magenta;
-        public static Color ColorUnityError { get; private set; } = Color.magenta;
-        public static Color ColorStackTrace { get; private set; } = Color.magenta;
-
-
-        public static Color CustomColor1 { get; private set; } = Color.magenta;
-        public static Color CustomColor2 { get; private set; } = Color.magenta;
-        public static Color CustomColor3 { get; private set; } = Color.magenta;
 
         #endregion
         
@@ -200,31 +156,19 @@ namespace Ganymed.Console.Core
         
         private string proposedCommandDescription = string.Empty;
         private string proposedCommand = string.Empty;
-
         private static LogTypeFlags allowedUnityMessages = LogTypeFlags.None;
         private static LogTypeFlags logStackTraceOn = LogTypeFlags.None;
-
         private static bool enableCursorOnActivation = false;
         private static bool logTimeOnInput = true;
-        
         private static int breakLineHeight = 150;
         private static int defaultLineHeight = 100;
-        
         private static bool clearConsoleAutomatically = false;
         private static int maxLogs = 20;
-        
-        private static bool renderContentOnDrag = false;
-        private static bool renderContentOnScale = false;
-
         private static readonly WaitForEndOfFrame endOfFrame = new WaitForEndOfFrame();
 
-        // Message cache
-        private static readonly Queue<string> Logs = new Queue<string>();
-
-        // Cache
-        private readonly List<InputCache> InputCacheStack = new List<InputCache>();
-        private int viewedIndex = 0;
-        private ConsoleConfiguration cachedConfiguration = null;
+        private static readonly Queue<string> LogCache = new Queue<string>();
+        private readonly List<InputCache> InputCache = new List<InputCache>();
+        private int viewedInputCacheIndex = 0;
 
         
         #endregion
@@ -243,11 +187,8 @@ namespace Ganymed.Console.Core
         #region --- [EVENTS] ---
 
         public static event ConsoleLogCallback OnConsoleLog;
-        
         public static event ConsoleToggleCallback OnConsoleToggle;
-
         public static event ConsoleLogCountUpdateCallback OnConsoleLogCountUpdate;
-
         public static event ConsoleRenderSettingsUpdateCallback OnConsoleRenderSettingsUpdate;
 
         #endregion
@@ -258,56 +199,26 @@ namespace Ganymed.Console.Core
         
         
         
-        private void OnValidate()
-        {
-            ValidateConfiguration();
-            
-            if(config != null)
-                SetConfigurationChanges();
-        }
-
-        private void ValidateConfiguration()
-        {
-            if(config == null)
-                Debug.Log("Warning! No Configuration selected!");
-            
-            if (config == cachedConfiguration) return;
-            
-            if (cachedConfiguration != null)
-                cachedConfiguration.OnConsoleConfigurationChanged -= SetConfigurationChanges;
-
-            if (config != null)
-                BindConfig();
-                
-            cachedConfiguration = config;
-        }
-
-        private void BindConfig()
-        {
-            config.OnConsoleConfigurationChanged -= SetConfigurationChanges;
-            config.OnConsoleConfigurationChanged += SetConfigurationChanges;
-        }
-        
         
         /// <summary>
-        /// This methods applies the configuration settings to the Command
+        /// This methods applies the settings settings to the Command
         /// </summary>
-        private void SetConfigurationChanges()
+        private void ApplySettings(ConsoleSettings settings)
         {
             if(this == null) return;
             
-            if (config.active != isActive)  SetActive(config.active);
+            if (ConsoleSettings.Instance.active != isActive)  SetActive(ConsoleSettings.Instance.active);
             
-            ApplyConsoleConfigurationInstance();
-            ApplyGeneralSettingsFromConfiguration();
-            ApplyAndUpdateRenderSettings();
-            ApplyFontSizeFromConfiguration();
-            ApplyColorFromConfiguration();
-            ApplyConsoleColorFromConfiguration();
-            ApplyShaderFromConfiguration();
-            ApplyConsoleLink();
+            ApplyGeneralSettingsFromConfiguration(settings);
+            ApplyFontSizeFromConfiguration(settings);
+            ApplyColorFromConfiguration(settings);
+            ApplyConsoleColorFromConfiguration(settings);
+            ApplyShaderFromConfiguration(settings);
+            ApplyConsoleLink(settings);
             ValidateConsolesRectOffsets();
-            ApplyRichTextFromConfiguration();
+            ApplyRichTextFromConfiguration(settings);
+            
+            OnConsoleRenderSettingsUpdate?.Invoke(settings.renderContentOnDrag, settings.renderContentOnScale);
         }
 
         #endregion
@@ -315,25 +226,18 @@ namespace Ganymed.Console.Core
         //--------------------------------------------------------------------------------------------------------------
 
         #region --- [APPLY SETTINGS VALIDATION] ---
-
-        private void ApplyAndUpdateRenderSettings()
-        {
-            renderContentOnDrag = config.renderContentOnDrag;
-            renderContentOnScale = config.renderContentOnScale;
-            OnConsoleRenderSettingsUpdate?.Invoke(renderContentOnDrag, renderContentOnScale);
-        }
         
-        private void ApplyShaderFromConfiguration()
+        private void ApplyShaderFromConfiguration(ConsoleSettings settings)
         {
             if (frostedGlass != null)
-                frostedGlass.enabled = config.allowShader;
+                frostedGlass.enabled = settings.allowShader;
         }
 
-        private void ApplyRichTextFromConfiguration()
+        private void ApplyRichTextFromConfiguration(ConsoleSettings settings)
         {
             try
             {
-                Output.richText = config.showRichText;
+                Output.richText = settings.showRichText;
             }
             catch
             {
@@ -341,23 +245,23 @@ namespace Ganymed.Console.Core
             }
         }
 
-        private void ApplyGeneralSettingsFromConfiguration()
+        private void ApplyGeneralSettingsFromConfiguration(ConsoleSettings settings)
         {
-            enableCursorOnActivation = config.enableCursorOnActivation;
-            breakLineHeight = config.breakLineHeight;
-            defaultLineHeight = config.defaultLineHeight;
-            allowedUnityMessages = config.allowedUnityMessages;
-            logStackTraceOn = config.logStackTraceOn;
-            logTimeOnInput = config.logTimeOnInput;
-            clearConsoleAutomatically = config.clearConsoleAutomatically;
-            maxLogs = config.maxLogs; }
+            enableCursorOnActivation = settings.enableCursorOnActivation;
+            breakLineHeight = settings.breakLineHeight;
+            defaultLineHeight = settings.defaultLineHeight;
+            allowedUnityMessages = settings.allowedUnityMessages;
+            logStackTraceOn = settings.logStackTraceOn;
+            logTimeOnInput = settings.logTimeOnInput;
+            clearConsoleAutomatically = settings.clearConsoleAutomatically;
+            maxLogs = settings.maxLogs; }
         
 
-        private void ApplyConsoleLink()
+        private void ApplyConsoleLink(ConsoleSettings settings)
         {
             if (!Application.isPlaying) return;
             
-            if (config.bindConsoles) SubscribeToUnityConsoleCallback();
+            if (settings.bindConsoles) SubscribeToUnityConsoleCallback();
             else Application.logMessageReceived -= OnLogMessageReceived;
         }
         
@@ -366,52 +270,30 @@ namespace Ganymed.Console.Core
             Application.logMessageReceived -= OnLogMessageReceived;
             Application.logMessageReceived += OnLogMessageReceived;
         }
-
-        private void ApplyConsoleConfigurationInstance()
-            => ConsoleConfiguration.Instance = config;
         
-        private void ApplyFontSizeFromConfiguration()
+        private void ApplyFontSizeFromConfiguration(ConsoleSettings settings)
         {
-            inputField.pointSize = config.inputFontSize;
-            inputProposal.fontSize = config.inputFontSize;
-            inputText.fontSize = config.inputFontSize;
-            inputPlaceHolder.fontSize = config.inputFontSize;
-            outputField.fontSize = config.fontSize;
+            inputField.pointSize = settings.inputFontSize;
+            inputProposal.fontSize = settings.inputFontSize;
+            inputText.fontSize = settings.inputFontSize;
+            inputPlaceHolder.fontSize = settings.inputFontSize;
+            outputField.fontSize = settings.fontSize;
         }
 
-        private void ApplyConsoleColorFromConfiguration()
+        private void ApplyConsoleColorFromConfiguration(ConsoleSettings settings)
         {
-            scrollbar.color = config.colorScrollbar;
-            scrollbarHandle.color = config.colorScrollbarHandle;
+            scrollbar.color = settings.colorScrollbar;
+            scrollbarHandle.color = settings.colorScrollbarHandle;
         }
 
-        private void ApplyColorFromConfiguration()
+        private void ApplyColorFromConfiguration(ConsoleSettings settings)
         {
-            ColorDefault = config.colorDefault;
-            ColorInputValid = config.colorValidInput;
-            ColorInputIncomplete = config.colorIncompleteInput;
-            ColorInputIncorrect = config.colorIncorrectInput;
-            ColorInputOptional = config.colorOptionalParamsLeft;
-            ColorOperator = config.colorInformation;
-            ColorUnityLog = config.colorUnityLog;
-            ColorUnityWarning = config.colorUnityWarning;
-            ColorUnityError = config.colorUnityError;
-            ColorStackTrace = config.colorStackTrace;
-            ColorInputLine = config.colorInputLines;
-            ColorAutocompletion = config.colorAutocompletion;
-            ColorTitleMain = config.colorTitles;
-            ColorTitleSub = config.colorSubHeading;
-            ColorEmphasize = config.colorEmphasize;
-            ColorVariables = config.colorVariables;
-            CustomColor1 = config.customColor1;
-            CustomColor2 = config.customColor2;
-            CustomColor3 = config.customColor3;
             
             if (outputField == null || inputProposal == null || backgroundImage == null) return;
             
-            outputField.color = config.colorDefault;
-            inputProposal.color = ColorAutocompletion;
-            backgroundImage.color = config.colorConsoleBackground;
+            outputField.color = settings.colorDefault;
+            inputProposal.color = settings.colorAutocompletion;
+            backgroundImage.color = settings.colorConsoleBackground;
         }
 
         
@@ -425,16 +307,16 @@ namespace Ganymed.Console.Core
         [ConsoleCommand("Clear", Description = "Clear console and input cache")]
         private static void ClearConsole(bool clearCache)
         {
-            Logs.Clear();
+            LogCache.Clear();
             
             Input.text = string.Empty;
             Output.text = string.Empty;
 
-            if (!clearCache) return;
-            Instance.InputCacheStack.Clear();
-            Instance.viewedIndex = 0;
+            OnConsoleLogCountUpdate?.Invoke(LogCache.Count, maxLogs);
             
-            OnConsoleLogCountUpdate?.Invoke(Logs.Count, maxLogs);
+            if (!clearCache) return;
+            Instance.InputCache.Clear();
+            Instance.viewedInputCacheIndex = 0;
         }
 
         #endregion
@@ -468,7 +350,7 @@ namespace Ganymed.Console.Core
 
         public void CopyLastLogToClipboard()
         {
-            if(Logs.Count > 0) Logs.Last().CopyToClipboard(true);
+            if(LogCache.Count > 0) LogCache.Last().CopyToClipboard(true);
         }
 
         public void CopyAllToClipboard()
@@ -493,7 +375,7 @@ namespace Ganymed.Console.Core
                 try
                 {
                     isActive = value;
-                    Configuration.active = value;
+                    ConsoleSettings.Instance.active = value;
                     
                     OnActiveStateChanged?.Invoke(value);
                 
@@ -580,7 +462,7 @@ namespace Ganymed.Console.Core
             if (inputString.StartsWith(CommandProcessor.Prefix))
             {
                 Log(inputString,
-                    ColorInputLine,
+                    ConsoleSettings.ColorInputLine,
                     breakLineHeight,
                     LogOptions.IsInput);
                 await CommandProcessor.Process(inputString);
@@ -603,7 +485,7 @@ namespace Ganymed.Console.Core
             proposedCommandDescription = string.Empty;
             proposedCommand = string.Empty;
 
-            if (config.allowCommandPreProcessing && inputString.Cut(StartEnd.Start).StartsWith(CommandProcessor.Prefix))
+            if (ConsoleSettings.Instance.allowCommandPreProcessing && inputString.Cut(StartEnd.Start).StartsWith(CommandProcessor.Prefix))
             {
                 if (CommandProcessor.ProposeMethodCommand(
                     inputString,
@@ -641,11 +523,11 @@ namespace Ganymed.Console.Core
             switch (type)
             {
                 case LogType.Error when allowedUnityMessages.HasFlag(LogTypeFlags.Error):
-                    Log("System Error:", ColorUnityError, LogOptions.IsInput);
+                    Log("System Error:", ConsoleSettings.ColorUnityError, LogOptions.IsInput);
                     if (logStackTraceOn.HasFlag(LogTypeFlags.Error))
                     {
                         Log(condition, tab);
-                        Log(stacktrace.RemoveBreaks(), ColorStackTrace, endLine);
+                        Log(stacktrace.RemoveBreaks(), ConsoleSettings.ColorStackTrace, endLine);
                     }
                     else
                     {
@@ -659,7 +541,7 @@ namespace Ganymed.Console.Core
                     if (logStackTraceOn.HasFlag(LogTypeFlags.Assert))
                     {
                         Log(condition, tab);
-                        Log(stacktrace.RemoveBreaks(), ColorStackTrace, endLine);
+                        Log(stacktrace.RemoveBreaks(), ConsoleSettings.ColorStackTrace, endLine);
                     }
                     else
                     {
@@ -669,11 +551,11 @@ namespace Ganymed.Console.Core
                 
                 
                 case LogType.Warning when allowedUnityMessages.HasFlag(LogTypeFlags.Warning):
-                    Log("System Warning:", ColorUnityWarning, LogOptions.IsInput);
+                    Log("System Warning:", ConsoleSettings.ColorUnityWarning, LogOptions.IsInput);
                     if (logStackTraceOn.HasFlag(LogTypeFlags.Warning))
                     {
                         Log(condition, tab);
-                        Log(stacktrace.RemoveBreaks(), ColorStackTrace, endLine);
+                        Log(stacktrace.RemoveBreaks(), ConsoleSettings.ColorStackTrace, endLine);
                     }
                     else
                     {
@@ -683,11 +565,11 @@ namespace Ganymed.Console.Core
                 
                 
                 case LogType.Log when allowedUnityMessages.HasFlag(LogTypeFlags.Log):
-                    Log("System:", ColorUnityLog, LogOptions.IsInput);
+                    Log("System:", ConsoleSettings.ColorUnityLog, LogOptions.IsInput);
                     if (logStackTraceOn.HasFlag(LogTypeFlags.Log))
                     {
                         Log(condition, tab);
-                        Log(stacktrace.RemoveBreaks(), ColorStackTrace, endLine);
+                        Log(stacktrace.RemoveBreaks(), ConsoleSettings.ColorStackTrace, endLine);
                     }
                     else
                     {
@@ -697,11 +579,11 @@ namespace Ganymed.Console.Core
                 
                 
                 case LogType.Exception when allowedUnityMessages.HasFlag(LogTypeFlags.Exception):
-                    Log("System Exception:", ColorUnityError, LogOptions.IsInput);
+                    Log("System Exception:", ConsoleSettings.ColorUnityError, LogOptions.IsInput);
                     if (logStackTraceOn.HasFlag(LogTypeFlags.Exception))
                     {
                         Log(condition, tab);
-                        Log(stacktrace.RemoveBreaks(), ColorStackTrace, endLine);
+                        Log(stacktrace.RemoveBreaks(), ConsoleSettings.ColorStackTrace, endLine);
                     }
                     else
                     {
@@ -814,18 +696,18 @@ namespace Ganymed.Console.Core
         private static void CacheMessageAndLog(object message) => CacheMessageAndLog(message.ToString());
         private static void CacheMessageAndLog(string message)
         {
-            Logs.Enqueue(message);
+            LogCache.Enqueue(message);
 
             Output.text = string.Empty;
-            foreach (var msg in Logs)
+            foreach (var msg in LogCache)
             {
                 Output.text = $"{Output.text}{msg}";
             }
             
-            if(Logs.Count > maxLogs)
-                Logs.Dequeue();
+            if(LogCache.Count > maxLogs)
+                LogCache.Dequeue();
             
-            OnConsoleLogCountUpdate?.Invoke(Logs.Count, maxLogs);
+            OnConsoleLogCountUpdate?.Invoke(LogCache.Count, maxLogs);
         }
         
         #endregion
@@ -841,22 +723,22 @@ namespace Ganymed.Console.Core
             switch (signature)
             {
                 case InputValidation.None:
-                    InputText.color = ColorDefault;
+                    InputText.color = ConsoleSettings.ColorDefault;
                     break;
                 case InputValidation.Valid:
-                    InputText.color = ColorInputValid;
+                    InputText.color = ConsoleSettings.ColorInputValid;
                     break;
                 case InputValidation.Incomplete:
-                    InputText.color = ColorInputIncomplete;
+                    InputText.color = ConsoleSettings.ColorInputIncomplete;
                     break;
                 case InputValidation.Incorrect:
-                    InputText.color = ColorInputIncorrect;
+                    InputText.color = ConsoleSettings.ColorInputIncorrect;
                     break;
                 case InputValidation.CommandInfo:
-                    InputText.color = ColorOperator;
+                    InputText.color = ConsoleSettings.ColorOperator;
                     break;
                 case InputValidation.Optional:
-                    InputText.color = ColorInputOptional;
+                    InputText.color = ConsoleSettings.ColorInputOptional;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(signature), signature, null);
@@ -869,75 +751,45 @@ namespace Ganymed.Console.Core
         }
 
         #endregion
-        
-        //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [GAMEOBJECT CREATION (Editor)] ---
-
-#if UNITY_EDITOR
-        [UnityEditor.MenuItem("GameObject/Ganymed/Console",false, 12)]
-        public static void CreateGameObjectInstance()
-        {
-            if (Instance != null)
-            {
-                Debug.LogWarning("Failed to instantiate Console because an instance of the console already exists!");
-                return;
-            }
-            
-            try
-            {
-                var guids = UnityEditor.AssetDatabase.FindAssets("t:prefab", new[] { "Assets" });
-
-                foreach (var guid in guids)
-                {
-                    var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
-                    var prefab = UnityEditor.AssetDatabase.LoadMainAssetAtPath(path);
-
-                    if (prefab.name != "Console") continue;
-
-                    UnityEditor.PrefabUtility.InstantiatePrefab(prefab);
-                    Console.Instance.Awake();
-                    Debug.Log("Instantiated Console Prefab");
-                    break;
-                }
-            }
-            catch
-            {
-                Debug.LogWarning("Failed to instantiate Console! Make sure that the corresponding prefab" +
-                                 "[Console] can be found within the project.");
-            }
-        }
-#endif
-
-        #endregion
-        
         //--------------------------------------------------------------------------------------------------------------
 
         #region --- [INITIALIZATION] ---
 
+        public void OnInstantiation()
+        {
+            Awake();
+        }
+        
         protected override void Awake()
         {
             base.Awake();
-            
-            ConsoleConfiguration.Instance = config;
-            SetConfigurationChanges();
+            ApplySettings(ConsoleSettings.Instance);
             Initialize();
         }
 
         private async void Start()
         {
             await Task.Delay(1);
-            if(config.logConfigurationOnStart)
-                config.LogConfiguration(false);
+            if(ConsoleSettings.Instance.logConfigurationOnStart)
+                ConsoleSettings.Instance.LogConfiguration(false);
             
-            if(config.activateConsoleOnStart && !isActive)
+            if(ConsoleSettings.Instance.activateConsoleOnStart && !isActive)
                 SetActive(true);
         }
 
         private void OnEnable()
         {
             UnityEventCallbacks.ValidateUnityEventCallbacks();
+            ConsoleSettings.OnConsoleSettingsChanged -= ApplySettings;
+            ConsoleSettings.OnConsoleSettingsChanged += ApplySettings;
         }
+
+        private void OnDisable()
+        {
+            ConsoleSettings.OnConsoleSettingsChanged -= ApplySettings;
+        }
+        
 
 
         private void Initialize()
@@ -945,7 +797,7 @@ namespace Ganymed.Console.Core
             UnityEventCallbacks.ValidateUnityEventCallbacks();
             
             if(isInitialized || this == null) return;
-            SetActive(config.active);
+            SetActive(ConsoleSettings.Instance.active);
             isInitialized = true;
             
             ClearConsole();
@@ -954,7 +806,7 @@ namespace Ganymed.Console.Core
             InputText = inputText;
             Input = inputField;
 
-            if (!config.bindConsoles) return;
+            if (!ConsoleSettings.Instance.bindConsoles) return;
             SubscribeToUnityConsoleCallback();
         }
 
@@ -974,18 +826,13 @@ namespace Ganymed.Console.Core
         public Console()
         {
             UnityEventCallbacks.AddEventListener(
-                BindConfig,
-                UnityEventType.Recompile);
-            
-            UnityEventCallbacks.AddEventListener(
                 ValidateConsolesRectOffsets,
                 UnityEventType.Recompile,
                 UnityEventType.OnEnable,
                 UnityEventType.ApplicationQuit);
             
-            UnityEventCallbacks.AddEventListener(
-                OnValidate,
-                UnityEventType.Awake);
+            ConsoleSettings.OnConsoleSettingsChanged -= ApplySettings;
+            ConsoleSettings.OnConsoleSettingsChanged += ApplySettings;
         }
 
         ~Console()
@@ -1008,6 +855,8 @@ namespace Ganymed.Console.Core
             UnityEventCallbacks.RemoveEventListener(
                 ValidateConsolesRectOffsets,
                 UnityEventType.EnteredEditMode);
+            
+            ConsoleSettings.OnConsoleSettingsChanged -= ApplySettings;
         }
         
         
@@ -1020,32 +869,32 @@ namespace Ganymed.Console.Core
 
         private void PreviousFromCache()
         {
-            if(InputCacheStack.Count <= 0)
+            if(InputCache.Count <= 0)
                 return;
             
             SetColor(InputValidation.None);
             var i = 0;
             do
             {
-                viewedIndex--;
-                if (viewedIndex < 0)
-                    viewedIndex = InputCacheStack.Count -1;
+                viewedInputCacheIndex--;
+                if (viewedInputCacheIndex < 0)
+                    viewedInputCacheIndex = InputCache.Count -1;
                 
-                inputField.text = InputCacheStack[viewedIndex].text;
+                inputField.text = InputCache[viewedInputCacheIndex].text;
                 
                 i++;
-                if (i <= InputCacheStack.Count) continue;
+                if (i <= InputCache.Count) continue;
                 Debug.Log("Warning possible endless loop");
                 break;
                 
-            } while (string.IsNullOrWhiteSpace(InputCacheStack[viewedIndex].text));
+            } while (string.IsNullOrWhiteSpace(InputCache[viewedInputCacheIndex].text));
             
             StartCoroutine(MoveSelectionToEndOfLine());
         }
 
         private void SubsequentFromCache()
         {
-            if(InputCacheStack.Count <= 0)
+            if(InputCache.Count <= 0)
                 return;
             
             SetColor(InputValidation.None);
@@ -1053,18 +902,18 @@ namespace Ganymed.Console.Core
             
             do
             {
-                viewedIndex++;
-                if (viewedIndex > InputCacheStack.Count -1)
-                    viewedIndex = 0;
+                viewedInputCacheIndex++;
+                if (viewedInputCacheIndex > InputCache.Count -1)
+                    viewedInputCacheIndex = 0;
                 
-                inputField.text = InputCacheStack[viewedIndex].text;
-                SetColor(InputCacheStack[viewedIndex].color);
+                inputField.text = InputCache[viewedInputCacheIndex].text;
+                SetColor(InputCache[viewedInputCacheIndex].color);
                 
                 i++;
-                if (i < InputCacheStack.Count) continue;
+                if (i < InputCache.Count) continue;
                 break;
                 
-            } while (string.IsNullOrWhiteSpace(InputCacheStack[viewedIndex].text));
+            } while (string.IsNullOrWhiteSpace(InputCache[viewedInputCacheIndex].text));
 
             StartCoroutine(MoveSelectionToEndOfLine());
         }
@@ -1075,26 +924,26 @@ namespace Ganymed.Console.Core
             var i = 0;
             var inputCache = new InputCache(inputString, InputText.color);
             //validate that the input wont cached multiple times.
-            while (InputCacheStack.Contains(inputCache))    
+            while (InputCache.Contains(inputCache))    
             {
                 //remove the new input to prevent repetitions.
-                InputCacheStack.Remove(inputCache);
+                InputCache.Remove(inputCache);
                 
                 i++;
-                if (i < InputCacheStack.Count) continue;
+                if (i < InputCache.Count) continue;
                 break;
             }
 
-            if (!InputCacheStack.Contains(inputCache))
-                InputCacheStack.Add(inputCache);
+            if (!InputCache.Contains(inputCache))
+                InputCache.Add(inputCache);
         }
        
         private void RemoveLastItemFromCache()
         {
-            if(InputCacheStack.Count > config.inputCacheSize)
-                InputCacheStack.RemoveAt(0);
+            if(InputCache.Count > ConsoleSettings.Instance.inputCacheSize)
+                InputCache.RemoveAt(0);
 
-            viewedIndex = InputCacheStack.Count;
+            viewedInputCacheIndex = InputCache.Count;
         }
 
         #endregion
@@ -1123,7 +972,7 @@ namespace Ganymed.Console.Core
         {
             try
             {
-                CommandProcessor.Prefix = Instance.config.commandPrefix;
+                CommandProcessor.Prefix = ConsoleSettings.Instance.commandPrefix;
             }
             catch
             {

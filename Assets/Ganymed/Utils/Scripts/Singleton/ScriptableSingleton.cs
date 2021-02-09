@@ -43,5 +43,6 @@ namespace Ganymed.Utils.Singleton
             
             instance = (T)(object)this;
         }
+        
     }
 }
