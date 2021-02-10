@@ -5,13 +5,13 @@ using UnityEngine;
 
 namespace Ganymed.Monitoring.Editor
 {
-    [CustomEditor(typeof(MonitorBehaviour))]
+    [CustomEditor(typeof(MonitoringBehaviour))]
     public class MonitorBehaviourInspector : UnityEditor.Editor
     {
-        private MonitorBehaviour Target = null;
+        private MonitoringBehaviour Target = null;
         private void OnEnable()
         {
-            Target = (MonitorBehaviour) target;
+            Target = (MonitoringBehaviour) target;
         }
 
         public override void OnInspectorGUI()

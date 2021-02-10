@@ -15,7 +15,7 @@ namespace Ganymed.Console.Attributes
         /// <summary>
         /// Contains a collection of potential suggestions
         /// </summary>
-        public readonly string[] Suggestions;
+        public string[] Suggestions { get; set; }
 
         /// <summary>
         /// Should case be ignored when comparing input strings with suggestions

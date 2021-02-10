@@ -31,6 +31,6 @@ MonoBehaviour:
   infixTextStyle: 
   suffixTextStyle: 
   colorBackground: {r: 0, g: 0, b: 0, a: 0.78431374}
-  prefixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}
+  prefixColor: {r: 0.7294118, g: 0.7294118, b: 0.7294118, a: 1}
   infixColor: {r: 1, g: 1, b: 1, a: 1}
   suffixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}

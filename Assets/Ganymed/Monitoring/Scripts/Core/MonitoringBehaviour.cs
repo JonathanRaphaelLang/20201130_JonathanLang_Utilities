@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Ganymed.Monitoring.Configuration;
 using Ganymed.Utils;
 using Ganymed.Utils.Callbacks;
-using Ganymed.Utils.Optimization;
 using Ganymed.Utils.Singleton;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Ganymed.Monitoring.Core
 {
     [ExecuteAlways]
     [AddComponentMenu("Monitoring/Monitor")]
-    public sealed class MonitorBehaviour : MonoSingleton<MonitorBehaviour>
+    public sealed class MonitoringBehaviour : MonoSingleton<MonitoringBehaviour>
     {
-       
+        
         #region --- [PROPERTIES] ---
         private MonitoringCanvasBehaviour CanvasBehaviour { get; set; }
         #endregion
@@ -23,13 +21,10 @@ namespace Ganymed.Monitoring.Core
 
         #region --- [TOGGLE] ---
 
-        //TODO: outsource
-        private void Update()
-        {
-            if (!Input.GetKeyDown(MonitoringSettings.Instance.toggleKey)) return;
-            
-            CanvasBehaviour.SetVisible(!CanvasBehaviour.IsVisible);
-        }
+        /// <summary>
+        /// Toggle the canvas element.
+        /// </summary>
+        public void Toggle() => CanvasBehaviour.SetVisible(!CanvasBehaviour.IsVisible);
 
         #endregion
 
@@ -38,7 +33,7 @@ namespace Ganymed.Monitoring.Core
         #region --- [CONSTRUCTOR] ---
 #if UNITY_EDITOR
 
-        private MonitorBehaviour()
+        private MonitoringBehaviour()
         {
             UnityEventCallbacks.AddEventListener(
                 () => MonitoringCanvasBehaviour.SetHideFlags(MonitoringSettings.Instance.hideCanvasGameObject ? HideFlags.HideInHierarchy : HideFlags.None), 
@@ -49,10 +44,11 @@ namespace Ganymed.Monitoring.Core
         private void OnEnable() =>
             MonitoringCanvasBehaviour.SetHideFlags(MonitoringSettings.Instance.hideCanvasGameObject ? HideFlags.HideInHierarchy : HideFlags.None);
 
-        static MonitorBehaviour()
+        static MonitoringBehaviour()
         {
             UnityEventCallbacks.AddEventListener(OnScriptsReloaded, true, UnityEventType.Recompile);
         }
+        
         private static void OnScriptsReloaded()
         {
             if (TryGetInstance(out var guiController))
@@ -71,6 +67,7 @@ namespace Ganymed.Monitoring.Core
             Initialize(InvokeOrigin.UnityMessage);
         }
 
+        
         /// <summary>
         /// Validate the integrity of the canvas instance.
         /// </summary>
@@ -80,39 +77,7 @@ namespace Ganymed.Monitoring.Core
             ValidateCanvasInstance(origin);
         }
 
-        private void OnDestroy()
-        {
-            try
-            {
-                if(Application.isPlaying)
-                    Destroy(CanvasBehaviour.gameObject);
-                else
-                {
-                    DestroyImmediate(CanvasBehaviour.gameObject);
-                }
-            }
-            catch
-            {
-                // ignored
-            }
-        }
-
-        /// <summary>
-        /// Force every canvas elements to reload.
-        /// </summary>
-        public void Repaint()
-        {
-            try
-            {
-                InstantiateModules(InvokeOrigin.GUI);
-            }
-            catch (Exception exception)
-            {
-                if(MonitoringSettings.Instance.enableWarnings)
-                    Debug.Log(exception);
-            }
-        }
-
+        
         private void Initialize(InvokeOrigin source)
         {
             ValidateCanvasInstance(source);
@@ -136,6 +101,10 @@ namespace Ganymed.Monitoring.Core
         }
         
         
+        /// <summary>
+        /// Create canvas elements for the monitoring modules.
+        /// </summary>
+        /// <param name="source"></param>
         private void InstantiateModules(InvokeOrigin source)
         {
             if(CanvasBehaviour == null) return;
@@ -160,6 +129,46 @@ namespace Ganymed.Monitoring.Core
             {
                 if (module == null) continue;
                 ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.GUIElementPrefab, CanvasBehaviour.LowerRight), module);
+            }
+        }
+        
+        
+        /// <summary>
+        /// Force every canvas elements to reload.
+        /// </summary>
+        public void Repaint()
+        {
+            try
+            {
+                InstantiateModules(InvokeOrigin.GUI);
+            }
+            catch (Exception exception)
+            {
+                if(MonitoringSettings.Instance.enableWarnings)
+                    Debug.Log(exception);
+            }
+        }
+
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+
+        #region --- [TERMINATE] ---
+
+        private void OnDestroy()
+        {
+            try
+            {
+                if(Application.isPlaying)
+                    Destroy(CanvasBehaviour.gameObject);
+                else
+                {
+                    DestroyImmediate(CanvasBehaviour.gameObject);
+                }
+            }
+            catch
+            {
+                // ignored
             }
         }
 
@@ -189,7 +198,6 @@ namespace Ganymed.Monitoring.Core
                             UnityEditor.InteractionMode.AutomatedAction);    
                     }
 #endif
-                    
                 }
                 else
                 {
@@ -210,3 +218,4 @@ namespace Ganymed.Monitoring.Core
         #endregion
     }
 }
+ 

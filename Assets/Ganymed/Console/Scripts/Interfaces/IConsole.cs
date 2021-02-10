@@ -3,7 +3,7 @@
     /// <summary>
     /// Use this interface as an entry point for custom input systems.
     /// </summary>
-    public interface IConsoleInterface
+    public interface IConsole
     {
         void Toggle();
         void ApplyProposedInput();

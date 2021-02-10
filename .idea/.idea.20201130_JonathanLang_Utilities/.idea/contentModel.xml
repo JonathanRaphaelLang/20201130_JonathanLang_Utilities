@@ -14,12 +14,6 @@
       <e p="Assembly-Ganymed-Utils-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-Ganymed-Utils.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
-        <e p="Documents" t="Include">
-          <e p="TODOs" t="Include">
-            <e p="Backlog.txt" t="Include" />
-            <e p="TODO.txt" t="Include" />
-          </e>
-        </e>
         <e p="Ganymed" t="Include">
           <e p="Console" t="Include">
             <e p="Scripts" t="Include">
@@ -71,7 +65,7 @@
                 <e p="SIzeButtons.cs" t="Include" />
               </e>
               <e p="Interfaces" t="Include">
-                <e p="IConsoleInterface.cs" t="Include" />
+                <e p="IConsole.cs" t="Include" />
                 <e p="IGettable.cs" t="Include" />
                 <e p="ISetter.cs" t="Include" />
               </e>
@@ -125,7 +119,8 @@
                 <e p="Module.cs" t="Include" />
                 <e p="ModuleCanvasElement.cs" t="Include" />
                 <e p="ModuleT.cs" t="Include" />
-                <e p="MonitorBehaviour.cs" t="Include" />
+                <e p="MonitoringBehaviour.cs" t="Include" />
+                <e p="MonitoringBehaviourInput.cs" t="Include" />
                 <e p="MonitoringCanvasBehaviour.cs" t="Include" />
               </e>
               <e p="Editor" t="Include">
@@ -162,6 +157,10 @@
           </e>
           <e p="Shared" t="Include">
             <e p="ModuleCommands.cs" t="Include" />
+          </e>
+          <e p="TODOs" t="Include">
+            <e p="Backlog.txt" t="Include" />
+            <e p="TODO.txt" t="Include" />
           </e>
           <e p="Utils" t="Include">
             <e p="Editor" t="Include">

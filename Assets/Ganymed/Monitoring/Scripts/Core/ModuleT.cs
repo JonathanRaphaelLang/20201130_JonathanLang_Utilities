@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ganymed.Monitoring.Configuration;
@@ -14,7 +13,7 @@ namespace Ganymed.Monitoring.Core
     /// Generic Module 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class Module<T> : Module
+    public abstract class Module<T> : Module 
     {
         #region --- [FIELDS] ---
 
@@ -65,7 +64,7 @@ namespace Ganymed.Monitoring.Core
         /// <summary>
         /// The last and/or cached newValue of T
         /// </summary>
-        [SerializeField] [HideInInspector] protected T Value => value;
+        protected T Value => value;
         
         /// <summary>
         /// The current newValue of T
@@ -198,8 +197,7 @@ namespace Ganymed.Monitoring.Core
         /// <returns></returns>
         protected virtual string ParseToString(T currentValue)
         {
-            if (currentValue != null) return currentValue.ToString();
-            else return string.Empty;
+            return currentValue != null ? currentValue.ToString() : string.Empty;
         }
 
 
@@ -331,7 +329,7 @@ namespace Ganymed.Monitoring.Core
         public sealed override void RemoveOnValueChangedListener(OnValueChangedContext context)
         {
             OnValueChanged[context] = null;
-            OnValueChanged[context] = delegate(IModuleData data) { };
+            OnValueChanged[context] = delegate { };
         }
         
         
@@ -505,10 +503,10 @@ namespace Ganymed.Monitoring.Core
         /// <summary>
         /// Set ModuleUpdateDelegates that will update the module.
         /// </summary>
-        /// <param name="func"></param>
-        protected void InitializeUpdateEvent(ref ModuleUpdateDelegate func)
+        /// <param name="update"></param>
+        protected void InitializeUpdateEvent(ref ModuleUpdateDelegate update)
         {
-            func += UpdateModule;
+            update += UpdateModule;
             updateEventInitialized = true;
         }
         
@@ -568,7 +566,6 @@ namespace Ganymed.Monitoring.Core
             valueInitialized = true;
         }
       
-        // --- ACTIVATION ---
         
         /// <summary>
         /// Bind delegate/event invoking activation/deactivation of the module.

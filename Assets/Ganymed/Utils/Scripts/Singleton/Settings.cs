@@ -1,19 +1,25 @@
-﻿using System.IO;
-using Ganymed.Utils.ExtensionMethods;
-using UnityEditor;
+﻿using System;
+using System.IO;
 using UnityEngine;
 
 namespace Ganymed.Utils.Singleton
 {
-
+    /// <summary>
+    /// Generic base class for singleton instances of setting files.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class Settings<T> : ScriptableSettings where T : ScriptableSettings
     {
         private static string SettingsAssetName => typeof(T).Name;
         
-        private static T instance = null;
-        // ReSharper disable once StaticMemberInGenericType
-        private static bool isInitializing = false;
+        // private backfield cache of the instance.
+        private static T instance = null;                   
+        // ReSharper disable once StaticMemberInGenericType This field is required for multithreading environments. 
+        private static bool isInitializing = false;           
 
+        /// <summary>
+        /// The singleton instance of the related type. Will create an instance of the type if none is present. 
+        /// </summary>
         public static T Instance
         {
             get
@@ -38,11 +44,10 @@ namespace Ganymed.Utils.Singleton
                         if (!Directory.Exists($"{instance.FilePath()}/Resources"))
                         {
                             Directory.CreateDirectory(Path.GetDirectoryName($"{instance.FilePath()}/Resources") ?? "Assets/Resources");
-                            AssetDatabase.CreateFolder(instance.FilePath(), "Resources");
+                            UnityEditor.AssetDatabase.CreateFolder(instance.FilePath(), "Resources");
                         }
                         
-                        AssetDatabase.CreateAsset(instance, $"{instance.FilePath()}/Resources/{SettingsAssetName}.asset");
-                        // AssetDatabase.MoveAsset(AssetDatabase.GetAssetPath(instance), instance.FilePath());
+                        UnityEditor.AssetDatabase.CreateAsset(instance, $"{instance.FilePath()}/Resources/{SettingsAssetName}.asset");
 #endif
                     }
                     isInitializing = false;

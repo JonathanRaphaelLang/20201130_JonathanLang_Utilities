@@ -260,8 +260,8 @@ namespace Ganymed.Console.Processor
 
         public static void SetConfiguration(ConsoleSettings settings)
         {
-            logCommandsLoadedOnStart = settings.logCommandsLoadedOnStart;
-            allowNumericBoolProcessing = settings.allowNumericBoolProcessing;
+            logCommandsLoadedOnStart = settings.logLoadedCommandsOnStart;
+            allowNumericBoolProcessing = settings.enableNBP;
             InfoOperator = settings.infoOperator;
         }
 

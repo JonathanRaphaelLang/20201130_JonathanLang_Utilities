@@ -15,31 +15,31 @@ MonoBehaviour:
   active: 1
   commandPrefix: /
   infoOperator: '?'
-  allowCommandPreProcessing: 1
-  logCommandsLoadedOnStart: 1
-  allowNumericBoolProcessing: 1
+  enablePreProcessing: 1
+  enableNBP: 1
+  limitMessageCache: 1
+  messageCacheSize: 20
+  inputCacheSize: 20
+  logLoadedCommandsOnStart: 1
   activateConsoleOnStart: 1
   enableCursorOnActivation: 1
   logConfigurationOnStart: 0
   logTimeOnInput: 1
-  inputCacheSize: 20
-  clearConsoleAutomatically: 1
-  maxLogs: 20
   bindConsoles: 1
   allowedUnityMessages: -1
   logStackTraceOn: 17
-  allowShaderAndAnimations: 1
-  allowShader: 1
-  allowAnimations: 1
-  showRichText: 1
-  renderContentOnDrag: 0
-  renderContentOnScale: 0
+  enableShaderAndAnimations: 1
+  enableShader: 1
+  enableAnimations: 1
+  renderContentOnDrag: 1
+  renderContentOnScale: 1
+  enableRichText: 1
   inputFontSize: 6
   fontSize: 6
-  breakLineHeight: 130
+  breakLineHeight: 150
   defaultLineHeight: 100
   colorConsoleBackground: {r: 0.052660257, g: 0.052643273, b: 0.066037714, a: 0.92156863}
-  colorScrollbar: {r: 0.08206077, g: 0.07742968, b: 0.18867922, a: 1}
+  colorScrollbar: {r: 0.088124275, g: 0.08708616, b: 0.1792453, a: 0.89411765}
   colorScrollbarHandle: {r: 0.13794944, g: 0.1653671, b: 0.18867922, a: 1}
   colorDefault: {r: 0.8396226, g: 0.8396226, b: 0.8396226, a: 1}
   colorTitles: {r: 0.2980392, g: 0.41275796, b: 1, a: 1}

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Ganymed.Utils.Optimization
 {
-    public class OptimizationSettings : Settings<OptimizationSettings>
+    public sealed class OptimizationSettings : Settings<OptimizationSettings>
     {
         public override string FilePath() => "Assets/Ganymed/Utils/Configurations";
         

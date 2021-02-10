@@ -17,7 +17,7 @@ namespace Ganymed.Monitoring.Core
     [ExecuteInEditMode]
     [AddComponentMenu("Monitoring/Monitoring Canvas")]
     [RequireComponent(typeof(Canvas))]
-    public class MonitoringCanvasBehaviour : MonoSingleton<MonitoringCanvasBehaviour>, IState
+    public sealed class MonitoringCanvasBehaviour : MonoSingleton<MonitoringCanvasBehaviour>, IState
     {
         #region --- [FIELDS] ---
 

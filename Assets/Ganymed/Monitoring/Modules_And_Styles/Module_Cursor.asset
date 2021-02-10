@@ -39,12 +39,12 @@ MonoBehaviour:
   visibleDuringHold: 1
   lockModeDuringHold: 0
   useDynamicColoring: 1
-  visibleColor: {r: 0.61587757, g: 0.754717, b: 0.754717, a: 1}
+  visibleColor: {r: 0.6273585, g: 1, b: 1, a: 1}
   invisibleColor: {r: 1, g: 0, b: 0, a: 1}
   lockedColor: {r: 1, g: 0.2506302, b: 0, a: 1}
   unlockedColor: {r: 0, g: 1, b: 0.24008775, a: 1}
   confinedColor: {r: 1, g: 0.76618373, b: 0, a: 1}
-  visibleColorMarkup: <color=#9DC0C0FF>
+  visibleColorMarkup: <color=#A0FFFFFF>
   invisibleColorMarkup: <color=#FF0000FF>
   lockedColorMarkup: <color=#FF4000FF>
   unlockedColorMarkup: <color=#00FF3DFF>

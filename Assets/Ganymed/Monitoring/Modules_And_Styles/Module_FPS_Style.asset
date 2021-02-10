@@ -15,13 +15,13 @@ MonoBehaviour:
   fontSize: 8
   individualFontSize: 1
   prefixFontSize: 11
-  infixFontSize: 20
-  suffixFontSize: 11
+  infixFontSize: 24
+  suffixFontSize: 8
   individualMargins: 1
   marginsAll: 2
-  marginLeft: 0
-  marginTop: 3
-  marginRight: 2
+  marginLeft: 2
+  marginTop: 4
+  marginRight: 4
   marginBottom: 2
   alignment: 257
   autoBrackets: 1
@@ -30,7 +30,7 @@ MonoBehaviour:
   prefixTextStyle: 
   infixTextStyle: 
   suffixTextStyle: 
-  colorBackground: {r: 0, g: 0, b: 0, a: 0.9411765}
-  prefixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}
+  colorBackground: {r: 0.019607844, g: 0.02745098, b: 0.06666667, a: 0.9019608}
+  prefixColor: {r: 0.7294118, g: 0.7294118, b: 0.7294118, a: 1}
   infixColor: {r: 1, g: 1, b: 1, a: 1}
-  suffixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}
+  suffixColor: {r: 0.7294118, g: 0.7294118, b: 0.7294118, a: 1}

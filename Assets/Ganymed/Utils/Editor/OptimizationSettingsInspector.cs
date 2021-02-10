@@ -58,20 +58,22 @@ namespace Ganymed.Utils.Editor
 
             EditorGUILayout.BeginHorizontal();
 
-            if (GUILayout.Button(nameof(UnfoldObjectOnLoad).AsLabel("Select"), GUILayout.Width(200), GUILayout.Height(40)))
+            if (GUILayout.Button(nameof(UnfoldObjectOnLoad).AsLabel("Select\n"), GUILayout.Height(40)))
             {
                 SelectionHelper.SelectComponents<UnfoldObjectOnLoad>(true, Target.EnableLogs);
             }
-            if (GUILayout.Button(nameof(SetRootOnLoad).AsLabel("Select"), GUILayout.Width(200), GUILayout.Height(40)))
+            
+            if (GUILayout.Button(nameof(SetRootOnLoad).AsLabel("Select\n"),  GUILayout.Height(40)))
             {
                 SelectionHelper.SelectComponents<SetRootOnLoad>(true, Target.EnableLogs);
             }
-            if (GUILayout.Button(nameof(DestroyOnLoad).AsLabel("Select"), GUILayout.Width(200), GUILayout.Height(40)))
+            
+            if (GUILayout.Button(nameof(DestroyOnLoad).AsLabel("Select\n"), GUILayout.Height(40)))
             {
                 SelectionHelper.SelectComponents<DestroyOnLoad>(true, Target.EnableLogs);
             }
             
-            if (GUILayout.Button("Select All Components", GUILayout.Width(200), GUILayout.Height(40)))
+            if (GUILayout.Button("Select\nAll Components", GUILayout.Height(40)))
             {
                 SelectionHelper.SelectComponents<TransformOptimizationComponent>(true, Target.EnableLogs);
             }

@@ -33,7 +33,7 @@ MonoBehaviour:
   secondsBetweenInspections: 1
   preDecimalPlaces: 3
   postDecimalPlaces: 2
-  measurePeriod: 0.5
+  measurePeriod: 0.4
   colorMin: {r: 0.7735849, g: 0.18850811, b: 0, a: 1}
   thresholdOne: 30
   colorMid: {r: 1, g: 0.8731508, b: 0, a: 1}

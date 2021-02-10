@@ -19,8 +19,7 @@ namespace Ganymed.Examples
     /// of additional custom attributes.
     /// ---
     /// You can enable / disable individual parts of this script and test everything yourself.
-    /// Check the documentation for additional information and feel free to contact me by mail:
-    /// TODO: mail
+    /// Check the documentation for additional information.
     /// </summary>
     [DeclaringName("Examples")] // Detailed description @ #region [GETTER & SETTER] => [ADDITIONAL ATTRIBUTES]
 
@@ -148,6 +147,7 @@ namespace Ganymed.Examples
             Player = 1,
             Object = 2,
             PlayerObject = 3,
+            SpaceShip = 20000200
         }
 
         #endregion

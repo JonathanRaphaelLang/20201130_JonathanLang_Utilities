@@ -11,7 +11,7 @@ namespace Ganymed.Utils.ExtensionMethods
     public static class TypeExtensions
     {
         #region --- [DEFAULT] ---
-
+        
         /// <summary>
         /// Returns an object with a default value for the given type.
         /// If the type is a string the method will return an empty string instead of null.
@@ -49,7 +49,9 @@ namespace Ganymed.Utils.ExtensionMethods
             {
                 try
                 {
-                    return type.IsAssignableFrom(typeof(MonoBehaviour)) || type.IsSubclassOf(typeof(MonoBehaviour)) ? null : Activator.CreateInstance(type);
+                    return type.IsAssignableFrom(typeof(MonoBehaviour)) || type.IsSubclassOf(typeof(MonoBehaviour))
+                        ? null
+                        : Activator.CreateInstance(type);
                 }
                 catch
                 {
@@ -123,7 +125,7 @@ namespace Ganymed.Utils.ExtensionMethods
         /// <returns></returns>
         public static bool IsStruct(this Type type)
             => type.IsValueType && !type.IsEnum && !type.IsPrimitive;
-
+        
         
         /// <summary>
         /// True if the type is a Vector2 or Vector3 or Vector4.

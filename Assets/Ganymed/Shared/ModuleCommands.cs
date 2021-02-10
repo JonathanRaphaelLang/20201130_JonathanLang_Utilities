@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Ganymed.Console;
 using Ganymed.Console.Attributes;
 using Ganymed.Console.Core;
 using Ganymed.Console.Transmissions;
-using Ganymed.Monitoring.Core;
 using Ganymed.Monitoring.Modules;
 using Ganymed.Utils.ExtensionMethods;
 using UnityEngine;
+using Module = Ganymed.Monitoring.Core.Module;
 
 namespace Ganymed.Shared
 {
@@ -14,6 +17,8 @@ namespace Ganymed.Shared
     
     public static class ModuleCommands
     {
+        
+        
         #region --- [FIELDS] ---
 
         private enum ModuleActions
@@ -23,13 +28,26 @@ namespace Ganymed.Shared
             Visible,
             EnabledActiveAndVisible
         }
+        
+            
+        private enum CoreModules
+        {
+            System,
+            Notes,
+            RecentFPS,
+            Cursor,
+            Vsync,
+            FPS,
+            TargetFrameRate,
+        }
 
         #endregion
 
         //--------------------------------------------------------------------------------------------------------------
         
         #region --- [MONITORING] ---
-
+       
+        
         [ConsoleCommand("GetModules", Description = "Receive a list of every loaded monitoring module")]
         private static void GetModules()
         {
@@ -82,23 +100,24 @@ namespace Ganymed.Shared
                     throw new ArgumentOutOfRangeException(nameof(action), action, null);
             }
         }
-    
+
+        
         [ConsoleCommand("SetModule", Description = "Set the state of a monitoring module", Priority = 1000)]
-        private static void SetModule([Suggestion("System")]string id, ModuleActions action, bool value)
+        private static void SetModule(CoreModules id, ModuleActions action, bool value)
         {
             switch (action)
             {
                 case ModuleActions.Enabled:
-                    Module.GetModule(id)?.SetEnabled(value);
+                    Module.GetModule(id.ToString())?.SetEnabled(value);
                     break;
                 case ModuleActions.Active:
-                    Module.GetModule(id)?.SetActive(value);
+                    Module.GetModule(id.ToString())?.SetActive(value);
                     break;
                 case ModuleActions.Visible:
-                    Module.GetModule(id)?.SetVisible(value);
+                    Module.GetModule(id.ToString())?.SetVisible(value);
                     break;
                 case ModuleActions.EnabledActiveAndVisible:
-                    Module.GetModule(id)?.SetStates(value);
+                    Module.GetModule(id.ToString())?.SetStates(value);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action), action, null);

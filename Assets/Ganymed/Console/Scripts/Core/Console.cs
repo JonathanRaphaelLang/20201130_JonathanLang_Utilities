@@ -19,7 +19,7 @@ namespace Ganymed.Console.Core
     /// <summary>
     /// Custom console class.
     /// </summary>
-    public sealed class Console : MonoSingleton<Console>, IActive, IConsoleInterface
+    public sealed class Console : MonoSingleton<Console>, IActive, IConsole
     {
         #region --- [INSPECOTR] ---
         
@@ -139,10 +139,10 @@ namespace Ganymed.Console.Core
         
         public bool FrostedGlassShader
         {
-            get => ConsoleSettings.Instance.allowShader;
+            get => ConsoleSettings.Instance.enableShader;
             set
             {
-                ConsoleSettings.Instance.allowShader = value;
+                ConsoleSettings.Instance.enableShader = value;
                 Instance.ApplySettings(ConsoleSettings.Instance);
             }
         }
@@ -230,14 +230,14 @@ namespace Ganymed.Console.Core
         private void ApplyShaderFromConfiguration(ConsoleSettings settings)
         {
             if (frostedGlass != null)
-                frostedGlass.enabled = settings.allowShader;
+                frostedGlass.enabled = settings.enableShader;
         }
 
         private void ApplyRichTextFromConfiguration(ConsoleSettings settings)
         {
             try
             {
-                Output.richText = settings.showRichText;
+                Output.richText = settings.enableRichText;
             }
             catch
             {
@@ -253,8 +253,9 @@ namespace Ganymed.Console.Core
             allowedUnityMessages = settings.allowedUnityMessages;
             logStackTraceOn = settings.logStackTraceOn;
             logTimeOnInput = settings.logTimeOnInput;
-            clearConsoleAutomatically = settings.clearConsoleAutomatically;
-            maxLogs = settings.maxLogs; }
+            clearConsoleAutomatically = settings.limitMessageCache;
+            maxLogs = settings.messageCacheSize; 
+        }
         
 
         private void ApplyConsoleLink(ConsoleSettings settings)
@@ -485,7 +486,7 @@ namespace Ganymed.Console.Core
             proposedCommandDescription = string.Empty;
             proposedCommand = string.Empty;
 
-            if (ConsoleSettings.Instance.allowCommandPreProcessing && inputString.Cut(StartEnd.Start).StartsWith(CommandProcessor.Prefix))
+            if (ConsoleSettings.Instance.enablePreProcessing && inputString.Cut(StartEnd.Start).StartsWith(CommandProcessor.Prefix))
             {
                 if (CommandProcessor.ProposeMethodCommand(
                     inputString,

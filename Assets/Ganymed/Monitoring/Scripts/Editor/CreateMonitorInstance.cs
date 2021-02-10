@@ -12,10 +12,10 @@ namespace Ganymed.Monitoring.Editor
         {
             try
             {
-                if (MonitorBehaviour.Instance != null)
+                if (MonitoringBehaviour.Instance != null)
                 {
                     Debug.Log("An instance of the monitor behaviour object already exists!");
-                    Selection.activeGameObject = MonitorBehaviour.Instance.gameObject;
+                    Selection.activeGameObject = MonitoringBehaviour.Instance.gameObject;
                     return;
                 }
 
@@ -26,7 +26,7 @@ namespace Ganymed.Monitoring.Editor
                     var path = AssetDatabase.GUIDToAssetPath(guid);
                     var prefab = AssetDatabase.LoadMainAssetAtPath(path);
 
-                    if (prefab.name != "MonitorBehaviour") continue;
+                    if (prefab.name != "MonitoringBehaviour") continue;
 
                     PrefabUtility.InstantiatePrefab(prefab);
                     Debug.Log("Instantiated Monitoring Prefab");
@@ -36,7 +36,7 @@ namespace Ganymed.Monitoring.Editor
             catch
             {
                 Debug.LogWarning("Failed to instantiate Monitoring Prefab!Make sure that the corresponding prefab" +
-                                 "[MonitorBehaviour] can be found within the project.");
+                                 "[MonitoringBehaviour] can be found within the project.");
             }
         }
     }

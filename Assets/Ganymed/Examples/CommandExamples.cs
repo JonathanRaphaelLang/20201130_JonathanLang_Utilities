@@ -19,8 +19,7 @@ namespace Ganymed.Examples
     /// of additional custom attributes.
     /// ---
     /// You can enable / disable individual parts of this script and test everything yourself.
-    /// Check the documentation for additional information and feel free to contact me by mail:
-    /// TODO: mail
+    /// Check the documentation for additional information.
     /// </summary>
     #endregion
 
@@ -140,7 +139,24 @@ namespace Ganymed.Examples
         #endregion
         
         
-        //TODO: Parameter: Enum
+        #region --- [PARAMETER: ENUMS] ---
+        
+        // Enums are not only supported but offer some additional functionality. Both values and names of an enum can be
+        // passed as a valid parameter. The name will also be suggested by autocompletion. 
+
+        private enum ExampleEnum
+        {
+            Player = 1,
+            Enemy = 3,
+        }
+        
+        [ConsoleCommand("EnumExample")]
+        private static void EnumCommand(ExampleEnum param)
+        {
+            Debug.Log($"{param}");
+        }
+        
+        #endregion
         
         
         #region --- [PARAMETER: STRUCTS] ---

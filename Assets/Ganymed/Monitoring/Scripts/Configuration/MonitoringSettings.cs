@@ -3,61 +3,20 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ganymed.Monitoring.Core;
 using Ganymed.Utils.Singleton;
+using UnityEditor;
 using UnityEngine;
 
 namespace Ganymed.Monitoring.Configuration
 {
-    public class MonitoringSettings : Settings<MonitoringSettings>
+    public sealed class MonitoringSettings : Settings<MonitoringSettings>
     {
-#pragma warning disable 649
-#pragma warning disable 414
-       
-        //TODO: comment and sort settings overrides
-        
-        public override string FilePath() => "Assets/Ganymed/Monitoring";
-        
-        
-#if UNITY_EDITOR
-        [UnityEditor.MenuItem("Ganymed/Edit Monitoring Settings", priority = 20)]
-        public static void EditSettings()
-        {
-            SelectObject(Instance);
-        }
-#endif
-        
-        
-        [Space]
-        [HideInInspector] [SerializeField] public List<Module> modulesUpperLeft = new List<Module>();
-        [HideInInspector] [SerializeField] public List<Module> modulesUpperRight = new List<Module>();
-        [HideInInspector] [SerializeField] public List<Module> modulesLowerLeft = new List<Module>();
-        [HideInInspector] [SerializeField] public List<Module> modulesLowerRight = new List<Module>();
-        
-        [Header("Prefabs")]
-        [HideInInspector] [SerializeField] public GameObject GUIElementPrefab;
-        [HideInInspector] [SerializeField] public GameObject GUIObjectPrefab;
-        
-        [Tooltip("Expose references.")]
-        [HideInInspector] [SerializeField] public bool showReferences = false;
-        
-                
-        public Style Style 
-        { 
-            get => style;
-            set
-            {
-                OnSettingsUpdated?.Invoke(this);
-                
-                style = value;
-                Module.RepaintAll(true);
-            }
-        }
-        
         #region --- [SETTINGS] ---
 
-        [SerializeField] [HideInInspector] private Style style;
+        [SerializeField] [HideInInspector] private Style style = null;
         
         [Tooltip("Enable / Disable all canvas elements")]
         [HideInInspector] [SerializeField] public bool active = false;
+        private bool wasActive = false;
         
         [Tooltip("When enabled the canvas is allowed to toggle automatically (on / off) when entering edit / play mode")]
         [HideInInspector] [SerializeField] public bool automateCanvasState = false;
@@ -97,6 +56,33 @@ namespace Ganymed.Monitoring.Configuration
         [HideInInspector] [SerializeField] public Color colorBottomLeft = new Color(0.54f, 0.39f, 1f);
         [HideInInspector] [SerializeField] public Color colorBottomRight = new Color(0.69f, 0.64f, 1f);
         
+        
+        
+        [HideInInspector] [SerializeField] public List<Module> modulesUpperLeft = new List<Module>();
+        [HideInInspector] [SerializeField] public List<Module> modulesUpperRight = new List<Module>();
+        [HideInInspector] [SerializeField] public List<Module> modulesLowerLeft = new List<Module>();
+        [HideInInspector] [SerializeField] public List<Module> modulesLowerRight = new List<Module>();
+        
+        [HideInInspector] [SerializeField] public GameObject GUIElementPrefab = null;
+        [HideInInspector] [SerializeField] public GameObject GUIObjectPrefab = null;
+        
+        [HideInInspector] [SerializeField] public bool showReferences = false;
+        
+        /// <summary>
+        /// Default style that is used by every module without an individual style.
+        /// </summary>
+        public Style Style 
+        { 
+            get => style;
+            set
+            {
+                OnSettingsUpdated?.Invoke(this);
+                
+                style = value;
+                Module.RepaintAll(true);
+            }
+        }
+        
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
@@ -110,26 +96,33 @@ namespace Ganymed.Monitoring.Configuration
         
         //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [PRIVATE FIELDS] ---
-
-        private bool lastActive = false;
-
-        #endregion
-        
-        //
-
         #region --- [VALIDATION] ---
 
         public void OnValidate()
         {
-            if(active != lastActive)
+            if(active != wasActive)
                 OnActiveStateChanged?.Invoke(active);
-            lastActive = active;
+            wasActive = active;
             
             OnSettingsUpdated?.Invoke(this);
         }
 
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
 
+        #region --- [OVERRIDE] ---
+
+        public override string FilePath() => "Assets/Ganymed/Monitoring";
+        
+        
+#if UNITY_EDITOR
+        [MenuItem("Ganymed/Edit Monitoring Settings", priority = 20)]
+        public static void EditSettings()
+        {
+            SelectObject(Instance);
+        }
+#endif
         #endregion
 
     }

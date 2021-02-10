@@ -99,7 +99,7 @@ namespace Ganymed.Monitoring.Editor
             // Repaint if GUI has changed and LifePreview is enabled
             if (GUI.changed && Target.enableLifePreview)
             {
-                MonitorBehaviour.Instance.Repaint(); 
+                MonitoringBehaviour.Instance.Repaint(); 
             }
 
             #endregion
@@ -191,7 +191,7 @@ namespace Ganymed.Monitoring.Editor
             EditorGUILayout.Space();
             if (GUILayout.Button("Validate Canvas Instance"))
             {
-                MonitorBehaviour.Instance.ValidateCanvas(InvokeOrigin.GUI);
+                MonitoringBehaviour.Instance.ValidateCanvas(InvokeOrigin.GUI);
             }
             EditorGUILayout.Space();
         }

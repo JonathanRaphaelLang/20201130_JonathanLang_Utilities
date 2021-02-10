@@ -64,7 +64,7 @@ namespace Ganymed.Console.GUIElements
         
         public async void SetSize()
         {
-            if (!Core.ConsoleSettings.Instance.allowAnimations)
+            if (!Core.ConsoleSettings.Instance.enableAnimations)
             {
                 textField.enabled = false;
                 if (!IsFullSize())

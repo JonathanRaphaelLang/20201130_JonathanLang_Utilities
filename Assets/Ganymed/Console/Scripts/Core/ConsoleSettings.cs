@@ -6,6 +6,7 @@ using Ganymed.Console.Processor;
 using Ganymed.Console.Transmissions;
 using Ganymed.Utils.ExtensionMethods;
 using Ganymed.Utils.Singleton;
+using UnityEditor;
 using UnityEngine;
 
 namespace Ganymed.Console.Core
@@ -16,16 +17,20 @@ namespace Ganymed.Console.Core
 #pragma warning disable 414
 #pragma warning disable 67
 
+        #region --- [OVERRIDE SETTINGS] ---
+
         public override string FilePath() => "Assets/Ganymed/Console";
         
         
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("Ganymed/Edit Console Settings", priority = 0)]
+        [MenuItem("Ganymed/Edit Console Settings", priority = 0)]
         public static void EditSettings()
         {
             SelectObject(Instance);
         }
 #endif
+
+        #endregion
 
         #region --- [INSPECTOR] ---
         
@@ -34,8 +39,7 @@ namespace Ganymed.Console.Core
         
         
         [Header("Commands")]
-        
-        
+
         [Tooltip("use this as a prefix")]
         [SerializeField] internal string commandPrefix = "/";
         
@@ -43,17 +47,28 @@ namespace Ganymed.Console.Core
         [SerializeField] internal string infoOperator = "?";
         
         [Tooltip("allows the console to precalculate inputs and to generate suggestions for automatic completion")]
-        [SerializeField] internal bool allowCommandPreProcessing = true;
+        [SerializeField] internal bool enablePreProcessing = true;
+        
+        [Tooltip("Allow numeric input for boolean parameter in console commands")]
+        [SerializeField] internal bool enableNBP = true;
+   
+        
+        [Header("Caching")]
+        
+        [Tooltip("When enabled, the amount of messages cached and displayed in the console is limited")]
+        [SerializeField] internal bool limitMessageCache = true;
+        
+        [Tooltip("Determines the amount of messages cached and displayed in the console (if Limit Message Cache is enabled)")]
+        [SerializeField] [Range(10,1000)] internal int messageCacheSize = 20;
+        
+        [Tooltip("How many previous inputs are cached")]
+        [SerializeField] [Range(0,100)] internal byte inputCacheSize = 20;        
+        
+        
+        [Header("Misc")]
         
         [Tooltip("log information about commands on start")]
-        [SerializeField] internal bool logCommandsLoadedOnStart = true;
-                
-        [Tooltip("Allow numeric input for boolean parameter in console commands")]
-        [SerializeField] internal bool allowNumericBoolProcessing = true;
-        
-        
-        [Header("Console")]
-        
+        [SerializeField] internal bool logLoadedCommandsOnStart = true;
         
         [Tooltip("Should the console be activated on start")]
         [SerializeField] internal bool activateConsoleOnStart = true;
@@ -66,16 +81,7 @@ namespace Ganymed.Console.Core
         
         [Tooltip("Should the current time be logged to the console")]
         [SerializeField] internal bool logTimeOnInput = true;
-        
-        [Tooltip("How many previous inputs are cached")]
-        [SerializeField] [Range(0,100)] internal byte inputCacheSize = 20;
-        
-        [Tooltip("Limit the amount of logs displayed in the console")]
-        [SerializeField] internal bool clearConsoleAutomatically = true;
-        
-        [Tooltip("How many logs are allowed")]
-        [SerializeField] [Range(10,1000)] internal int maxLogs = 20;
-        
+
         
         [Header("Unity Console Integration")]
         
@@ -94,16 +100,13 @@ namespace Ganymed.Console.Core
         
         
         [Tooltip("NA")]
-        [SerializeField] internal bool allowShaderAndAnimations = true;
+        [SerializeField] internal bool enableShaderAndAnimations = true;
         
         [Tooltip("Is the frosted glass shader active. This shader will drain a lot of performance")]
-        [SerializeField] internal bool allowShader = true;
+        [SerializeField] internal bool enableShader = true;
         
         [Tooltip("When enabled animations are played. E.G. easing resizing of the console window")]
-        [SerializeField] internal bool allowAnimations = true;
-
-        [Tooltip("Debug option to show RichText")]
-        [SerializeField] internal bool showRichText = false;
+        [SerializeField] internal bool enableAnimations = true;
 
         [Tooltip("When disabled the content of the console will be disabled when the console is dragged to reduce rendering cost")]
         [SerializeField] internal bool renderContentOnDrag = false;
@@ -111,6 +114,11 @@ namespace Ganymed.Console.Core
         [Tooltip("When disabled the content of the console will be disabled when the console is scaled to reduce rendering cost")]
         [SerializeField] internal bool renderContentOnScale = false;
         
+        
+        [Header("Debug")]
+        
+        [Tooltip("Debug option to show RichText")]
+        [SerializeField] internal bool enableRichText = true;
         
         [Header("Font")]
         
@@ -207,7 +215,6 @@ namespace Ganymed.Console.Core
 
         #endregion
         
-        
         #region --- [PROPERTIES] ---
 
         //public static ConsoleSettings Instance { get;  } = null;
@@ -217,10 +224,10 @@ namespace Ganymed.Console.Core
         [GetSet(Description = "Enable / Disable autocompletion and console color validation")]
         public static bool AllowCommandPreProcessing
         {
-            get => Instance.allowCommandPreProcessing;
+            get => Instance.enablePreProcessing;
             set
             {
-                Instance.allowCommandPreProcessing = value;
+                Instance.enablePreProcessing = value;
                 Instance.OnSettingsChanged();
             }
         }
@@ -228,10 +235,10 @@ namespace Ganymed.Console.Core
         [GetSet]
         public static bool AllowNumericBoolProcessing
         {
-            get => Instance.allowNumericBoolProcessing;
+            get => Instance.enableNBP;
             set
             {
-                Instance.allowNumericBoolProcessing = value;
+                Instance.enableNBP = value;
                 Instance.OnSettingsChanged();
             }
         }
@@ -239,10 +246,10 @@ namespace Ganymed.Console.Core
         [GetSet(Description = "Enable / Disable the background shader of the console.")]
         public static bool AllowBackgroundShader
         {
-            get => Instance.allowShader;
+            get => Instance.enableShader;
             set
             {
-                Instance.allowShader = value;
+                Instance.enableShader = value;
                 Instance.OnSettingsChanged();
             }
         }
@@ -251,10 +258,10 @@ namespace Ganymed.Console.Core
         [GetSet(Description = "Enable / Disable RichText.")]
         public static bool RichText
         {
-            get => Instance.showRichText;
+            get => Instance.enableRichText;
             set
             {
-                Instance.showRichText = value;
+                Instance.enableRichText = value;
                 Instance.OnSettingsChanged();
             }
         }
@@ -320,12 +327,12 @@ namespace Ganymed.Console.Core
                 new MessageFormat($"// {this.GetTooltip(nameof(infoOperator))}", options));
             
             Transmission.AddLine("Command Pre- Processing",
-                new MessageFormat(allowCommandPreProcessing, options),
-                new MessageFormat($"// {this.GetTooltip(nameof(allowCommandPreProcessing))}", options));
+                new MessageFormat(enablePreProcessing, options),
+                new MessageFormat($"// {this.GetTooltip(nameof(enablePreProcessing))}", options));
             
             Transmission.AddLine("Numeric Bool Processing",
-                new MessageFormat(allowNumericBoolProcessing, options),
-                new MessageFormat($"// {this.GetTooltip(nameof(allowNumericBoolProcessing))}", options));
+                new MessageFormat(enableNBP, options),
+                new MessageFormat($"// {this.GetTooltip(nameof(enableNBP))}", options));
             
             Transmission.AddBreak();
             
@@ -333,17 +340,17 @@ namespace Ganymed.Console.Core
             
             Transmission.AddTitle("Eye Candy & Performance Optimization", TitlePreset.Sub);
             
-            Transmission.AddLine("Allow Shader and Animations",
-                new MessageFormat(allowShaderAndAnimations, options),
-                new MessageFormat($"// {this.GetTooltip(nameof(allowShaderAndAnimations))}", options));
+            Transmission.AddLine("Allow Shader and enableAnimations",
+                new MessageFormat(enableShaderAndAnimations, options),
+                new MessageFormat($"// {this.GetTooltip(nameof(enableShaderAndAnimations))}", options));
             
             Transmission.AddLine("Forested Glass Shader",
-                new MessageFormat(allowShader, options),
-                new MessageFormat($"// {this.GetTooltip(nameof(allowShader))}", options));
+                new MessageFormat(enableShader, options),
+                new MessageFormat($"// {this.GetTooltip(nameof(enableShader))}", options));
             
-            Transmission.AddLine("Animations",
-                new MessageFormat(allowAnimations, options),
-                new MessageFormat($"// {this.GetTooltip(nameof(allowAnimations))}", options));
+            Transmission.AddLine("enableAnimations",
+                new MessageFormat(enableAnimations, options),
+                new MessageFormat($"// {this.GetTooltip(nameof(enableAnimations))}", options));
             
             Transmission.AddLine(nameof(renderContentOnDrag).AsLabel(),
                 new MessageFormat(renderContentOnDrag, options),
@@ -375,13 +382,13 @@ namespace Ganymed.Console.Core
                 new MessageFormat(logConfigurationOnStart, options),
                 new MessageFormat($"// {this.GetTooltip(nameof(logConfigurationOnStart))}", options));
             
-            Transmission.AddLine(nameof(clearConsoleAutomatically).AsLabel(),
-                new MessageFormat(clearConsoleAutomatically, options),
-                new MessageFormat($"// {this.GetTooltip(nameof(clearConsoleAutomatically))}", options));
+            Transmission.AddLine(nameof(limitMessageCache).AsLabel(),
+                new MessageFormat(limitMessageCache, options),
+                new MessageFormat($"// {this.GetTooltip(nameof(limitMessageCache))}", options));
             
-            Transmission.AddLine(nameof(maxLogs).AsLabel(),
-                new MessageFormat(maxLogs, options),
-                new MessageFormat($"// {this.GetTooltip(nameof(maxLogs))}", options));
+            Transmission.AddLine(nameof(messageCacheSize).AsLabel(),
+                new MessageFormat(messageCacheSize, options),
+                new MessageFormat($"// {this.GetTooltip(nameof(messageCacheSize))}", options));
             
             
             
@@ -481,10 +488,10 @@ namespace Ganymed.Console.Core
                     throw new Exception($"Cannot find {GetType().Name} file, creating default settings");
             }
             
-            if (!allowShaderAndAnimations)
+            if (!enableShaderAndAnimations)
             {
-                allowShader = false;
-                allowAnimations = false;
+                enableShader = false;
+                enableAnimations = false;
             }
             OnConsoleSettingsChanged?.Invoke(this);
             CommandProcessor.SetConfiguration(this);

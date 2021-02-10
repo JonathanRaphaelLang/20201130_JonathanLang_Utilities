@@ -195,7 +195,7 @@ namespace Ganymed.Console.Processor
 
                         else if (parameterInfos[i].ParameterType == typeof(string))
                         {
-                            //TODO: FIX
+                            
                             if (parameterInfos.Indices() == i && args.Count > parameterInfos.Length)
                             {
                                 for (var j = i + 1; j < args.Count; j++)
@@ -203,8 +203,7 @@ namespace Ganymed.Console.Processor
                                     args[i] = $"{args[i]} {args[j]}";
                                 }
                             }
-                                
-                            
+
                             args[i] = args[i].Replace('"'.ToString(), string.Empty);
                             parameters[i] = Convert.ChangeType(args[i], parameterInfos[i].ParameterType);
                         }
@@ -213,7 +212,7 @@ namespace Ganymed.Console.Processor
 
                         #region --- [CHAR] ---
 
-                        //
+                        
                         else if (parameterInfos[i].ParameterType == typeof(char))
                         {
                             args[i] = args[i][0].ToString();
@@ -804,6 +803,7 @@ namespace Ganymed.Console.Processor
                                         // --- Hint attribute was not found
                                         : $" //[param name: {parameterInformation[i].Name}] [type: {(parameterInformation[i].ParameterType.IsEnum ? "Enum" : parameterInformation[i].ParameterType.Name)}]";
 
+                                    
                                     #endregion
                                     
                                     // --- Try to get the default value of the parameter
@@ -819,27 +819,31 @@ namespace Ganymed.Console.Processor
                                         else
                                         {
                                             var defaultValue = parameterInformation[i].DefaultValue;
-                                            
+
                                             if (defaultValue != null)
 
                                                 if (parameterInformation[i].HasDefaultValue)
                                                 {
                                                     var useMarks = defaultValue is string;
-                                                        
-                                                    proposal = $"{(useMarks? '"'.ToString() : "")}" +
+
+                                                    proposal = $"{(useMarks ? '"'.ToString() : "")}" +
                                                                $"{defaultValue}" +
-                                                               $"{(useMarks? '"'.ToString() : "")}";
+                                                               $"{(useMarks ? '"'.ToString() : "")}";
                                                 }
                                                 else
                                                 {
-                                                    proposal = parameterInformation[i].ParameterType.TryGetDefaultInstance().ToString();
+                                                    proposal = parameterInformation[i].ParameterType
+                                                        .TryGetDefaultInstance().ToString();
                                                 }
 
+                                            
                                             proposal = proposal.Replace("RGBA", string.Empty);
                                             proposal = proposal.Replace(",", string.Empty);
                                             proposal = proposal.Replace("(", string.Empty);
                                             proposal = proposal.Replace(")", string.Empty);
-                                            proposal = proposal.Replace('.', ',');    
+                                            proposal = proposal.Replace('.', ',');
+
+                                            
                                         }
                                     }
                                     catch
@@ -922,57 +926,65 @@ namespace Ganymed.Console.Processor
 
                             #region --- [STRING] ---
 
-                            if (parameterInformation[i].TryGetAttribute(out SuggestionAttribute suggestion))
+                            else if (parameterInformation[i].ParameterType == typeof(string))
                             {
-                                foreach (var sug in suggestion.Suggestions)
+                                if (parameterInformation[i].TryGetAttribute(out SuggestionAttribute suggestion))
                                 {
-                                    if (args[i].Equals($"{'"'}{sug}{'"'}")) return false;
-                                    if (args[i].Equals($"{sug}")) return false;
-                                    
-                                    var _case = suggestion.IgnoreCase
-                                        ? StringComparison.OrdinalIgnoreCase
-                                        : StringComparison.CurrentCulture;
+                                    foreach (var sug in suggestion.Suggestions)
+                                    {
+                                        if (args[i].Equals($"{'"'}{sug}{'"'}")) return false;
+                                        if (args[i].Equals($"{sug}")) return false;
 
-                                    var spaces = 0;
-                                    for (var j = rawInput.Length - 1; j >= 0; j--)
-                                    {
-                                        if (rawInput[j] == ' ')
-                                            spaces++;
-                                        else
+                                        var _case = suggestion.IgnoreCase
+                                            ? StringComparison.OrdinalIgnoreCase
+                                            : StringComparison.CurrentCulture;
+
+                                        var spaces = 0;
+                                        for (var j = rawInput.Length - 1; j >= 0; j--)
                                         {
-                                            break;
+                                            if (rawInput[j] == ' ')
+                                                spaces++;
+                                            else
+                                            {
+                                                break;
+                                            }
                                         }
-                                    }
-                                    
-                                    if (sug.StartsWith(args[i], _case))
-                                    {
-                                        args[i] = args[i];
-                                        proposalDescription = sug.Remove(0, args[i].Length + spaces);
-                                        proposal = proposalDescription;
-                                
-                                        if(inputValidation != InputValidation.Optional) inputValidation = InputValidation.Incomplete;
-                                        
-                                        description += proposalDescription;
-                                        proposedInput = proposedInput.Remove(proposedInput.Length - args[i].Length, args[i].Length);
-                                        proposedInput = proposedInput.Replace('"'.ToString(), string.Empty);
-                                        proposedInput += $"{'"'}{sug}{'"'}";
-                                        return true;
-                                    }
-                                    else if($"{'"'}{sug}".StartsWith(args[i], _case))
-                                    {
-                                        args[i] = args[i];
-                                        proposalDescription = sug.Remove(0, args[i].Length - 1);
-                                        proposal = proposalDescription;
-                                
-                                        if(inputValidation != InputValidation.Optional) inputValidation = InputValidation.Incomplete;
-                                        description += proposalDescription;
-                                        proposedInput = proposedInput.Remove(proposedInput.Length - args[i].Length, args[i].Length);
-                                        proposedInput = proposedInput.Replace('"'.ToString(), string.Empty);
-                                        proposedInput += $"{'"'}{sug}{'"'}";
-                                        return true;
+
+                                        if (sug.StartsWith(args[i], _case))
+                                        {
+                                            args[i] = args[i];
+                                            proposalDescription = sug.Remove(0, args[i].Length + spaces);
+                                            proposal = proposalDescription;
+
+                                            if (inputValidation != InputValidation.Optional)
+                                                inputValidation = InputValidation.Incomplete;
+
+                                            description += proposalDescription;
+                                            proposedInput = proposedInput.Remove(proposedInput.Length - args[i].Length,
+                                                args[i].Length);
+                                            proposedInput = proposedInput.Replace('"'.ToString(), string.Empty);
+                                            proposedInput += $"{'"'}{sug}{'"'}";
+                                            return true;
+                                        }
+                                        else if ($"{'"'}{sug}".StartsWith(args[i], _case))
+                                        {
+                                            args[i] = args[i];
+                                            proposalDescription = sug.Remove(0, args[i].Length - 1);
+                                            proposal = proposalDescription;
+
+                                            if (inputValidation != InputValidation.Optional)
+                                                inputValidation = InputValidation.Incomplete;
+                                            description += proposalDescription;
+                                            proposedInput = proposedInput.Remove(proposedInput.Length - args[i].Length,
+                                                args[i].Length);
+                                            proposedInput = proposedInput.Replace('"'.ToString(), string.Empty);
+                                            proposedInput += $"{'"'}{sug}{'"'}";
+                                            return true;
+                                        }
                                     }
                                 }
                             }
+                            
 
                             #endregion
                             

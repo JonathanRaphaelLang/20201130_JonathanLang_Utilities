@@ -3,13 +3,24 @@ using UnityEngine;
 
 namespace Ganymed.Utils.Singleton
 {
-    public class ScriptableSettings : ScriptableObject
+    /// <summary>
+    /// Base class for singleton instances for setting files.
+    /// </summary>
+    public abstract class ScriptableSettings : ScriptableObject
     {
+        /// <summary>
+        /// The filepath in which the settings file will be stored.
+        /// </summary>
+        /// <returns></returns>
         public virtual string FilePath() => "Assets/Settings";
 
         #region --- [EDITOR SELECTION] ---
-
+        
 #if UNITY_EDITOR
+        /// <summary>
+        /// Method will select the object instance.
+        /// </summary>
+        /// <param name="target"></param>
         protected internal static void SelectObject(Object target)
         {
             Selection.activeObject = target;
@@ -20,7 +31,6 @@ namespace Ganymed.Utils.Singleton
 #endif
         }
 #endif
-
         #endregion
     }
 }
