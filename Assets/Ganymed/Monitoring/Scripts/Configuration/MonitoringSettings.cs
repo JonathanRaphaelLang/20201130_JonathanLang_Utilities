@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.IO;
 using Ganymed.Monitoring.Core;
 using Ganymed.Utils.Singleton;
-using UnityEditor;
 using UnityEngine;
 
 namespace Ganymed.Monitoring.Configuration
@@ -105,19 +104,47 @@ namespace Ganymed.Monitoring.Configuration
             wasActive = active;
             
             OnSettingsUpdated?.Invoke(this);
+
+            ValidateCustomStyle();
+        }
+
+        private void ValidateCustomStyle()
+        {
+            if(style != null) return;
+
+            const string styleName = "Style_Default";
+            
+            style = Resources.Load(styleName) as Style;
+            
+            
+            if(style == null)
+                Debug.LogWarning($"Default Style could not be found! Creating new default asset! Make sure that the default " +
+                                 $"style asset is located in a resources folder and is named: {styleName}");
+
+            style = CreateInstance<Style>();
+            
+#if UNITY_EDITOR
+            if (!Directory.Exists($"{Instance.FilePath()}/Resources"))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName($"{Instance.FilePath()}/Resources") ?? "Assets/Resources");
+                UnityEditor.AssetDatabase.CreateFolder(Instance.FilePath(), "Resources");
+            }
+            UnityEditor.AssetDatabase.CreateAsset(style, $"{Instance.FilePath()}/Resources/{styleName}.asset");
+#endif
+
         }
 
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [OVERRIDE] ---
+        #region --- [OVERRIDE GENERIC BASE] ---
 
         public override string FilePath() => "Assets/Ganymed/Monitoring";
         
         
 #if UNITY_EDITOR
-        [MenuItem("Ganymed/Edit Monitoring Settings", priority = 20)]
+        [UnityEditor.MenuItem("Ganymed/Edit Monitoring Settings", priority = 20)]
         public static void EditSettings()
         {
             SelectObject(Instance);

@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c150eba2b4df96447bd66874373553fb, type: 3}
-  m_Name: Default_Style
+  m_Name: Style_Default
   m_EditorClassIdentifier: 
-  fontSize: 8
+  fontSize: 11
   individualFontSize: 0
   prefixFontSize: 11
   infixFontSize: 11
   suffixFontSize: 11
   individualMargins: 0
-  marginsAll: 3
-  marginLeft: 3
-  marginTop: 3
-  marginRight: 3
-  marginBottom: 3
+  marginsAll: 5
+  marginLeft: 5
+  marginTop: 5
+  marginRight: 5
+  marginBottom: 5
   alignment: 257
   autoBrackets: 1
   autoSpace: 1
@@ -30,7 +30,7 @@ MonoBehaviour:
   prefixTextStyle: 
   infixTextStyle: 
   suffixTextStyle: 
-  colorBackground: {r: 0.020247413, g: 0.025953034, b: 0.066037714, a: 0.9019608}
-  prefixColor: {r: 0.61960787, g: 0.6313726, b: 0.75686276, a: 1}
+  colorBackground: {r: 0.05, g: 0.05, b: 0.11, a: 1}
+  prefixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}
   infixColor: {r: 1, g: 1, b: 1, a: 1}
-  suffixColor: {r: 0.61960787, g: 0.6313726, b: 0.75686276, a: 1}
+  suffixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}

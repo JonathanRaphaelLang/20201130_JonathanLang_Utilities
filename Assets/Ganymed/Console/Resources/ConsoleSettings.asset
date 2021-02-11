@@ -34,8 +34,8 @@ MonoBehaviour:
   renderContentOnDrag: 1
   renderContentOnScale: 1
   enableRichText: 1
-  inputFontSize: 6
-  fontSize: 6
+  inputFontSize: 5
+  fontSize: 5
   breakLineHeight: 150
   defaultLineHeight: 100
   colorConsoleBackground: {r: 0.052660257, g: 0.052643273, b: 0.066037714, a: 0.92156863}

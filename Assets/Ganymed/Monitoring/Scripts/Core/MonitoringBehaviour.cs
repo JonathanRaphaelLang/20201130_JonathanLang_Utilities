@@ -36,13 +36,13 @@ namespace Ganymed.Monitoring.Core
         private MonitoringBehaviour()
         {
             UnityEventCallbacks.AddEventListener(
-                () => MonitoringCanvasBehaviour.SetHideFlags(MonitoringSettings.Instance.hideCanvasGameObject ? HideFlags.HideInHierarchy : HideFlags.None), 
+                () => MonitoringCanvasBehaviour.SetHideFlags(MonitoringSettings.Instance.hideCanvasGameObject ? HideFlags.HideInHierarchy : HideFlags.None, HideFlagsTarget.GameObject), 
                 UnityEventType.Recompile,
                 UnityEventType.TransitionEditPlayMode);
         }
 
         private void OnEnable() =>
-            MonitoringCanvasBehaviour.SetHideFlags(MonitoringSettings.Instance.hideCanvasGameObject ? HideFlags.HideInHierarchy : HideFlags.None);
+            MonitoringCanvasBehaviour.SetHideFlags(MonitoringSettings.Instance.hideCanvasGameObject ? HideFlags.HideInHierarchy : HideFlags.None, HideFlagsTarget.GameObject);
 
         static MonitoringBehaviour()
         {

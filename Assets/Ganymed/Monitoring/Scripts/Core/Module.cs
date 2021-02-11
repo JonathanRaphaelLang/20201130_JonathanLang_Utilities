@@ -18,10 +18,10 @@ namespace Ganymed.Monitoring.Core
         [Tooltip("Enabled modules will be initialized")]
         [SerializeField] private bool isEnabled = true;
         
-        [Tooltip("Active modules will execute their update and inspection functions. Comparable to MonoBehaviours")]
+        [Tooltip("Active modules will execute their update and inspection functions. Comparable to MonoBehaviors")]
         [SerializeField] private bool isActive = true;
         
-        [Tooltip("Visible modules are visible")]
+        [Tooltip("Visible Modules have an active canvas element.")]
         [SerializeField] private bool isVisible = true;
         
         
@@ -36,7 +36,7 @@ namespace Ganymed.Monitoring.Core
         [Tooltip("Set a custom style for the module. False will use the default style instead")]
         [SerializeField] private bool useCustomStyle = default;
         
-        [Tooltip("If enabled, use this style. Null will use the default style instead")]
+        [Tooltip("If Use Custom Style is enabled, use this style. Null will use the default style instead")]
         [SerializeField] private Style customStyle = null;
 
      
@@ -44,12 +44,6 @@ namespace Ganymed.Monitoring.Core
         [Header("Warnings")]
         [Tooltip("If enabled, custom warnings will (can) be logged")]
         [SerializeField] private bool enableWarnings = true;
-
-        [Tooltip("If enabled, custom warnings will (can) be logged")]
-        [SerializeField] private bool enableInitializeUpdateEventWarnings = true;
-        
-        [Tooltip("If enabled, custom warnings will (can) be logged")]
-        [SerializeField] private bool enableInitializeValueWarnings = true;
        
         
         
@@ -69,10 +63,10 @@ namespace Ganymed.Monitoring.Core
         [Tooltip("Set custom suffix text")]
         [SerializeField] private string suffixText = default;
         
-        [Tooltip("Insert a break after the prefix")]
+        [Tooltip("Automatically add a break after the prefix")]
         [SerializeField] private bool prefixBreak = false;
         
-        [Tooltip("Insert a break before the suffix")]
+        [Tooltip("Automatically add a break after the suffix")]
         [SerializeField] private bool suffixBreak = false;
         
         
@@ -84,7 +78,7 @@ namespace Ganymed.Monitoring.Core
         
         
         [Space]
-        [Tooltip("If enabled OnInspection will be called periodically. Use to validate the values integrity")]
+        [Tooltip("When enabled OnInspection will be called periodically. Use to validate the values integrity")]
         [SerializeField] private bool enableAutoInspection = default;
         
         [Tooltip("How much time should pass between inspections")]
@@ -105,8 +99,6 @@ namespace Ganymed.Monitoring.Core
         protected bool OnlyInitializeWhenInScene => onlyInitializeWhenInScene;
         
         private protected bool EnableWarnings => enableWarnings;
-        private protected bool EnableInitializeValueWarnings => enableInitializeValueWarnings;
-        private protected bool EnableInitializeUpdateEventWarnings => enableInitializeUpdateEventWarnings;
 
         
         

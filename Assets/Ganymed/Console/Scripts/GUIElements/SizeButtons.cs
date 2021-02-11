@@ -16,15 +16,13 @@ namespace Ganymed.Console.GUIElements
 
         public void IncrementFontSize()
         {
-            Core.Console.FontSize += 1;
-            Core.Console.FontSizeInput += 1;
+            Core.Console.IncrementFontSize(1);
             sizeDisplay.text = $"{Core.ConsoleSettings.Instance.fontSize} pt";
         }
 
         public void DecrementFontSize()
         {
-            Core.Console.FontSize -= 1;
-            Core.Console.FontSizeInput -= 1;
+            Core.Console.IncrementFontSize(-1);
             sizeDisplay.text = $"{Core.ConsoleSettings.Instance.fontSize} pt";
         }
     }

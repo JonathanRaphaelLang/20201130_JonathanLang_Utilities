@@ -113,6 +113,7 @@ namespace Ganymed.Monitoring.Modules
 
         protected override void OnInitialize()
         {
+            InitializeValue(Cursor.visible);
             InitializeUpdateEvent(ref OnCursorStateChanged);
 
             if (!controlCursorState || !Application.isPlaying) return;

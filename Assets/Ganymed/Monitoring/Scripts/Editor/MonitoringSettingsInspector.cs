@@ -5,6 +5,7 @@ using Ganymed.Monitoring.Core;
 using Ganymed.Utils;
 using Ganymed.Utils.Editor;
 using Ganymed.Utils.ExtensionMethods;
+using Ganymed.Utils.Singleton;
 using UnityEditor;
 using UnityEngine;
 
@@ -77,7 +78,7 @@ namespace Ganymed.Monitoring.Editor
             Target.enableLifePreview = EditorGUILayout.ToggleLeft(new GUIContent(nameof(Target.enableLifePreview).AsLabel(),
                 Target.GetTooltip(nameof(Target.enableLifePreview))), Target.enableLifePreview);
             
-            MonitoringCanvasBehaviour.SetHideFlags(Target.hideCanvasGameObject? HideFlags.HideInHierarchy : HideFlags.None);
+            MonitoringCanvasBehaviour.SetHideFlags(Target.hideCanvasGameObject? HideFlags.HideInHierarchy : HideFlags.None, HideFlagsTarget.GameObject);
             
             EditorGUILayout.Space();
 
@@ -114,8 +115,7 @@ namespace Ganymed.Monitoring.Editor
             if (Target.showReferences) { DrawMisc(); }
             
             EditorUtility.SetDirty(target);
-            if(GUI.changed)
-                Target.OnValidate();
+            Target.OnValidate();
         }
 
         private void DrawGlobalStyleSettings()
@@ -206,7 +206,7 @@ namespace Ganymed.Monitoring.Editor
             #region --- [AREA LOWER LEFT] ---
 
             EditorGUILayout.Space();
-            if(mainTitle) EditorGUILayout.LabelField("Modules", GUIHelper.H1);
+            if(mainTitle) EditorGUILayout.LabelField("Module Canvas Layout", GUIHelper.H1);
             GUIHelper.DrawLine(new Color(.8f, .8f, .9f, .5f));
             GUILayout.BeginHorizontal();
             GUILayout.Label(title, GUILayout.MaxWidth(labelWidth));

@@ -472,7 +472,9 @@ namespace Ganymed.Monitoring.Core
 
         private void ValidateInitialization()
         {
-            if (updateEventInitialized == false && EnableWarnings && EnableInitializeUpdateEventWarnings)
+            if(!EnableWarnings) return;
+            
+            if (updateEventInitialized == false)
             {
                 Debug.LogWarning(
                     $"Warning: Use the {RichText.Orange}{nameof(InitializeUpdateEvent)}{RichText.ClearColor} " +
@@ -481,7 +483,7 @@ namespace Ganymed.Monitoring.Core
                     $"{RichText.Blue}{name}{RichText.ClearColor} " +
                     $"to set up an update {RichText.Violet}EVENT{RichText.ClearColor} for the module!\n");
             }
-            if (valueInitialized == false && EnableWarnings && EnableInitializeValueWarnings)
+            if (valueInitialized == false)
             {
                 Debug.LogWarning(
                     $"Warning: Use the {RichText.Orange}{nameof(InitializeValue)}{RichText.ClearColor} " +

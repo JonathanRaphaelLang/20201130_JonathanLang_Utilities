@@ -12,15 +12,83 @@ using Ganymed.Utils.Singleton;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Ganymed.Console.Core
 {
     /// <summary>
-    /// Custom console class.
+    /// Custom console class. Only one instance of this class is allowed at any point.
+    /// Prefabricated static access points can be used to control the active instance of this class. 
     /// </summary>
-    public sealed class Console : MonoSingleton<Console>, IActive, IConsole
+    public sealed class Console : MonoSingleton<Console>, IActive
     {
+        #region --- [STATIC ACCESS POINTS] --- 
+
+        // -------------------------------------------------------------------------------------------------------------
+        // --- METHODS
+        // -------------------------------------------------------------------------------------------------------------
+        
+        /// <summary>
+        /// Activate / Deactivate the console instance depending on its last state.
+        /// </summary>
+        public static void ToggleConsole() => Instance.SetActive(!Instance.isActive);
+
+        /// <summary>
+        /// Set the active state of the console manually.
+        /// </summary>
+        /// <param name="state"></param>
+        public static void SetConsoleActive(bool state) => Instance.SetActive(state);
+
+        /// <summary>
+        /// Apply the input proposed by the autocompletion. (If any is proposed)
+        /// </summary>
+        public static void ApplyInputProposedByAutocompletion() => Instance.ApplyProposedInput();
+
+        /// <summary>
+        /// Replace the current input with the previous input text from the input cache.
+        /// </summary>
+        public static void SelectPreviousInputFromCache() => Instance.PreviousFromCache();
+
+        /// <summary>
+        /// Replace the current input with the subsequent input text from the input cache.
+        /// </summary>
+        public static void SelectSubsequentInputFromCache() => Instance.SubsequentFromCache();
+        
+        /// <summary>
+        /// Copy the last received / logged message to your systems clipboard. RichText will be excluded.
+        /// </summary>
+        public static void CopyLastMessageToClipboard() => Instance.CopyLastLogToClipboard();
+
+        /// <summary>
+        /// Copy the whole content of the console to your systems clipboard. RichText will be excluded.
+        /// </summary>
+        public static void CopyConsoleTextToClipboard() => Instance.CopyAllToClipboard();
+
+        // -------------------------------------------------------------------------------------------------------------
+        // --- PROPERTIES
+        // -------------------------------------------------------------------------------------------------------------
+        
+        /// <summary>
+        /// The cached proposed description string. This includes hints and is (in most cases) not a valid input string
+        /// for console commands.
+        /// </summary>
+        public static string ProposedDescription => Instance.proposedCommandDescription;
+
+        /// <summary>
+        /// The cached proposed description input string. This is an actual string that can be used as an input
+        /// or is an incomplete input.
+        /// </summary>
+        public static string ProposedCommand => Instance.proposedCommand;
+        
+        /// <summary>
+        /// This property will return false if no instance of the console is present. Use this to check if a console
+        /// is initialized before accessing it.
+        /// </summary>
+        public static bool IsInitialized => isInitialized ? isInitialized : Instance != null;
+        
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+        
         #region --- [INSPECOTR] ---
         
         [HideInInspector] [SerializeField] public bool showReferences = false;
@@ -43,7 +111,7 @@ namespace Ganymed.Console.Core
 
         //--------------------------------------------------------------------------------------------------------------
         
-        #region --- [COMPONENT PROPERTIES] ---
+        #region --- [COMPONENTS] ---
 
         private static TMP_InputField Input
         {
@@ -104,48 +172,7 @@ namespace Ganymed.Console.Core
             }
             set => output = value;
         }
-
         private static TextMeshProUGUI output = null;
-
-        #endregion
-        
-        #region --- [PORPERTIES] ---
-        
-        
-        public static bool IsInitialized => isInitialized ? isInitialized : Instance != null;
-        private static bool isInitialized = false;
-        
-        public static float FontSize
-        {
-            get => Output.fontSize;
-            set
-            {
-                ConsoleSettings.Instance.fontSize
-                    = Mathf.Clamp(value, ConsoleSettings.MinFontSize, ConsoleSettings.MaxFontSize);
-                Instance.ApplySettings(ConsoleSettings.Instance);
-            }
-        }
-
-        public static float FontSizeInput
-        {
-            get => Input.pointSize;
-            set
-            {
-                ConsoleSettings.Instance.inputFontSize
-                    = Mathf.Clamp(value, ConsoleSettings.MinFontSize, ConsoleSettings.MaxFontSize);
-                Instance.ApplySettings(ConsoleSettings.Instance);
-            }
-        }
-        
-        public bool FrostedGlassShader
-        {
-            get => ConsoleSettings.Instance.enableShader;
-            set
-            {
-                ConsoleSettings.Instance.enableShader = value;
-                Instance.ApplySettings(ConsoleSettings.Instance);
-            }
-        }
 
         #endregion
         
@@ -164,6 +191,7 @@ namespace Ganymed.Console.Core
         private static int defaultLineHeight = 100;
         private static bool clearConsoleAutomatically = false;
         private static int maxLogs = 20;
+        private static bool isInitialized = false;
         private static readonly WaitForEndOfFrame endOfFrame = new WaitForEndOfFrame();
 
         private static readonly Queue<string> LogCache = new Queue<string>();
@@ -195,18 +223,20 @@ namespace Ganymed.Console.Core
 
         //--------------------------------------------------------------------------------------------------------------
 
-        #region --- [VALIDATION] ---
-        
-        
+        #region --- [APPLY / ALTER SETTINGS] ---
+
+        /// <summary>
+        /// This methods applies the ConsoleSettings to the Console.
+        /// </summary>
+        private void ApplySettings() => ApplySettings(ConsoleSettings.Instance);
         
         
         /// <summary>
-        /// This methods applies the settings settings to the Command
+        /// This methods applies the passed settings to the Console.
         /// </summary>
         private void ApplySettings(ConsoleSettings settings)
         {
             if(this == null) return;
-            
             if (ConsoleSettings.Instance.active != isActive)  SetActive(ConsoleSettings.Instance.active);
             
             ApplyGeneralSettingsFromConfiguration(settings);
@@ -220,12 +250,8 @@ namespace Ganymed.Console.Core
             
             OnConsoleRenderSettingsUpdate?.Invoke(settings.renderContentOnDrag, settings.renderContentOnScale);
         }
-
-        #endregion
         
         //--------------------------------------------------------------------------------------------------------------
-
-        #region --- [APPLY SETTINGS VALIDATION] ---
         
         private void ApplyShaderFromConfiguration(ConsoleSettings settings)
         {
@@ -257,19 +283,12 @@ namespace Ganymed.Console.Core
             maxLogs = settings.messageCacheSize; 
         }
         
-
         private void ApplyConsoleLink(ConsoleSettings settings)
         {
             if (!Application.isPlaying) return;
             
             if (settings.bindConsoles) SubscribeToUnityConsoleCallback();
             else Application.logMessageReceived -= OnLogMessageReceived;
-        }
-        
-        private static void SubscribeToUnityConsoleCallback()
-        {
-            Application.logMessageReceived -= OnLogMessageReceived;
-            Application.logMessageReceived += OnLogMessageReceived;
         }
         
         private void ApplyFontSizeFromConfiguration(ConsoleSettings settings)
@@ -297,68 +316,12 @@ namespace Ganymed.Console.Core
             backgroundImage.color = settings.colorConsoleBackground;
         }
 
-        
-        #endregion
-        
-        //--------------------------------------------------------------------------------------------------------------
-        
-        #region --- [COMMANDS] ---
-
-        [NativeCommand]
-        [ConsoleCommand("Clear", Description = "Clear console and input cache")]
-        private static void ClearConsole(bool clearCache)
+        private void SubscribeToUnityConsoleCallback()
         {
-            LogCache.Clear();
-            
-            Input.text = string.Empty;
-            Output.text = string.Empty;
-
-            OnConsoleLogCountUpdate?.Invoke(LogCache.Count, maxLogs);
-            
-            if (!clearCache) return;
-            Instance.InputCache.Clear();
-            Instance.viewedInputCacheIndex = 0;
+            Application.logMessageReceived -= OnLogMessageReceived;
+            Application.logMessageReceived += OnLogMessageReceived;
         }
-
-        #endregion
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        #region --- [ENTRY POINTS] ---
-
-        /// <summary>
-        /// Use this method to toggle the console On/Off
-        /// </summary>
-        public void Toggle() => SetActive(!isActive);         
         
-        /// <summary>
-        /// Use the current proposed input.
-        /// </summary>
-        public void ApplyProposedInput()
-        {
-            if(proposedCommand == string.Empty) return;
-            inputField.text = proposedCommand;
-            StartCoroutine(MoveSelectionToEndOfLine());             
-        }
-
-        public void SelectPreviousInputFromCache() => PreviousFromCache();
-
-        public void SelectSubsequentInputFromCache() => SubsequentFromCache();
-
-        public string GetProposedDescription() => proposedCommandDescription;
-
-        public string GetProposedCommand() => proposedCommand;
-
-        public void CopyLastLogToClipboard()
-        {
-            if(LogCache.Count > 0) LogCache.Last().CopyToClipboard(true);
-        }
-
-        public void CopyAllToClipboard()
-        {
-            Output.text.CopyToClipboard(true);
-        }
-
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
@@ -458,7 +421,7 @@ namespace Ganymed.Console.Core
                 return;
             }
 
-            CacheInput(inputString);
+            AddToInputCache(inputString);
 
             if (inputString.StartsWith(CommandProcessor.Prefix))
             {
@@ -475,8 +438,7 @@ namespace Ganymed.Console.Core
                 Log($"</color>{inputString}");
             }
 
-            RemoveLastItemFromCache();
-            
+            RemoveLastItemFromInputCache();
             SetColor(InputValidation.None);
             ClearInput();
         }
@@ -801,7 +763,7 @@ namespace Ganymed.Console.Core
             SetActive(ConsoleSettings.Instance.active);
             isInitialized = true;
             
-            ClearConsole();
+            ClearTextFields();
             
             Output = outputField;
             InputText = inputText;
@@ -885,7 +847,6 @@ namespace Ganymed.Console.Core
                 
                 i++;
                 if (i <= InputCache.Count) continue;
-                Debug.Log("Warning possible endless loop");
                 break;
                 
             } while (string.IsNullOrWhiteSpace(InputCache[viewedInputCacheIndex].text));
@@ -920,7 +881,7 @@ namespace Ganymed.Console.Core
         }
         
 
-        private void CacheInput(string inputString)
+        private void AddToInputCache(string inputString)
         {
             var i = 0;
             var inputCache = new InputCache(inputString, InputText.color);
@@ -939,7 +900,7 @@ namespace Ganymed.Console.Core
                 InputCache.Add(inputCache);
         }
        
-        private void RemoveLastItemFromCache()
+        private void RemoveLastItemFromInputCache()
         {
             if(InputCache.Count > ConsoleSettings.Instance.inputCacheSize)
                 InputCache.RemoveAt(0);
@@ -953,9 +914,13 @@ namespace Ganymed.Console.Core
 
         #region --- [HELPER] ---
         
-        public void ButtonClearConsole() => ClearConsole();
-        private static void ClearConsole() => ClearConsole(true);
         
+        private void ApplyProposedInput()
+        {
+            if(proposedCommand == string.Empty) return;
+            inputField.text = proposedCommand;
+            StartCoroutine(MoveSelectionToEndOfLine());             
+        }
         
 
         /// <summary>
@@ -966,6 +931,20 @@ namespace Ganymed.Console.Core
         {
             yield return endOfFrame;
             inputField.MoveToEndOfLine(false,false);
+        }
+        
+                
+        
+        /// <summary>
+        /// Increment or decrement the consoles FontSize
+        /// </summary>
+        /// <param name="increment"></param>
+        public static void IncrementFontSize(float increment)
+        {
+            var clamped =  Mathf.Clamp(ConsoleSettings.Instance.fontSize + increment, ConsoleSettings.MinFontSize, ConsoleSettings.MaxFontSize);
+            ConsoleSettings.Instance.fontSize = clamped;
+            ConsoleSettings.Instance.inputFontSize = clamped;
+            Instance.ApplySettings();
         }
         
         
@@ -999,6 +978,47 @@ namespace Ganymed.Console.Core
         }
         
         
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+
+        #region --- [UNITY EVENT METHODS] ---
+
+                
+        public void CopyLastLogToClipboard()
+        {
+            if(LogCache.Count > 0) LogCache.Last().CopyToClipboard();
+        }
+
+        public void CopyAllToClipboard() => Output.text.CopyToClipboard();
+
+
+        public void ClearConsoleTextFields() => ClearTextFields();
+
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+                
+        #region --- [COMMANDS] ---
+
+        [NativeCommand]
+        [ConsoleCommand("Clear", Description = "Clear console and input cache")]
+        public static void ClearTextFields(bool clearCache)
+        {
+            LogCache.Clear();
+            
+            Input.text = string.Empty;
+            Output.text = string.Empty;
+
+            OnConsoleLogCountUpdate?.Invoke(LogCache.Count, maxLogs);
+            
+            if (!clearCache) return;
+            Instance.InputCache.Clear();
+            Instance.viewedInputCacheIndex = 0;
+        }
+
+        private static void ClearTextFields() => ClearTextFields(true);
+
         #endregion
     }
 }

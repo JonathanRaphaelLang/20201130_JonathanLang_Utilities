@@ -65,7 +65,6 @@
                 <e p="SIzeButtons.cs" t="Include" />
               </e>
               <e p="Interfaces" t="Include">
-                <e p="IConsole.cs" t="Include" />
                 <e p="IGettable.cs" t="Include" />
                 <e p="ISetter.cs" t="Include" />
               </e>
@@ -247,6 +246,7 @@
                 <e p="UnfoldObjectOnLoad.cs" t="Include" />
               </e>
               <e p="Singleton" t="Include">
+                <e p="HideFlagsTarget.cs" t="Include" />
                 <e p="MonoSingleton.cs" t="Include" />
                 <e p="ScriptableSettings.cs" t="Include" />
                 <e p="ScriptableSingleton.cs" t="Include" />

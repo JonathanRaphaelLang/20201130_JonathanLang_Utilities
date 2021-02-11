@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92372981f059f684bb2a77b3cceabf3c, type: 3}
   m_Name: MonitoringSettings
   m_EditorClassIdentifier: 
-  style: {fileID: 11400000, guid: 9ee5c61691a7b044d9f075e22b625409, type: 2}
+  style: {fileID: 11400000, guid: cab8bf19bf327d04e97b3b861528643e, type: 2}
   active: 1
   automateCanvasState: 1
   openCanvasOnEnterPlay: 1

@@ -27,20 +27,13 @@ namespace Ganymed.Console.Placeholder
         [SerializeField] internal KeyCode previousInputKey = KeyCode.UpArrow;
         [SerializeField] internal KeyCode subsequentInputKey= KeyCode.DownArrow;
 
-        private IConsole console;
-
-        protected override void Awake()
-        {
-            base.Awake();
-            console = GetComponent<IConsole>();
-        }
 
         private void Update()
         {
-            if (Input.GetKeyDown(toggleKey)) console.Toggle();
-            if (Input.GetKeyDown(applyProposedKey)) console.ApplyProposedInput();
-            if (Input.GetKeyDown(previousInputKey)) console.SelectPreviousInputFromCache();
-            if (Input.GetKeyDown(subsequentInputKey)) console.SelectSubsequentInputFromCache();
+            if (Input.GetKeyDown(toggleKey)) Core.Console.ToggleConsole();
+            if (Input.GetKeyDown(applyProposedKey)) Core.Console.ApplyInputProposedByAutocompletion();
+            if (Input.GetKeyDown(previousInputKey)) Core.Console.SelectPreviousInputFromCache();
+            if (Input.GetKeyDown(subsequentInputKey)) Core.Console.SelectSubsequentInputFromCache();
         }
     }
     
