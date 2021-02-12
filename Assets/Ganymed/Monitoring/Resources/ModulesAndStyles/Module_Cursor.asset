@@ -19,8 +19,6 @@ MonoBehaviour:
   useCustomStyle: 1
   customStyle: {fileID: 11400000, guid: 4aad447ca5e52af4dac7c319534dfda5, type: 2}
   enableWarnings: 1
-  enableInitializeUpdateEventWarnings: 1
-  enableInitializeValueWarnings: 0
   previewValueAs: 0
   resetValueOnQuit: 0
   prefixText: 'Cursor:'
@@ -30,7 +28,7 @@ MonoBehaviour:
   description: Monitoring cursor lock state and visibility.
   enableAutoInspection: 1
   secondsBetweenInspections: 1
-  controlCursorState: 1
+  controlCursorState: 0
   visibleDuringPlayMode: 0
   lockModeDuringPlayMode: 1
   visibleDuringEditMode: 1

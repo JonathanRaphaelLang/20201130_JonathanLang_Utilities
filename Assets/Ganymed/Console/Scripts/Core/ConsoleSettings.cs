@@ -33,23 +33,22 @@ namespace Ganymed.Console.Core
         #endregion
 
         #region --- [INSPECTOR] ---
-        
-        [Tooltip("NA")]
+
+        [SerializeField] internal bool enabled = true;
         [SerializeField] internal bool active = true;
-        
         
         [Header("Commands")]
 
-        [Tooltip("use this as a prefix")]
+        [Tooltip("This character will tell the console that the subsequent string should be handled like a console command.")]
         [SerializeField] internal string commandPrefix = "/";
         
-        [Tooltip("use this character to receive additional information about a command. eg: /Help?")]
+        [Tooltip("Adding this character after a command will display additional information. eg: /Help?")]
         [SerializeField] internal string infoOperator = "?";
         
-        [Tooltip("allows the console to precalculate inputs and to generate suggestions for automatic completion")]
+        [Tooltip("When enabled the console can precalculate inputs and generate suggestions for automatic completion.")]
         [SerializeField] internal bool enablePreProcessing = true;
         
-        [Tooltip("Allow numeric input for boolean parameter in console commands")]
+        [Tooltip("When enabled 1 and 0 can be used as valid replacements for true and false.")]
         [SerializeField] internal bool enableNBP = true;
    
         
@@ -59,27 +58,27 @@ namespace Ganymed.Console.Core
         [SerializeField] internal bool limitMessageCache = true;
         
         [Tooltip("Determines the amount of messages cached and displayed in the console (if Limit Message Cache is enabled)")]
-        [SerializeField] [Range(10,1000)] internal int messageCacheSize = 20;
+        [SerializeField] [Range(10,1000)] internal int messageCacheSize = 50;
         
         [Tooltip("How many previous inputs are cached")]
-        [SerializeField] [Range(0,100)] internal byte inputCacheSize = 20;        
+        [SerializeField] [Range(0,100)] internal byte inputCacheSize = 10;        
         
         
         [Header("Misc")]
         
-        [Tooltip("log information about commands on start")]
+        [Tooltip("When enabled information about commands will be displayed after the command processor has finished searching for commands in the target assemblies.")]
         [SerializeField] internal bool logLoadedCommandsOnStart = true;
         
         [Tooltip("Should the console be activated on start")]
         [SerializeField] internal bool activateConsoleOnStart = true;
                 
-        [Tooltip("Should the cursor be active if the console is visible")]
+        [Tooltip("When enabled the cursor will be set to visible and be unlocked every time the console is activated.")]
         [SerializeField] internal bool enableCursorOnActivation = true;
         
-        [Tooltip("Log settings of the console on start")]
+        [Tooltip("Log settings of the console on start.")]
         [SerializeField] internal bool logConfigurationOnStart = true;
         
-        [Tooltip("Should the current time be logged to the console")]
+        [Tooltip("Should the current time be logged to the console.")]
         [SerializeField] internal bool logTimeOnInput = true;
 
         
@@ -89,35 +88,35 @@ namespace Ganymed.Console.Core
         [Tooltip("Bind Unities Debug console to this console ")]
         [SerializeField] internal bool bindConsoles = true;
         
-        [Tooltip("What messages are also logged by this console (Log, Warning, Error, Exception, Assert)")]
-        [SerializeField] internal LogTypeFlags allowedUnityMessages = LogTypeFlags.None;
+        [Tooltip("What messages are also logged by this console (Log, Warning, Error, Exception, Assert).")]
+        [SerializeField] internal LogTypeFlags allowedUnityMessages = LogTypeFlags.Everything;
         
-        [Tooltip("What messages are allowed to show their stacktrace (Log, Warning, Error, Exception, Assert)")]
-        [SerializeField] internal LogTypeFlags logStackTraceOn = LogTypeFlags.None;
+        [Tooltip("What messages are allowed to show their stacktrace (Log, Warning, Error, Exception, Assert).")]
+        [SerializeField] internal LogTypeFlags logStackTraceOn = LogTypeFlags.Exception | LogTypeFlags.Error;
         
         
         [Header("Eye Candy & Performance Optimization")]
         
         
-        [Tooltip("NA")]
+        [Tooltip("When enabled animations and shaders are allowed. The shader used by the console to blur its background is not optimized and should be replaces when working either with HDRP or URP.")]
         [SerializeField] internal bool enableShaderAndAnimations = true;
         
-        [Tooltip("Is the frosted glass shader active. This shader will drain a lot of performance")]
+        [Tooltip("When enabled the background shader is active. This shader will drain a lot of performance.")]
         [SerializeField] internal bool enableShader = true;
         
-        [Tooltip("When enabled animations are played. E.G. easing resizing of the console window")]
+        [Tooltip("When enabled animations are played. E.G. easing resizing of the console window.")]
         [SerializeField] internal bool enableAnimations = true;
 
-        [Tooltip("When disabled the content of the console will be disabled when the console is dragged to reduce rendering cost")]
-        [SerializeField] internal bool renderContentOnDrag = false;
+        [Tooltip("When disabled the content of the console will be disabled when the console is dragged to reduce rendering cost.")]
+        [SerializeField] internal bool renderContentOnDrag = true;
         
-        [Tooltip("When disabled the content of the console will be disabled when the console is scaled to reduce rendering cost")]
+        [Tooltip("When disabled the content of the console will be disabled when the console is scaled to reduce rendering cost.")]
         [SerializeField] internal bool renderContentOnScale = false;
         
         
         [Header("Debug")]
         
-        [Tooltip("Debug option to show RichText")]
+        [Tooltip("Debug option to show RichText.")]
         [SerializeField] internal bool enableRichText = true;
         
         [Header("Font")]
@@ -132,7 +131,7 @@ namespace Ganymed.Console.Core
         [Space]
         
         [Tooltip("default line height")]
-        [SerializeField] [Range(0, 300)] internal int breakLineHeight = 130;
+        [SerializeField] [Range(0, 300)] internal int breakLineHeight = 150;
         
         [Tooltip("line height after a break")]
         [SerializeField] [Range(0, 300)] internal int defaultLineHeight = 100;
@@ -141,40 +140,40 @@ namespace Ganymed.Console.Core
         [Header("Console")]
         
         
-        [SerializeField] internal Color colorConsoleBackground = Color.magenta;
-        [SerializeField] internal Color colorScrollbar = Color.magenta;
-        [SerializeField] internal Color colorScrollbarHandle = Color.magenta;
+        [SerializeField] internal Color colorConsoleBackground = new Color(0f, 0f, 0f, 0.86f);
+        [SerializeField] internal Color colorScrollbar = new Color(0.04f, 0f, 0.14f);
+        [SerializeField] internal Color colorScrollbarHandle = new Color(0.04f, 0.03f, 0.07f);
         
         
         [Header("Text")]
         
         
-        [SerializeField] internal Color colorDefault = Color.magenta;
-        [SerializeField] internal Color colorTitles = Color.magenta;
-        [SerializeField] internal Color colorSubHeading = Color.magenta;
-        [SerializeField] internal Color colorEmphasize = Color.magenta;
-        [SerializeField] internal Color colorInputLines = Color.magenta;
-        [SerializeField] internal Color colorVariables = Color.magenta;
+        [SerializeField] internal Color colorDefault = new Color(0.85f, 0.93f, 1f);
+        [SerializeField] internal Color colorTitles = new Color(0.44f, 0.38f, 1f);
+        [SerializeField] internal Color colorSubHeading = new Color(0.43f, 0.72f, 1f);
+        [SerializeField] internal Color colorEmphasize = new Color(1f, 0.57f, 0f);
+        [SerializeField] internal Color colorInputLines = new Color(0.31f, 1f, 0.77f);
+        [SerializeField] internal Color colorVariables = new Color(1f, 0f, 0.56f);
 
         
         [Header("Validation (Input)")]
         
         
-        [SerializeField] internal Color colorValidInput = Color.magenta;
-        [SerializeField] internal Color colorOptionalParamsLeft = Color.magenta;
-        [SerializeField] internal Color colorIncompleteInput = Color.magenta;
-        [SerializeField] internal Color colorIncorrectInput = Color.magenta;
-        [SerializeField] internal Color colorInformation = Color.magenta;
-        [SerializeField] internal Color colorAutocompletion = Color.magenta;
+        [SerializeField] internal Color colorValidInput = new Color(0.11f, 1f, 0.42f);
+        [SerializeField] internal Color colorOptionalParamsLeft = new Color(0.24f, 1f, 0.85f);
+        [SerializeField] internal Color colorIncompleteInput = new Color(1f, 0.96f, 0.6f);
+        [SerializeField] internal Color colorIncorrectInput = new Color(1f, 0.01f, 0f);
+        [SerializeField] internal Color colorInformation = new Color(0.63f, 0.36f, 1f);
+        [SerializeField] internal Color colorAutocompletion = new Color(0.39f, 0.36f, 0.44f);
        
         
         [Header("Color Unity Console Log/Warning/Error")]
         
         
-        [SerializeField] internal Color colorUnityLog = Color.magenta;
-        [SerializeField] internal Color colorUnityWarning = Color.magenta;
-        [SerializeField] internal Color colorUnityError = Color.magenta;
-        [SerializeField] internal Color colorStackTrace = Color.magenta;
+        [SerializeField] internal Color colorUnityLog = new Color(1f, 0.98f, 0.72f);
+        [SerializeField] internal Color colorUnityWarning = new Color(1f, 0.99f, 0.35f);
+        [SerializeField] internal Color colorUnityError = new Color(1f, 0.34f, 0f);
+        [SerializeField] internal Color colorStackTrace = new Color(0.53f, 0.53f, 0.68f);
         
         
         [Header("Custom Color")]
@@ -217,7 +216,7 @@ namespace Ganymed.Console.Core
         
         #region --- [PROPERTIES] ---
 
-        //public static ConsoleSettings Instance { get;  } = null;
+        public bool IsEnabled => enabled;
         
         [Getter] public static string CommandPrefix => Instance.commandPrefix;
 

@@ -19,10 +19,8 @@ MonoBehaviour:
   useCustomStyle: 1
   customStyle: {fileID: 11400000, guid: 4cab04d59ba986d4290242f21cd78122, type: 2}
   enableWarnings: 1
-  enableInitializeUpdateEventWarnings: 1
-  enableInitializeValueWarnings: 1
   previewValueAs: 0
-  resetValueOnQuit: 0
+  resetValueOnQuit: 1
   prefixText: 'Rescent fps: '
   suffixText: 
   prefixBreak: 0

@@ -1,12 +1,17 @@
 ﻿
 //#define ENABLE_EXAMPLES // => toggle to activate / deactivate examples.
 
-namespace Ganymed.Examples
+// ------------------------
+// !!! Work In Progress !!!
+// ------------------------
+
+namespace Ganymed.Examples.Scripts
 {
 #pragma warning disable 414
     
     /// <summary>
     /// Class containing examples for the origin/cause of custom warnings.
+    /// 
     /// </summary>
     public class WarningExamples
     {

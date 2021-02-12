@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c150eba2b4df96447bd66874373553fb, type: 3}
   m_Name: Module_RecentFPS_Style
   m_EditorClassIdentifier: 
-  fontSize: 8
+  fontSize: 6
   individualFontSize: 1
-  prefixFontSize: 8
-  infixFontSize: 8
-  suffixFontSize: 8
+  prefixFontSize: 6
+  infixFontSize: 6
+  suffixFontSize: 6
   individualMargins: 0
   marginsAll: 2
   marginLeft: 2

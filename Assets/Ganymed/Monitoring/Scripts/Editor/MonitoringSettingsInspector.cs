@@ -115,7 +115,7 @@ namespace Ganymed.Monitoring.Editor
             if (Target.showReferences) { DrawMisc(); }
             
             EditorUtility.SetDirty(target);
-            Target.OnValidate();
+            if(GUI.changed) Target.OnValidate();
         }
 
         private void DrawGlobalStyleSettings()
@@ -176,16 +176,16 @@ namespace Ganymed.Monitoring.Editor
 
         private void DrawMisc()
         {
-            Target.GUIElementPrefab =
+            Target.CanvasElementPrefab =
                 EditorGUILayout.ObjectField(
-                    new GUIContent("GUI Element Prefab", Target.GetTooltip(nameof(Target.GUIElementPrefab))),
-                    Target.GUIElementPrefab,
+                    new GUIContent(nameof(Target.CanvasElementPrefab).AsLabel(), Target.GetTooltip(nameof(Target.CanvasElementPrefab))),
+                    Target.CanvasElementPrefab,
                     typeof(GameObject), true) as GameObject;
                 
-            Target.GUIObjectPrefab =
+            Target.CanvasPrefab =
                 EditorGUILayout.ObjectField(
-                    new GUIContent("GUI Object Prefab", Target.GetTooltip(nameof(Target.GUIObjectPrefab))),
-                    Target.GUIObjectPrefab,
+                    new GUIContent(nameof(Target.CanvasPrefab).AsLabel(), Target.GetTooltip(nameof(Target.CanvasPrefab))),
+                    Target.CanvasPrefab,
                     typeof(GameObject), true) as GameObject;
                 
             EditorGUILayout.Space();

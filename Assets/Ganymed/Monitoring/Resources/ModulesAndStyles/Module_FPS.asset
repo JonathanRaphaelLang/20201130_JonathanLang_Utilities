@@ -19,8 +19,6 @@ MonoBehaviour:
   useCustomStyle: 1
   customStyle: {fileID: 11400000, guid: 85483f69cc526f7418efbccd2676752e, type: 2}
   enableWarnings: 1
-  enableInitializeUpdateEventWarnings: 1
-  enableInitializeValueWarnings: 0
   previewValueAs: 0
   resetValueOnQuit: 1
   prefixText: 

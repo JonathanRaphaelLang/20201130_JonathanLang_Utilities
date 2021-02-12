@@ -14,11 +14,15 @@ namespace Ganymed.Utils.Helper
         /// <summary>
         /// Set an object as DontDestroyOnLoad.
         /// </summary>
-        /// <param name="go"></param>
-        public static void DontDestroyOnLoad(this GameObject go)
+        /// <param name="gameObj"></param>
+        public static void DontDestroyOnLoad(this GameObject gameObj)
         {
-            Object.DontDestroyOnLoad(go);
-            DontDestroyOnLoadObjects.Add(go);
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                UnityEditor.SceneVisibilityManager.instance.Show(gameObj, false);
+#endif
+            Object.DontDestroyOnLoad(gameObj);
+            DontDestroyOnLoadObjects.Add(gameObj);
         }
 
         /// <summary>

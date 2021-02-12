@@ -35,7 +35,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0.000061035156}
+  m_AnchoredPosition: {x: 0, y: 0.00048828125}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &8666229412376769763
@@ -2787,7 +2787,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 6 pt
+  m_text: 5 pt
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 433785cf1e159f047944d3b1505c987a, type: 2}
   m_sharedMaterial: {fileID: -8606416337857521040, guid: 433785cf1e159f047944d3b1505c987a,
@@ -3360,7 +3360,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee31f6e5e7adcb54393841ba1e1d135a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showReferences: 1
+  misc: 1
   inputField: {fileID: 7206995717720448366}
   outputField: {fileID: 7539190077501306470}
   inputPlaceHolder: {fileID: 7206995718257421856}
@@ -3373,7 +3373,16 @@ MonoBehaviour:
   outputRect: {fileID: 5541056088203799598}
   scrollbar: {fileID: 5878211217038242388}
   scrollbarHandle: {fileID: 8060409598991813932}
-  isActive: 1
+  OnConsoleLogReceived:
+    m_PersistentCalls:
+      m_Calls: []
+  OnConsoleEnabled:
+    m_PersistentCalls:
+      m_Calls: []
+  OnConsoleDisabled:
+    m_PersistentCalls:
+      m_Calls: []
+  isActive: 0
 --- !u!114 &5412524280087508906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3424,7 +3433,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7206995717858144023
 RectTransform:
   m_ObjectHideFlags: 0

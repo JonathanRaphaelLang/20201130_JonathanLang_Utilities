@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Ganymed.Monitoring.Core;
+using Ganymed.Utils.Helper;
 using Ganymed.Utils.Singleton;
 using UnityEngine;
 
@@ -10,8 +11,6 @@ namespace Ganymed.Monitoring.Configuration
     public sealed class MonitoringSettings : Settings<MonitoringSettings>
     {
         #region --- [SETTINGS] ---
-
-        [SerializeField] [HideInInspector] private Style style = null;
         
         [Tooltip("Enable / Disable all canvas elements")]
         [HideInInspector] [SerializeField] public bool active = false;
@@ -62,17 +61,82 @@ namespace Ganymed.Monitoring.Configuration
         [HideInInspector] [SerializeField] public List<Module> modulesLowerLeft = new List<Module>();
         [HideInInspector] [SerializeField] public List<Module> modulesLowerRight = new List<Module>();
         
-        [HideInInspector] [SerializeField] public GameObject GUIElementPrefab = null;
-        [HideInInspector] [SerializeField] public GameObject GUIObjectPrefab = null;
-        
         [HideInInspector] [SerializeField] public bool showReferences = false;
+
+        public GameObject CanvasElementPrefab
+        {
+            get
+            {
+                if (canvasElementPrefab != null) return canvasElementPrefab;
+                canvasElementPrefab = Resources.Load($"Prefabs/{CanvasElementPrefabName}") as GameObject;
+                if (canvasElementPrefab != null) return canvasElementPrefab;
+                Debug.LogWarning($"{CanvasElementPrefabName} can not be loaded!");
+                return null;
+            }
+            set => canvasElementPrefab = value;
+        }
+
+        [HideInInspector] [SerializeField] private GameObject canvasElementPrefab = null;
+        
+        
+        public GameObject CanvasPrefab
+        {
+            get
+            {
+                if (canvasPrefab != null) return canvasPrefab;
+                canvasPrefab = Resources.Load($"Prefabs/{CanvasPrefabName}") as GameObject;
+                if (canvasPrefab != null) return canvasPrefab;
+                Debug.LogWarning($"{CanvasPrefabName} can not be loaded!");
+                return null;
+            }
+            set => canvasPrefab = value;
+        }
+
+        [HideInInspector] [SerializeField] private GameObject canvasPrefab = null;
+        
         
         /// <summary>
         /// Default style that is used by every module without an individual style.
         /// </summary>
-        public Style Style 
-        { 
-            get => style;
+        public Style Style
+        {
+            get
+            {
+                if (style != null)
+                {
+                    OnSettingsUpdated?.Invoke(this);
+                    return style;
+                }
+                foreach (var styleName in DefaultStyleNames)
+                {
+                    style = Resources.Load(styleName) as Style;
+                    if (style == null) continue;
+                    OnSettingsUpdated?.Invoke(this);
+                    return style;
+                }
+                
+#if UNITY_EDITOR
+                if(AssetImportHelper.IsImporting) return null;
+#endif
+                
+                style = CreateInstance<Style>();
+                Debug.LogWarning($"Default Style could not be found! Creating new default asset! Make sure that the default " +
+                                 $"style asset is located in a resources folder and is named: {DefaultStyleNames[0]}" +
+                                 $" or select a default style manually!");
+
+#if UNITY_EDITOR
+                if (!Directory.Exists($"{Instance.FilePath()}/Resources"))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName($"{Instance.FilePath()}/Resources") ??
+                                              "Assets/Resources");
+                    UnityEditor.AssetDatabase.CreateFolder(Instance.FilePath(), "Resources");
+                }
+
+                UnityEditor.AssetDatabase.CreateAsset(style,
+                    $"{Instance.FilePath()}/Resources/{DefaultStyleNames[0]}.asset");
+#endif
+                return style;
+            }
             set
             {
                 OnSettingsUpdated?.Invoke(this);
@@ -81,7 +145,17 @@ namespace Ganymed.Monitoring.Configuration
                 Module.RepaintAll(true);
             }
         }
+
+        [SerializeField] [HideInInspector] private Style style = null;
         
+        #endregion
+
+        #region --- [RESOURCE NAMES] ---
+
+        private static readonly string[] DefaultStyleNames = {"Style_Default", "Style", "DefaultStyle", "Default"};
+        private const string CanvasPrefabName = "MonitorCanvas";
+        private const string CanvasElementPrefabName = "MonitorElement";
+
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
@@ -104,35 +178,8 @@ namespace Ganymed.Monitoring.Configuration
             wasActive = active;
             
             OnSettingsUpdated?.Invoke(this);
-
-            ValidateCustomStyle();
         }
 
-        private void ValidateCustomStyle()
-        {
-            if(style != null) return;
-
-            const string styleName = "Style_Default";
-            
-            style = Resources.Load(styleName) as Style;
-            
-            
-            if(style == null)
-                Debug.LogWarning($"Default Style could not be found! Creating new default asset! Make sure that the default " +
-                                 $"style asset is located in a resources folder and is named: {styleName}");
-
-            style = CreateInstance<Style>();
-            
-#if UNITY_EDITOR
-            if (!Directory.Exists($"{Instance.FilePath()}/Resources"))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName($"{Instance.FilePath()}/Resources") ?? "Assets/Resources");
-                UnityEditor.AssetDatabase.CreateFolder(Instance.FilePath(), "Resources");
-            }
-            UnityEditor.AssetDatabase.CreateAsset(style, $"{Instance.FilePath()}/Resources/{styleName}.asset");
-#endif
-
-        }
 
         #endregion
         

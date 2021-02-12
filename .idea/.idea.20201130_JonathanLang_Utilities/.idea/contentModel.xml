@@ -5,7 +5,6 @@
     <e p="C:\Users\Jonat\AppData\Local\JetBrains\Rider2020.2\resharper-host\Local\Transient\Rider\v202\SolutionCaches\_20201130_JonathanLang_Utilities.-965029187.00" t="ExcludeRecursive" />
     <e p="H:\Unity\20201130_JonathanLang_Utilities" t="IncludeRecursive">
       <e p="20201130_JonathanLang_Utilities.sln" t="IncludeFlat" />
-      <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assembly-Ganymed-Console-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-Ganymed-Console.csproj" t="IncludeRecursive" />
       <e p="Assembly-Ganymed-Examples.csproj" t="IncludeRecursive" />
@@ -92,20 +91,22 @@
                 <e p="ReverseScrollPlacer.cs" t="Include" />
               </e>
             </e>
-            <e p="Shader&amp;Materials" t="Include">
-              <e p="FrostedGlass.shader" t="Include" />
-            </e>
           </e>
           <e p="Examples" t="Include">
             <e p="Assembly-Ganymed-Examples.asmdef" t="Include" />
-            <e p="CommandExamples.cs" t="Include" />
-            <e p="GetSetExamples.cs" t="Include" />
             <e p="Modules" t="Include">
               <e p="ModuleExample_Methods.cs" t="Include" />
               <e p="ModuleExample_Timer.cs" t="Include" />
             </e>
-            <e p="TransmissionExample.cs" t="Include" />
-            <e p="WarningExamples.cs" t="Include" />
+            <e p="Scripts" t="Include">
+              <e p="CommandExamples.cs" t="Include" />
+              <e p="GetSetExamples.cs" t="Include" />
+              <e p="TransmissionExample.cs" t="Include" />
+              <e p="WarningExamples.cs" t="Include" />
+            </e>
+            <e p="Shared" t="Include">
+              <e p="ModuleCommands.cs" t="Include" />
+            </e>
           </e>
           <e p="Monitoring" t="Include">
             <e p="Scripts" t="Include">
@@ -153,13 +154,6 @@
                 <e p="ModuleData.cs" t="Include" />
               </e>
             </e>
-          </e>
-          <e p="Shared" t="Include">
-            <e p="ModuleCommands.cs" t="Include" />
-          </e>
-          <e p="TODOs" t="Include">
-            <e p="Backlog.txt" t="Include" />
-            <e p="TODO.txt" t="Include" />
           </e>
           <e p="Utils" t="Include">
             <e p="Editor" t="Include">
@@ -223,6 +217,7 @@
               </e>
               <e p="Helper" t="Include">
                 <e p="AnimationBridge.cs" t="Include" />
+                <e p="AssetImportHelper.cs" t="Include" />
                 <e p="Converter.cs" t="Include" />
                 <e p="DontDestroyOnLoadHandler.cs" t="Include" />
               </e>
@@ -257,6 +252,9 @@
               </e>
               <e p="Templates" t="Include">
                 <e p="SDS_TEMPLATE.cs" t="Include" />
+              </e>
+              <e p="Unity" t="Include">
+                <e p="UnityEvents.cs" t="Include" />
               </e>
             </e>
           </e>

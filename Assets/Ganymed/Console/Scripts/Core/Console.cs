@@ -9,8 +9,11 @@ using Ganymed.Utils;
 using Ganymed.Utils.Callbacks;
 using Ganymed.Utils.ExtensionMethods;
 using Ganymed.Utils.Singleton;
+using Ganymed.Utils.Unity;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Ganymed.Console.Core
@@ -19,6 +22,7 @@ namespace Ganymed.Console.Core
     /// Custom console class. Only one instance of this class is allowed at any point.
     /// Prefabricated static access points can be used to control the active instance of this class. 
     /// </summary>
+    [ExecuteInEditMode]
     public sealed class Console : MonoSingleton<Console>, IActive
     {
         #region --- [STATIC ACCESS POINTS] --- 
@@ -30,8 +34,8 @@ namespace Ganymed.Console.Core
         /// <summary>
         /// Activate / Deactivate the console instance depending on its last state.
         /// </summary>
-        public static void ToggleConsole() => Instance.SetActive(!Instance.isActive);
-
+        public static void ToggleConsole() => Instance.Toggle();
+        
         /// <summary>
         /// Set the active state of the console manually.
         /// </summary>
@@ -86,13 +90,12 @@ namespace Ganymed.Console.Core
         public static bool IsInitialized => isInitialized ? isInitialized : Instance != null;
         
         #endregion
-        
+
         //--------------------------------------------------------------------------------------------------------------
         
         #region --- [INSPECOTR] ---
         
-        [HideInInspector] [SerializeField] public bool showReferences = false;
-
+        [SerializeField] [HideInInspector] public bool misc = false;
         [SerializeField] private TMP_InputField inputField = null;
         [SerializeField] private TextMeshProUGUI outputField = null;
         [SerializeField] private TextMeshProUGUI inputPlaceHolder = null;
@@ -108,7 +111,19 @@ namespace Ganymed.Console.Core
        
 
         #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
+        
+        #region --- [UNITY EVENTS] ---
+        
+        
 
+        [HideInInspector] [SerializeField] public StringEvent OnConsoleLogReceived = new StringEvent();
+        [HideInInspector] [SerializeField] public UnityEvent OnConsoleEnabled = new UnityEvent();
+        [HideInInspector] [SerializeField] public UnityEvent OnConsoleDisabled = new UnityEvent();
+
+        #endregion
+                        
         //--------------------------------------------------------------------------------------------------------------
         
         #region --- [COMPONENTS] ---
@@ -214,10 +229,10 @@ namespace Ganymed.Console.Core
 
         #region --- [EVENTS] ---
 
-        public static event ConsoleLogCallback OnConsoleLog;
-        public static event ConsoleToggleCallback OnConsoleToggle;
-        public static event ConsoleLogCountUpdateCallback OnConsoleLogCountUpdate;
-        public static event ConsoleRenderSettingsUpdateCallback OnConsoleRenderSettingsUpdate;
+        public static event ConsoleLogCallback OnConsoleLogCallback;
+        public static event ConsoleToggleCallback OnConsoleToggleCallback;
+        public static event ConsoleLogCountUpdateCallback OnConsoleLogCountUpdateCallback;
+        public static event ConsoleRenderSettingsUpdateCallback OnConsoleRenderSettingsUpdateCallback;
 
         #endregion
 
@@ -248,7 +263,7 @@ namespace Ganymed.Console.Core
             ValidateConsolesRectOffsets();
             ApplyRichTextFromConfiguration(settings);
             
-            OnConsoleRenderSettingsUpdate?.Invoke(settings.renderContentOnDrag, settings.renderContentOnScale);
+            OnConsoleRenderSettingsUpdateCallback?.Invoke(settings.renderContentOnDrag, settings.renderContentOnScale);
         }
         
         //--------------------------------------------------------------------------------------------------------------
@@ -336,13 +351,11 @@ namespace Ganymed.Console.Core
             get => isActive;
             private set
             {
+                if(!ConsoleSettings.Instance.enabled) return;
                 try
                 {
                     isActive = value;
-                    ConsoleSettings.Instance.active = value;
-                    
                     OnActiveStateChanged?.Invoke(value);
-                
                     if (value) ActivateConsole();
                     else DeactivateConsole();
                 }
@@ -364,27 +377,29 @@ namespace Ganymed.Console.Core
         private bool cachedCursorVisibility = false;
         private CursorLockMode cachedCursorState = CursorLockMode.None;
 
-
         private async void ActivateConsole()
         {
-            await Task.Delay(0b1);
             try
             {
+                await Task.CompletedTask.BreakContext();
                 consoleFrame.SetActive(true);
                 inputField.ActivateInputField();
+                OnConsoleToggleCallback?.Invoke(true);
+                OnConsoleLogCountUpdateCallback?.Invoke(LogCache.Count, maxLogs);
+                OnConsoleEnabled?.Invoke();
+
                 if (enableCursorOnActivation)
                 {
                     cachedCursorVisibility = Cursor.visible;
                     cachedCursorState = Cursor.lockState;
-                    await Task.Delay(0b110010);
+                    await Task.Delay(50);
                     Cursor.visible = true;
                     Cursor.lockState = CursorLockMode.None;
                 }
-                OnConsoleToggle?.Invoke(true);
             }
-            catch
+            finally
             {
-                return;
+                ConsoleSettings.Instance.active = isActive;
             }
         }
 
@@ -403,7 +418,10 @@ namespace Ganymed.Console.Core
                 Cursor.visible = cachedCursorVisibility;
                 Cursor.lockState = cachedCursorState;
             }
-            OnConsoleToggle?.Invoke(false);
+            OnConsoleToggleCallback?.Invoke(false);
+            OnConsoleDisabled?.Invoke();
+            
+            ConsoleSettings.Instance.active = isActive;
         }
 
         #endregion
@@ -638,7 +656,8 @@ namespace Ganymed.Console.Core
                 Output.text = $"{Output.text}{compiled}";
             }
 
-            OnConsoleLog?.Invoke(compiled);
+            OnConsoleLogCallback?.Invoke(compiled);
+            Instance.OnConsoleLogReceived?.Invoke(compiled);
         }
         
         public static void LogRaw(object message)
@@ -652,7 +671,8 @@ namespace Ganymed.Console.Core
             {
                 Output.text = $"{Output.text}{message}";
             }
-            OnConsoleLog?.Invoke(message.ToString());
+            OnConsoleLogCallback?.Invoke(message.ToString());
+            Instance.OnConsoleLogReceived?.Invoke(message.ToString());
         }
 
 
@@ -670,7 +690,7 @@ namespace Ganymed.Console.Core
             if(LogCache.Count > maxLogs)
                 LogCache.Dequeue();
             
-            OnConsoleLogCountUpdate?.Invoke(LogCache.Count, maxLogs);
+            OnConsoleLogCountUpdateCallback?.Invoke(LogCache.Count, maxLogs);
         }
         
         #endregion
@@ -727,8 +747,10 @@ namespace Ganymed.Console.Core
         protected override void Awake()
         {
             base.Awake();
+            SetActive(isActive);
             ApplySettings(ConsoleSettings.Instance);
             Initialize();
+            OnConsoleLogCountUpdateCallback?.Invoke(LogCache.Count, maxLogs);
         }
 
         private async void Start()
@@ -984,6 +1006,8 @@ namespace Ganymed.Console.Core
 
         #region --- [UNITY EVENT METHODS] ---
 
+        
+        public void Toggle() => SetActive(!isActive);
                 
         public void CopyLastLogToClipboard()
         {
@@ -1010,7 +1034,7 @@ namespace Ganymed.Console.Core
             Input.text = string.Empty;
             Output.text = string.Empty;
 
-            OnConsoleLogCountUpdate?.Invoke(LogCache.Count, maxLogs);
+            OnConsoleLogCountUpdateCallback?.Invoke(LogCache.Count, maxLogs);
             
             if (!clearCache) return;
             Instance.InputCache.Clear();

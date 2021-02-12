@@ -1,41 +1,63 @@
 ﻿using Ganymed.Console.Core;
 using Ganymed.Utils.Editor;
+using Ganymed.Utils.ExtensionMethods;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Ganymed.Console.Scripts.Editor
 {
     [CustomEditor(typeof(Core.Console))]
     [CanEditMultipleObjects]
-    public sealed class ConsoleInspector : UnityEditor.Editor
+    public sealed class ConsoleInspector : CleanEditor
     {
         private Core.Console console;
+
+        private SerializedObject so;
+        
+        private SerializedProperty OnConsoleEnabled;
+        private SerializedProperty OnConsoleDisabled;
+        private SerializedProperty OnConsoleLogReceived;
 
         private void OnEnable()
         {
             console = (Core.Console) target;
+            so = new SerializedObject(target);
+
+            OnConsoleEnabled = so.FindProperty(nameof(console.OnConsoleEnabled));
+            OnConsoleDisabled = so.FindProperty(nameof(console.OnConsoleDisabled));
+            OnConsoleLogReceived = so.FindProperty(nameof(console.OnConsoleLogReceived));
         }
 
-        public override void OnInspectorGUI()
+        protected override void OnBeforeDefaultInspector()
         {
-            if (GUILayout.Button("Edit Settings"))
-            {
-                ConsoleSettings.EditSettings();
-            }
+            EditorGUILayout.Space();
+            so.Update();
+            EditorGUILayout.PropertyField(OnConsoleEnabled);
+            EditorGUILayout.PropertyField(OnConsoleDisabled);
+            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(OnConsoleLogReceived);
             
+            so.ApplyModifiedProperties();
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        protected override void OnDefaultInspector()
+        {
+            console.misc = EditorGUILayout.ToggleLeft("Show Miscellaneous", console.misc);
+            if(!console.misc) return;
             
             EditorGUILayout.Space();
-            if (ConsoleSettings.Instance == null)
-            {
-                UnityEditor.EditorGUILayout.HelpBox(
-                    "Settings must be assigned!",
-                    UnityEditor.MessageType.Error);
-                EditorGUILayout.Space();
-            }
-            console.showReferences = EditorGUILayout.ToggleLeft("Misc", console.showReferences);
-            if (!console.showReferences) return;
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Edit Console Settings")) { ConsoleSettings.EditSettings(); }
+            GUILayout.EndHorizontal();
             EditorGUILayout.Space();
-            base.OnInspectorGUI();
+            
+            base.OnDefaultInspector();
+        }
+
+        protected override void OnAfterDefaultInspector()
+        {
             EditorUtility.SetDirty(target);
         }
     }

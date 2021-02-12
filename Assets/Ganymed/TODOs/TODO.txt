@@ -1,3 +1,0 @@
-//TODO: Complete Documentation.
-//TODO: Create a default style if default style is null.
-//TODO: subscribe modules to default style validate.

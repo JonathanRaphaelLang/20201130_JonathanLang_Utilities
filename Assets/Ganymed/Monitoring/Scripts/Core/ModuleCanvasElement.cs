@@ -16,6 +16,7 @@ namespace Ganymed.Monitoring.Core
 
         [SerializeField] private TextMeshProUGUI moduleText = null;
         [SerializeField] private Image background = null;        
+        [SerializeField] private Image image = null;
         [Header("Scale")]
         [SerializeField] private RectTransform scaleTarget = null;
         [SerializeField] private RectTransform scaleRoot = null;
@@ -31,8 +32,8 @@ namespace Ganymed.Monitoring.Core
         
         #region --- [FIELDS] ---
 
-        private GameObject element;
-        private Module module;
+        private GameObject element = null;
+        private Module module = null;
         private float scale = 1;
         private static readonly int DecInst = Animator.StringToHash("DecInst");
         private const float Increment = .1f;
@@ -92,6 +93,7 @@ namespace Ganymed.Monitoring.Core
                 header.SetActive(true);
                 reactivationButton.SetActive(false);
                 moduleText.enabled = true;
+                image.enabled = true;
             }
             
             else if(!visible && active && enable)
@@ -101,6 +103,7 @@ namespace Ganymed.Monitoring.Core
                 header.SetActive(false);
                 reactivationButton.SetActive(true);
                 moduleText.enabled = false;
+                image.enabled = false;
             }
             
             else
@@ -108,6 +111,7 @@ namespace Ganymed.Monitoring.Core
                 header.SetActive(false);
                 reactivationButton.SetActive(false);
                 moduleText.enabled = false;
+                image.enabled = false;
             }
         }
 
@@ -132,6 +136,7 @@ namespace Ganymed.Monitoring.Core
             module.Repaint(InvokeOrigin.Constructor);
             
             target.moduleText.enabled = module.IsVisible;
+            target.image.enabled = module.IsVisible;
             
             return target;
         }

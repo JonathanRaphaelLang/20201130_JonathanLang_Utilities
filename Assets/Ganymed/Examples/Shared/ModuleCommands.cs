@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Ganymed.Console;
 using Ganymed.Console.Attributes;
 using Ganymed.Console.Core;
 using Ganymed.Console.Transmissions;
 using Ganymed.Monitoring.Modules;
 using Ganymed.Utils.ExtensionMethods;
-using UnityEngine;
 using Module = Ganymed.Monitoring.Core.Module;
 
-namespace Ganymed.Shared
+namespace Ganymed.Examples.Shared
 {
 #if GANYMED_CONSOLE && GANYMED_MONITORING
     

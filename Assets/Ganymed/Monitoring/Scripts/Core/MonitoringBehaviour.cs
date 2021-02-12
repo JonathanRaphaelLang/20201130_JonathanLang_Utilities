@@ -1,10 +1,12 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using Ganymed.Monitoring.Configuration;
 using Ganymed.Utils;
 using Ganymed.Utils.Callbacks;
+using Ganymed.Utils.Helper;
 using Ganymed.Utils.Singleton;
+using Ganymed.Utils.Unity;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Ganymed.Monitoring.Core
 {
@@ -12,9 +14,20 @@ namespace Ganymed.Monitoring.Core
     [AddComponentMenu("Monitoring/Monitor")]
     public sealed class MonitoringBehaviour : MonoSingleton<MonitoringBehaviour>
     {
+
+        #region --- [EVENTS] ---
+
+        public UnityEvent OnMonitoringCanvasEnabled = new UnityEvent();
+        public UnityEvent OnMonitoringCanvasDisabled = new UnityEvent();
+        public static event Action<bool> OnMonitoringCanvasToggleCallback;
+
+        #endregion
+        
+        //--------------------------------------------------------------------------------------------------------------
         
         #region --- [PROPERTIES] ---
         private MonitoringCanvasBehaviour CanvasBehaviour { get; set; }
+        
         #endregion
         
         //--------------------------------------------------------------------------------------------------------------
@@ -25,6 +38,18 @@ namespace Ganymed.Monitoring.Core
         /// Toggle the canvas element.
         /// </summary>
         public void Toggle() => CanvasBehaviour.SetVisible(!CanvasBehaviour.IsVisible);
+
+        public static void InvokeCallbacks(bool value)
+        {
+#if UNITY_EDITOR
+            if(AssetImportHelper.IsImporting) return;
+#endif
+            if(Instance == null) return;
+            
+            OnMonitoringCanvasToggleCallback?.Invoke(value);
+            if(value) Instance.OnMonitoringCanvasEnabled?.Invoke();
+            else Instance.OnMonitoringCanvasDisabled?.Invoke();
+        }
 
         #endregion
 
@@ -65,6 +90,7 @@ namespace Ganymed.Monitoring.Core
         {
             base.Awake();
             Initialize(InvokeOrigin.UnityMessage);
+            InvokeCallbacks(CanvasBehaviour.IsActive);
         }
 
         
@@ -113,22 +139,22 @@ namespace Ganymed.Monitoring.Core
             foreach (var module in MonitoringSettings.Instance.modulesUpperLeft)
             {
                 if (module == null) continue;
-                ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.GUIElementPrefab, CanvasBehaviour.UpperLeft), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.CanvasElementPrefab, CanvasBehaviour.UpperLeft), module);
             }
             foreach (var module in MonitoringSettings.Instance.modulesUpperRight)
             {
                 if (module == null) continue;
-                ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.GUIElementPrefab, CanvasBehaviour.UpperRight), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.CanvasElementPrefab, CanvasBehaviour.UpperRight), module);
             }
             foreach (var module in MonitoringSettings.Instance.modulesLowerLeft)
             {
                 if (module == null) continue;
-                ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.GUIElementPrefab, CanvasBehaviour.LowerLeft), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.CanvasElementPrefab, CanvasBehaviour.LowerLeft), module);
             }
             foreach (var module in MonitoringSettings.Instance.modulesLowerRight)
             {
                 if (module == null) continue;
-                ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.GUIElementPrefab, CanvasBehaviour.LowerRight), module);
+                ModuleCanvasElement.CreateComponent(Instantiate(MonitoringSettings.Instance.CanvasElementPrefab, CanvasBehaviour.LowerRight), module);
             }
         }
         
@@ -201,7 +227,7 @@ namespace Ganymed.Monitoring.Core
                 }
                 else
                 {
-                    Instantiate(MonitoringSettings.Instance.GUIObjectPrefab);
+                    Instantiate(MonitoringSettings.Instance.CanvasPrefab);
                     if(MonitoringSettings.Instance.enableWarnings)
                         Debug.Log("Canvas instance was not valid! New instance instantiated!" +
                                   "(You can toggle this message in the monitoring configuration)");

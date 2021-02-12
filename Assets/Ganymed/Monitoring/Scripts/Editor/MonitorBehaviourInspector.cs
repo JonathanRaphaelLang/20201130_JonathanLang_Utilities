@@ -1,12 +1,13 @@
 ﻿using Ganymed.Monitoring.Configuration;
 using Ganymed.Monitoring.Core;
+using Ganymed.Utils.Editor;
 using UnityEditor;
 using UnityEngine;
 
 namespace Ganymed.Monitoring.Editor
 {
     [CustomEditor(typeof(MonitoringBehaviour))]
-    public class MonitorBehaviourInspector : UnityEditor.Editor
+    public class MonitorBehaviourInspector : CleanEditor
     {
         private MonitoringBehaviour Target = null;
         private void OnEnable()
@@ -14,9 +15,11 @@ namespace Ganymed.Monitoring.Editor
             Target = (MonitoringBehaviour) target;
         }
 
-        public override void OnInspectorGUI()
+        protected override void OnBeforeDefaultInspector() => EditorGUILayout.Space();
+
+        protected override void OnAfterDefaultInspector()
         {
-            if (GUILayout.Button("Edit Settings"))
+            if (GUILayout.Button("Edit Monitoring Settings"))
             {
                 MonitoringSettings.EditSettings();
             }

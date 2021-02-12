@@ -662,6 +662,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moduleText: {fileID: 3876159016720381007}
   background: {fileID: 3876159015935912226}
+  image: {fileID: 3876159015935912226}
   scaleTarget: {fileID: 3876159016720381006}
   scaleRoot: {fileID: 3876159015935912224}
   sizeDisplayTextField: {fileID: 5278234891971295626}

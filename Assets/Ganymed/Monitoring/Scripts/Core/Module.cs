@@ -11,6 +11,9 @@ using UnityEngine;
 
 namespace Ganymed.Monitoring.Core
 {
+    /// <summary>
+    /// Base class for Monitoring Modules
+    /// </summary>
     public abstract class Module : ScriptableObject, IState
     {
         #region --- [INSPECTOR] ---
@@ -42,7 +45,7 @@ namespace Ganymed.Monitoring.Core
      
 
         [Header("Warnings")]
-        [Tooltip("If enabled, custom warnings will (can) be logged")]
+        [Tooltip("When enabled custom warnings will (can) be logged")]
         [SerializeField] private bool enableWarnings = true;
        
         
@@ -91,11 +94,7 @@ namespace Ganymed.Monitoring.Core
         #region --- [PROTECTED PROPERTIES] ---
 
         private bool UseAndHasCustomStyle => useCustomStyle && customStyle != null;
-        protected bool UseCustomStyle => useCustomStyle;
-
-        protected Style CustomStyle => customStyle;
-        
-
+       
         protected bool OnlyInitializeWhenInScene => onlyInitializeWhenInScene;
         
         private protected bool EnableWarnings => enableWarnings;

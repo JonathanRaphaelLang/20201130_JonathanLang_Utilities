@@ -40,9 +40,9 @@ namespace Ganymed.Console.GUIElements
 
         #region --- [SUBSCRIPTIONS] ---
 
-        private void OnEnable() => Core.Console.OnConsoleRenderSettingsUpdate += UpdateRenderSettings;
-        private void OnDisable() => Core.Console.OnConsoleRenderSettingsUpdate -= UpdateRenderSettings;
-        private void OnDestroy() => Core.Console.OnConsoleRenderSettingsUpdate -= UpdateRenderSettings;
+        private void OnEnable() => Core.Console.OnConsoleRenderSettingsUpdateCallback += UpdateRenderSettings;
+        private void OnDisable() => Core.Console.OnConsoleRenderSettingsUpdateCallback -= UpdateRenderSettings;
+        private void OnDestroy() => Core.Console.OnConsoleRenderSettingsUpdateCallback -= UpdateRenderSettings;
 
         private void UpdateRenderSettings(bool renderContentOnDrag, bool renderContentOnScale)
             => disableOnScale = !renderContentOnScale;

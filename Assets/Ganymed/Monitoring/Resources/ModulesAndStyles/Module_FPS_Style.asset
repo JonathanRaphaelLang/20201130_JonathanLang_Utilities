@@ -15,12 +15,12 @@ MonoBehaviour:
   fontSize: 8
   individualFontSize: 1
   prefixFontSize: 11
-  infixFontSize: 24
+  infixFontSize: 18
   suffixFontSize: 8
   individualMargins: 1
   marginsAll: 2
   marginLeft: 2
-  marginTop: 4
+  marginTop: 3
   marginRight: 4
   marginBottom: 2
   alignment: 257
@@ -31,6 +31,6 @@ MonoBehaviour:
   infixTextStyle: 
   suffixTextStyle: 
   colorBackground: {r: 0.019607844, g: 0.02745098, b: 0.06666667, a: 0.9019608}
-  prefixColor: {r: 0.7294118, g: 0.7294118, b: 0.7294118, a: 1}
+  prefixColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
   infixColor: {r: 1, g: 1, b: 1, a: 1}
   suffixColor: {r: 0.7294118, g: 0.7294118, b: 0.7294118, a: 1}

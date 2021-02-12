@@ -117,6 +117,7 @@ namespace Ganymed.Monitoring.Core
                 
                 OnAnyStateChanged?.Invoke(IsEnabled, IsActive, IsVisible);
                 OnVisibilityStateChanged?.Invoke(value);
+                MonitoringBehaviour.InvokeCallbacks(value);
 
                 try
                 {

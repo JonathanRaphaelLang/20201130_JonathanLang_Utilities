@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92372981f059f684bb2a77b3cceabf3c, type: 3}
   m_Name: MonitoringSettings
   m_EditorClassIdentifier: 
-  style: {fileID: 11400000, guid: cab8bf19bf327d04e97b3b861528643e, type: 2}
   active: 1
   automateCanvasState: 1
   openCanvasOnEnterPlay: 1
@@ -35,7 +34,6 @@ MonoBehaviour:
   colorBottomRight: {r: 0.69, g: 0.64, b: 1, a: 1}
   modulesUpperLeft:
   - {fileID: 11400000, guid: b641334507dabb147801144033263e18, type: 2}
-  - {fileID: 11400000, guid: 4b87b541cdfaa304d91721c1c85dd150, type: 2}
   modulesUpperRight:
   - {fileID: 11400000, guid: ed0be4637454d98468c7f1f050b10645, type: 2}
   - {fileID: 11400000, guid: 1dde403291c082f449fe7cf8a61830d6, type: 2}
@@ -45,8 +43,9 @@ MonoBehaviour:
   modulesLowerRight:
   - {fileID: 11400000, guid: 478811b8f61f75146a43b1c20cc49db0, type: 2}
   - {fileID: 11400000, guid: 966511edd97915a47a4128e40df8199a, type: 2}
-  GUIElementPrefab: {fileID: 3876159015935912231, guid: ead3b594570348d4cbfe485c4b9bde12,
+  showReferences: 1
+  canvasElementPrefab: {fileID: 3876159015935912231, guid: ead3b594570348d4cbfe485c4b9bde12,
     type: 3}
-  GUIObjectPrefab: {fileID: 3765565696045478534, guid: 9c8c71a648e504d41988f0f39db4bc98,
+  canvasPrefab: {fileID: 3765565696045478534, guid: 9c8c71a648e504d41988f0f39db4bc98,
     type: 3}
-  showReferences: 0
+  style: {fileID: 11400000, guid: cab8bf19bf327d04e97b3b861528643e, type: 2}

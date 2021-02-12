@@ -1,6 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
+using Ganymed.Utils.Helper;
 using UnityEngine;
 
 namespace Ganymed.Utils.Singleton
@@ -46,6 +45,15 @@ namespace Ganymed.Utils.Singleton
                 instance = Resources.Load(SettingsAssetName) as T;
                 if (instance == null)
                 {
+#if UNITY_EDITOR
+
+                    if (AssetImportHelper.IsImporting)
+                    {
+                        isInitializing = false;
+                        return null;
+                    }
+#endif
+                    
                     Debug.LogWarning($"Cannot find {typeof(T).Name} file, creating default settings");
                         
                     instance = CreateInstance<T>();

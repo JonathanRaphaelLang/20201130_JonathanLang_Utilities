@@ -12,17 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9fcd8557096ed84294735612c166c25, type: 3}
   m_Name: ConsoleSettings
   m_EditorClassIdentifier: 
-  active: 1
+  enabled: 1
+  active: 0
   commandPrefix: /
   infoOperator: '?'
   enablePreProcessing: 1
   enableNBP: 1
   limitMessageCache: 1
-  messageCacheSize: 20
+  messageCacheSize: 100
   inputCacheSize: 20
   logLoadedCommandsOnStart: 1
-  activateConsoleOnStart: 1
-  enableCursorOnActivation: 1
+  activateConsoleOnStart: 0
+  enableCursorOnActivation: 0
   logConfigurationOnStart: 0
   logTimeOnInput: 1
   bindConsoles: 1

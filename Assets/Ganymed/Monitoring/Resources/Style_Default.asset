@@ -12,17 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c150eba2b4df96447bd66874373553fb, type: 3}
   m_Name: Style_Default
   m_EditorClassIdentifier: 
-  fontSize: 11
+  fontSize: 8
   individualFontSize: 0
   prefixFontSize: 11
   infixFontSize: 11
   suffixFontSize: 11
-  individualMargins: 0
-  marginsAll: 5
-  marginLeft: 5
-  marginTop: 5
-  marginRight: 5
-  marginBottom: 5
+  individualMargins: 1
+  marginsAll: 2
+  marginLeft: 2
+  marginTop: 2
+  marginRight: 2
+  marginBottom: 1
   alignment: 257
   autoBrackets: 1
   autoSpace: 1
@@ -30,7 +30,7 @@ MonoBehaviour:
   prefixTextStyle: 
   infixTextStyle: 
   suffixTextStyle: 
-  colorBackground: {r: 0.05, g: 0.05, b: 0.11, a: 1}
+  colorBackground: {r: 0.019607844, g: 0.02745098, b: 0.06666667, a: 0.9019608}
   prefixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}
-  infixColor: {r: 1, g: 1, b: 1, a: 1}
+  infixColor: {r: 0.8207203, g: 0.80731577, b: 0.8867924, a: 1}
   suffixColor: {r: 0.52, g: 0.53, b: 0.84, a: 1}

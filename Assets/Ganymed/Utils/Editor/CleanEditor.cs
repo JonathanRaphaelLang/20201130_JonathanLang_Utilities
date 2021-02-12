@@ -4,13 +4,18 @@
     {
         private static readonly string[] Exclude = new string[]{"m_Script"};
          
-        public override void OnInspectorGUI()
+        public sealed override void OnInspectorGUI()
         {
             serializedObject.Update();
             OnBeforeDefaultInspector();
-            DrawPropertiesExcluding(serializedObject, Exclude);
+            OnDefaultInspector();
             OnAfterDefaultInspector();
             serializedObject.ApplyModifiedProperties();
+        }
+
+        protected virtual void OnDefaultInspector()
+        {
+            DrawPropertiesExcluding(serializedObject, Exclude);
         }
     
         protected virtual void OnBeforeDefaultInspector()
